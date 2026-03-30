@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #774aa5 100%);
 }
 
 .app-container {
@@ -144,3 +144,121 @@
   display: flex;
   gap: 0.75rem;
 }
+
+/* Login styles */
+.screen {
+  width: min(420px, 90vw);
+  padding: 2rem 2.25rem;
+  margin: 2rem auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 20px 45px rgba(16, 24, 40, 0.25);
+  color: #1f2937;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.screen .logo {
+  width: 3.2rem;
+  height: 3.2rem;
+  line-height: 3.2rem;
+  border-radius: 50%;
+  text-align: center;
+  font-weight: 900;
+  font-size: 1.2rem;
+  margin: 0 auto 1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.screen h1 {
+  margin: 0 0 1.25rem;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.screen form {
+  display: grid;
+  gap: 1rem;
+}
+
+.input-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.input-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.input-group input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  font-size: 1rem;
+  color: #111827;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.45);
+}
+
+.screen p {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #4b5563;
+}
+
+.screen p a {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.screen p a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 550px) {
+  .screen {
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+
+  .screen h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-primary {
+    padding: 0.8rem;
+  }
+}
+
