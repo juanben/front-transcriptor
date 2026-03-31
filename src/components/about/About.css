@@ -1,0 +1,8 @@
+span {
+        display: 'block';
+        marginTop: '25px'; 
+        marginBottom: '20px'; 
+        fontWeight: '600';
+        fontStyle: 'italic';
+        color: '#2c3e50'
+}
