@@ -1,0 +1,167 @@
+.room-sessions-header {
+  padding: 1.5rem 1.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.btn-admit-all {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-admit-all:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+}
+
+.waitlist-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.waitlist-card {
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.waitlist-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
+
+.user-avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: #e0e7ff;
+  color: #4f46e5;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0; /* Previene que el texto se salga de la tarjeta si es muy largo */
+}
+
+.user-info h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  color: #111827;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-admit {
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #111827;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-admit:hover {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.empty-waitlist {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  color: #9ca3af;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.empty-waitlist p {
+  font-size: 1.15rem;
+  font-style: italic;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .waitlist-card {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: #4b5563;
+  }
+
+  .user-avatar {
+    background-color: #3730a3;
+    color: #e0e7ff;
+  }
+
+  .user-info h3 {
+    color: #f9fafb;
+  }
+
+  .user-info p {
+    color: #9ca3af;
+  }
+
+  .btn-admit {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+
+  .btn-admit:hover {
+    background-color: #059669;
+    border-color: #059669;
+    color: white;
+  }
+}
+
+@media (max-width: 500px) {
+  .waitlist-card {
+    flex-wrap: wrap;
+  }
+
+  .btn-admit {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}

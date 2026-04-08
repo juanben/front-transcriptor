@@ -8,7 +8,7 @@ const SignUp: React.FC = () => {
       <form>
           <div className="input-group">
           <label >Nombre de Usuario</label>
-          <input id="email" placeholder="nombre" />
+          <input id="username" placeholder="nombre" />
         </div>
         <div className="input-group">
           <label htmlFor="email">Correo Electrónico</label>

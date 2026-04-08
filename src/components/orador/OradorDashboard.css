@@ -1,0 +1,402 @@
+.dashboard-screen {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 50;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.welcome-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.btn-home-icon {
+  background: #e5e7eb;
+  border: none;
+  color: #111827;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-home-icon:hover {
+  background: #d1d5db;
+}
+
+.info-banner {
+  background-color: rgba(99, 102, 241, 0.05);
+  padding: 1rem 2rem;
+  border-top: 1px solid rgba(99, 102, 241, 0.15);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+  text-align: center;
+}
+
+.info-banner p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4f46e5;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Scrollbar */
+.dashboard-content::-webkit-scrollbar { width: 6px; }
+.dashboard-content::-webkit-scrollbar-track { background: transparent; }
+.dashboard-content::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  height: 2.5rem; /* Fixed height to prevent jumping when toggling search */
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  color: #111827;
+  margin: 0;
+}
+
+.btn-search {
+  background: transparent;
+  border: none;
+  color: #111827;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-search:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.search-bar-container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #111827;
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.btn-close-search {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-close-search:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.calendar-widget {
+  margin-bottom: 1.5rem;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.cal-range {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.btn-cal-nav {
+  background: transparent;
+  border: none;
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+}
+
+.calendar-days {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+}
+
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.cal-day:hover {
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.cal-day.selected {
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
+.cal-day.selected span {
+  color: #4f46e5;
+}
+
+.selected-date-header {
+  background-color: transparent;
+  padding: 0.75rem 0;
+  margin: 0 0 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.selected-date-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.sort-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.btn-sort {
+  background: transparent;
+  border: none;
+  color: #111827;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 5rem;
+}
+
+.session-card {
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.session-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+}
+
+.session-icon {
+  width: 3rem;
+  height: 3rem;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+}
+
+.session-info {
+  flex: 1;
+}
+
+.session-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.skeleton-line {
+  height: 6px;
+  background-color: #d1d5db;
+  border-radius: 4px;
+}
+
+.skeleton-line.long { width: 80%; }
+.skeleton-line.short { width: 50%; }
+
+.session-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-dots, .btn-bell {
+  background: transparent;
+  border: none;
+  color: #111827;
+  cursor: pointer;
+  padding: 0;
+}
+
+.session-date-text {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  z-index: 20;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.dropdown-menu button {
+  background: transparent;
+  border: none;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.dropdown-menu button:hover {
+  background-color: #f3f4f6;
+}
+
+.dropdown-menu button.delete-option {
+  color: #ef4444;
+}
+
+.dropdown-menu button.delete-option:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.fab-button {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+  transition: transform 0.2s;
+  z-index: 10;
+}
+
+.fab-button:hover {
+  transform: scale(1.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dashboard-screen { background: rgba(31, 41, 55, 0.95); color: #f3f4f6; }
+  .welcome-text, .section-header h2, .cal-range, .cal-day, .selected-date-header h3, .btn-sort, .session-info h3 { color: #f3f4f6; }
+  .cal-day.selected span { color: #818cf8; }
+  .btn-home-icon { background: #374151; color: #f3f4f6; }
+  .info-banner { background-color: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.2); }
+  .info-banner p { color: #818cf8; }
+  .selected-date-header { border-bottom-color: #374151; }
+  .session-card { background: rgba(31, 41, 55, 0.8); border-color: #4b5563; }
+  .session-icon { background-color: #4b5563; border-color: #6b7280; }
+  .btn-search, .btn-cal-nav, .btn-sort, .btn-dots, .btn-bell { color: #f3f4f6; }
+  .skeleton-line { background-color: #4b5563; }
+  .session-date-text { color: #9ca3af; }
+  .dropdown-menu { background: #1f2937; border-color: #4b5563; }
+  .dropdown-menu button { color: #f3f4f6; }
+  .dropdown-menu button:hover { background-color: #374151; }
+  .dropdown-menu button.delete-option:hover { background-color: rgba(239, 68, 68, 0.15); }
+}

@@ -16,7 +16,7 @@ const Login: React.FC = () => {
         </div>
         <button type="submit" className="btn-primary">→ Iniciar sesión</button>
       </form>
-      <p>¿No tienes cuenta? <a href="signup">Regístrate</a></p>
+      <p>¿No tienes cuenta? <a href="signup">Regístrate</a> | <a href="about">Acerca de</a></p>
     </div>
   );
 };

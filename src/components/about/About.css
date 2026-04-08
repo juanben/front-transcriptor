@@ -1,8 +1,15 @@
 span {
-        display: 'block';
-        marginTop: '25px'; 
-        marginBottom: '20px'; 
-        fontWeight: '600';
-        fontStyle: 'italic';
-        color: '#2c3e50'
+  display: block;
+  margin-top: 25px; 
+  margin-bottom: 20px; 
+  font-weight: 600;
+  font-style: italic;
+  color: #2c3e50;
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  span {
+    color: #9ca3af;
+  }
 }

@@ -1,0 +1,115 @@
+.new-session-screen {
+  width: 100vw;
+  height: 100vh;
+  padding: 3rem;
+  margin: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.new-session-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 3rem;
+}
+
+.new-session-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.new-session-form .input-group label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.new-session-form .input-group input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 1rem;
+  color: #111827;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  transition: all 0.2s ease;
+}
+
+.new-session-form .input-group input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+}
+
+.new-session-form .input-group input::placeholder {
+  color: #9ca3af;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-guardar, .btn-cancelar {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-guardar {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+}
+
+.btn-guardar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.45);
+}
+
+.btn-cancelar {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-cancelar:hover {
+  background-color: #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .new-session-screen { background: rgba(31, 41, 55, 0.95); }
+  .new-session-title { color: #f9fafb; }
+  .new-session-form .input-group label { color: #d1d5db; }
+  .new-session-form .input-group input { 
+    background-color: rgba(31, 41, 55, 0.8);
+    border-color: #4b5563; 
+    color: #f9fafb; 
+  }
+  .btn-cancelar { background-color: #374151; color: #f3f4f6; border-color: #4b5563; }
+  .btn-cancelar:hover { background-color: #4b5563; }
+}
