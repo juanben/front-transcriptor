@@ -5,10 +5,10 @@ import './OradorDashboard.css';
 import './RoomSessions.css';
 
 const mockSessions: RecordingSession[] = [
-  { id: '1', title: 'Clase de Introducción', date: '2026-04-07', duration: '45:00', isVisible: true, isProcessing: false},
-  { id: '2', title: 'Entrevista de Usuario', date: '2026-04-06', duration: '30:20', isVisible: false, isProcessing: true },
-  { id: '3', title: 'Grabación en curso', date: '2026-04-08', duration: '12:05', isVisible: false, isProcessing: true },
-  { id: '4', title: 'Reunión Semanal', date: '2026-04-05', duration: '1:15:00', isVisible: true, isProcessing: true },
+  { id: '1', title: 'Clase de Introducción', date: '2026-04-07', duration: '45:00', isVisible: true, isProcessing: false, isSharable: true },
+  { id: '2', title: 'Entrevista de Usuario', date: '2026-04-06', duration: '30:20', isVisible: false, isProcessing: true, isSharable: false },
+  { id: '3', title: 'Grabación en curso', date: '2026-04-08', duration: '12:05', isVisible: false, isProcessing: true, isSharable: false },
+  { id: '4', title: 'Reunión Semanal', date: '2026-04-05', duration: '1:15:00', isVisible: true, isProcessing: true, isSharable: true },
 ];
 
 const RoomSessions: React.FC = () => {
@@ -16,6 +16,10 @@ const RoomSessions: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [sessions, setSessions] = useState<RecordingSession[]>(mockSessions);
   const [activeTab, setActiveTab] = useState<'Todos' | 'Publicado' | 'Invisible' | 'Procesando'>('Todos');
+
+  const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  const [showResourceModal, setShowResourceModal] = useState<string | null>(null);
+  const [resourceLink, setResourceLink] = useState('');
 
   const filteredSessions = sessions.filter(session => {
     switch (activeTab) {
@@ -26,8 +30,29 @@ const RoomSessions: React.FC = () => {
     }
   });
 
-  const handleToggleVisibility = (id: string, newVisibility: boolean) => {
-    setSessions(prev => prev.map(s => s.id === id ? { ...s, isVisible: newVisibility } : s));
+  const handleToggleVisibility = (sessionId: string, newVisibility: boolean) => {
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, isVisible: newVisibility } : s));
+  };
+
+  const handleToggleShare = (sessionId: string, newSharable: boolean) => {
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, isSharable: newSharable } : s));
+  };
+
+  const confirmDelete = () => {
+    if (showDeleteModal) {
+      setSessions(sessions.filter(s => s.id !== showDeleteModal));
+      setShowDeleteModal(null);
+    }
+  };
+
+  const openResourceModal = (sessionId: string) => {
+    setShowResourceModal(sessionId);
+    setResourceLink(''); // Could prepopulate if session had a link
+  };
+
+  const saveResourceLink = () => {
+    // Aquí iría la lógica para enviar el enlace al backend
+    setShowResourceModal(null);
   };
 
   return (
@@ -69,7 +94,7 @@ const RoomSessions: React.FC = () => {
         <div className="new-recording-section">
           <button 
             className="btn-new-recording"
-            onClick={() => navigate('/testRec')}
+            onClick={() => navigate(`/sala/${id || 'default'}/nombre-sesion`)}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -110,8 +135,10 @@ const RoomSessions: React.FC = () => {
                 session={session}
                 onClick={() => navigate(`/sala/${id}/sesion/${session.id}`)}
                 onClickPlay={() => navigate(`/sala/${id}/sesion/${session.id}`)}
-                onComplementaryResource={() => console.log('Recurso complementario para', session.title)}
+                onComplementaryResource={() => openResourceModal(session.id)}
                 onToggleVisibility={handleToggleVisibility}
+                onToggleShare={handleToggleShare}
+                onDelete={(sessionId) => setShowDeleteModal(sessionId)}
               />
             ))
           ) : (
@@ -121,6 +148,42 @@ const RoomSessions: React.FC = () => {
           )}
         </div>
       </main>
+
+      {showDeleteModal && (
+        <div className="modal-overlay" onClick={() => setShowDeleteModal(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">Eliminar grabación</h3>
+            <p className="modal-text">¿Estás seguro de que deseas eliminar esta grabación de la sala? Esta acción no se puede deshacer.</p>
+            <div className="modal-actions">
+              <button className="btn-modal-cancel" onClick={() => setShowDeleteModal(null)}>Cancelar</button>
+              <button className="btn-modal-submit" style={{ background: '#ef4444', boxShadow: 'none' }} onClick={confirmDelete}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showResourceModal && (
+        <div className="modal-overlay" onClick={() => setShowResourceModal(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">Recurso Complementario</h3>
+            <p className="modal-text">Añade o edita el enlace al recurso complementario (ej. Google Drive, OneDrive) para esta grabación.</p>
+            <input 
+              type="text" 
+              className="modal-input" 
+              placeholder="https://..." 
+              value={resourceLink}
+              onChange={(e) => setResourceLink(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && saveResourceLink()}
+              style={{ textTransform: 'none' }}
+              autoFocus
+            />
+            <div className="modal-actions">
+              <button className="btn-modal-cancel" onClick={() => setShowResourceModal(null)}>Cancelar</button>
+              <button className="btn-modal-submit" onClick={saveResourceLink}>Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

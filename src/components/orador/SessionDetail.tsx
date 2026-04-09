@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import './OradorDashboard.css';
-import './RoomSessions.css';
 import './SessionDetail.css';
 
 const SessionDetail: React.FC = () => {
@@ -25,7 +23,7 @@ const SessionDetail: React.FC = () => {
           </button>
           <button 
             className="btn-home-icon" 
-            onClick={() => navigate('/home')} 
+            onClick={() => navigate(`/home/${sessionId}`)} 
             title="Ir a Home"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">

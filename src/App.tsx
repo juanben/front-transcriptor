@@ -8,6 +8,7 @@ function App() {
   const [audioURL, setAudioURL] = useState<string>('')
   const [recordingTime, setRecordingTime] = useState(0)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const [showErrorModal, setShowErrorModal] = useState(false)
 
   const startRecording = async () => {
     try {
@@ -39,7 +40,7 @@ function App() {
       }, 1000)
     } catch (error) {
       console.error('Error al acceder al micrófono:', error)
-      alert('No se pudo acceder al micrófono. Verifica los permisos.')
+      setShowErrorModal(true)
     }
   }
 
@@ -127,6 +128,18 @@ function App() {
           </div>
         )}
       </div>
+
+      {showErrorModal && (
+        <div className="modal-overlay" onClick={() => setShowErrorModal(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">Error de Micrófono</h3>
+            <p className="modal-text">No se pudo acceder al micrófono. Por favor, verifica que esté conectado y que hayas concedido los permisos necesarios en tu navegador.</p>
+            <div className="modal-actions" style={{ justifyContent: 'center' }}>
+              <button className="btn btn-record" style={{ width: '100%' }} onClick={() => setShowErrorModal(false)}>Entendido</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

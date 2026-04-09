@@ -8,6 +8,7 @@ export interface RecordingSession {
   duration: string;
   isVisible: boolean;
   isProcessing?: boolean;
+  isSharable?: boolean;
 }
 
 interface SessionCardProps {
@@ -16,6 +17,9 @@ interface SessionCardProps {
   onClick?: () => void;
   onComplementaryResource?: () => void;
   onToggleVisibility?: (id: string, newVisibility: boolean) => void;
+  onToggleShare?: (id: string, newShareable: boolean) => void;
+  onDelete?: (id: string) => void;
+  isEspectador?: boolean;
 }
 
 const SessionCard: React.FC<SessionCardProps> = ({
@@ -23,12 +27,17 @@ const SessionCard: React.FC<SessionCardProps> = ({
   onClickPlay,
   onClick,
   onComplementaryResource,
-  onToggleVisibility
+  onToggleVisibility,
+  onToggleShare,
+  onDelete,
+  isEspectador = false
 }) => {
   const [isVisible, setIsVisible] = useState(session.isVisible);
+  const [isSharable, setIsSharable] = useState(session.isSharable ?? false);
 
   const handleToggleVisibility = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isEspectador) return;
     const newVisibility = !isVisible;
     setIsVisible(newVisibility);
     if (onToggleVisibility) {
@@ -36,8 +45,17 @@ const SessionCard: React.FC<SessionCardProps> = ({
     }
   };
 
+  const handleToggleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isEspectador) return;
+    const newSharable = !isSharable;
+    setIsSharable(newSharable);
+    if (onToggleShare) {
+      onToggleShare(session.id, newSharable);
+    }
+  };
+
   const handleCardClick = () => {
-    // Al hacer clic en el fondo de la tarjeta ejecutamos la navegación
     if (onClick) {
       onClick();
     }
@@ -75,29 +93,80 @@ const SessionCard: React.FC<SessionCardProps> = ({
           Recurso complementario
         </button>
 
-        <button 
-          className={`btn-visibility ${isVisible ? 'visible' : 'hidden'}`} 
-          onClick={handleToggleVisibility}
-          title={isVisible ? "Hacer no visible" : "Hacer visible"}
-        >
-          {isVisible ? (
+        <div className="action-buttons-row" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end', width: '100%' }}>
+          {!isEspectador && (
             <>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <span>Visible</span>
-            </>
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
-              <span>No visible</span>
+              <button 
+                className={`btn-visibility ${isSharable ? 'visible' : 'hidden'}`} 
+                onClick={handleToggleShare}
+                title={isSharable ? "No permitir compartir" : "Permitir compartir"}
+              >
+                {isSharable ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="18" cy="5" r="3"></circle>
+                      <circle cx="6" cy="12" r="3"></circle>
+                      <circle cx="18" cy="19" r="3"></circle>
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                    <span>Compartible</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>No compartible</span>
+                  </>
+                )}
+              </button>
+
+              <button 
+                className={`btn-visibility ${isVisible ? 'visible' : 'hidden'}`} 
+                onClick={handleToggleVisibility}
+                title={isVisible ? "Hacer no visible" : "Hacer visible"}
+              >
+                {isVisible ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Visible</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                    <span>No visible</span>
+                  </>
+                )}
+              </button>
             </>
           )}
-        </button>
+
+          {onDelete && (
+            <button 
+              className="btn-visibility hidden" 
+              style={{ color: '#ef4444' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(session.id);
+              }}
+              title="Eliminar sesión"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span>Eliminar</span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
