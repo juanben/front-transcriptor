@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UserMenu from '../common/UserMenu';
 import './OradorDashboard.css';
 import './RoomSessions.css';
 import './Waitlist.css';
@@ -44,15 +45,18 @@ const Waitlist: React.FC = () => {
             </svg>
             Volver
           </button>
-          <button 
-            className="btn-home-icon" 
-            onClick={() => navigate('/home')} 
-            title="Ir a Home"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <UserMenu />
+            <button 
+              className="btn-home-icon" 
+              onClick={() => navigate('/home')} 
+              title="Ir a Home"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="room-title-row" style={{ marginTop: '1rem' }}>

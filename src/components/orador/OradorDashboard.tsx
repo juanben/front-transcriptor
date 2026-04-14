@@ -1,80 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './OradorDashboard.css';
 import RoomCard, { type Session } from '../common/RoomCard';
-
-// Funciones auxiliares para el calendario
-const getWeekDays = (currentDate: Date) => {
-  const date = new Date(currentDate);
-  const day = date.getDay(); // 0 es Domingo, 1 es Lunes
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Ajustar cuando el día es domingo
-  const monday = new Date(date.setDate(diff));
-  
-  const week = [];
-  for (let i = 0; i < 7; i++) {
-    const nextDate = new Date(monday);
-    nextDate.setDate(monday.getDate() + i);
-    week.push(nextDate);
-  }
-  return week;
-};
-
-const getMonthNameShort = (date: Date) => {
-  const str = date.toLocaleDateString('es-ES', { month: 'short' });
-  return str.replace('.', '');
-};
-
-const getDayNameShort = (date: Date) => {
-  const name = date.toLocaleDateString('es-ES', { weekday: 'short' });
-  return name.charAt(0).toUpperCase() + name.slice(1, 3).replace('.', '');
-};
-
-const getFullDateString = (date: Date) => {
-  return date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-};
-
-const formatDateForFilter = (date: Date) => {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-};
+import UserMenu from '../common/UserMenu';
+import { userService } from '../../services/user/userService';
+import { roomService } from '../../services/room/roomService';
 
 const OradorDashboard: React.FC = () => {
   const navigate = useNavigate();
-  // Estado para manejar la fecha seleccionada del calendario
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showAllRooms, setShowAllRooms] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  
+  // Nuevo estado para ordenamiento
+  const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
 
-  // Sesiones de prueba, incluyendo algunas para el día de "hoy" (cuando se abra)
-  const [sessions, setSessions] = useState<Session[]>([
-    { id: '1', title: 'Reunion...', date: formatDateForFilter(new Date()) },
-    { id: '2', title: '', date: formatDateForFilter(new Date()) },
-    { id: '3', title: 'Entrevista de Trabajo', date: formatDateForFilter(new Date(new Date().setDate(new Date().getDate() + 1))) },
-    { id: '4', title: '', date: formatDateForFilter(new Date(new Date().setDate(new Date().getDate() - 1))) },
-  ]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handlePrevWeek = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() - 7);
-    setSelectedDate(newDate);
-  };
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
-  const handleNextWeek = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + 7);
-    setSelectedDate(newDate);
-  };
+      try {
+        const user = await userService.getUserMe(token);
+        const data = await roomService.getUserRooms(user.email);
+        
+        const mappedSessions: Session[] = data.rooms.map(room => ({
+          id: room._id,
+          title: room.name,
+          date: room.created_at.split('T')[0] // Format: YYYY-MM-DD
+        }));
+        
+        setSessions(mappedSessions);
+      } catch (error) {
+          if (error instanceof Error)
+            {
+              setErrorMsg(error.message || 'Error al cargar las salas.');
+            }
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleDateSelect = (day: Date) => {
-    setSelectedDate(day);
-    setShowAllRooms(false);
-  };
+    fetchRooms();
+  }, [navigate]);
 
   const handleEdit = (session: Session) => {
     navigate('/nueva-sesion', { state: { isEdit: true, sessionName: session.title, sessionId: session.id } });
@@ -90,37 +66,42 @@ const OradorDashboard: React.FC = () => {
     setShowDeleteModal(id);
   };
 
-  const weekDays = getWeekDays(selectedDate);
-  const weekStart = weekDays[0];
-  const weekEnd = weekDays[6];
-  
-  const dateRangeStr = `${getMonthNameShort(weekStart)} ${weekStart.getDate()} - ${getMonthNameShort(weekEnd)} ${weekEnd.getDate()}`;
-  const selectedDateStr = getFullDateString(selectedDate);
+  const toggleSort = () => {
+    setSortBy(prev => prev === 'recent' ? 'alphabetical' : 'recent');
+  };
 
-  // Filtramos las sesiones basadas en el día seleccionado o la búsqueda
-  const filteredSessions = sessions.filter(session => {
-    if (isSearching && searchQuery) {
-      return session.title.toLowerCase().includes(searchQuery.toLowerCase());
-    }
-    if (showAllRooms) {
+  const filteredSessions = sessions
+    .filter(session => {
+      if (isSearching && searchQuery) {
+        return session.title.toLowerCase().includes(searchQuery.toLowerCase());
+      }
       return true;
-    }
-    return session.date === formatDateForFilter(selectedDate);
-  });
+    })
+    .sort((a, b) => {
+      if (sortBy === 'alphabetical') {
+        return a.title.localeCompare(b.title);
+      } else {
+        // recent (por fecha descendente)
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+    });
 
   return (
     <div className="dashboard-screen">
       <header className="dashboard-header">
-        <h1 className="welcome-text">Bienvenido</h1>
-        <button 
-          className="btn-home-icon" 
-          onClick={() => navigate('/home')} 
-          title="Volver a Home"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-          </svg>
-        </button>
+        <h1 className="welcome-text">Bienvenido orador</h1>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <UserMenu />
+          <button 
+            className="btn-home-icon" 
+            onClick={() => navigate('/home')} 
+            title="Volver a Home"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </button>
+        </div>
       </header>
 
       <div className="info-banner">
@@ -159,88 +140,10 @@ const OradorDashboard: React.FC = () => {
           )}
         </div>
         
-        <div className="calendar-widget">
-          <div className="calendar-header">
-            <button className="btn-cal-nav" onClick={handlePrevWeek}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-            <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.2s' }} className="cal-range-container">
-              <span className="cal-range" style={{ pointerEvents: 'none' }}>{dateRangeStr}</span>
-              <input 
-                type="month" 
-                value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`}
-                style={{ 
-                  position: 'absolute', 
-                  top: 0, left: 0, right: 0, bottom: 0, 
-                  width: '100%', height: '100%', 
-                  opacity: 0, 
-                  cursor: 'pointer',
-                  fontSize: '1.5rem', // Attempt to make the native picker larger on some platforms
-                  zIndex: 10
-                }}
-                onClick={(e) => {
-                  try {
-                    (e.target as HTMLInputElement).showPicker();
-                  } catch (err) {
-                    // Fallback
-                  }
-                }}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    const [year, month] = e.target.value.split('-');
-                    handleDateSelect(new Date(parseInt(year), parseInt(month) - 1, 1));
-                  }
-                }}
-              />
-            </div>
-            <button className="btn-cal-nav" onClick={handleNextWeek}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
-          </div>
-          <div className="calendar-days">
-            {weekDays.map((day, index) => {
-              const isSelected = !showAllRooms && formatDateForFilter(day) === formatDateForFilter(selectedDate);
-              return (
-                <div 
-                  key={index} 
-                  className={`cal-day ${isSelected ? 'selected' : ''}`}
-                  onClick={() => handleDateSelect(day)}
-                >
-                  <span>{getDayNameShort(day)}</span>
-                  <span>{day.getDate()}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="selected-date-header">
-          <h3 style={{ textTransform: 'capitalize', margin: 0 }}>
-            {showAllRooms ? 'Todas las salas' : selectedDateStr}
-          </h3>
-        </div>
-
-        <div className="sort-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button 
-            onClick={() => setShowAllRooms(true)}
-            style={{ 
-              background: showAllRooms ? '#e0e7ff' : '#f3f4f6', 
-              border: showAllRooms ? '1px solid #818cf8' : '1px solid #d1d5db', 
-              color: showAllRooms ? '#4f46e5' : '#374151', 
-              fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
-              padding: '0.4rem 1.2rem', borderRadius: '20px',
-              transition: 'all 0.2s'
-            }}
-          >
-            Todos
-          </button>
-          <button className="btn-sort">
-            Ordenar por 
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="sort-section" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <button className="btn-sort" onClick={toggleSort}>
+            Ordenar por: {sortBy === 'recent' ? 'Más recientes' : 'Alfabético'} 
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '4px' }}>
               <line x1="4" y1="6" x2="20" y2="6"></line>
               <line x1="4" y1="12" x2="14" y2="12"></line>
               <line x1="4" y1="18" x2="8" y2="18"></line>
@@ -249,7 +152,15 @@ const OradorDashboard: React.FC = () => {
         </div>
 
         <div className="sessions-list">
-          {filteredSessions.length > 0 ? (
+          {isLoading ? (
+            <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
+              Cargando salas...
+            </p>
+          ) : errorMsg ? (
+            <p style={{ textAlign: 'center', color: '#ef4444', marginTop: '2rem' }}>
+              {errorMsg}
+            </p>
+          ) : filteredSessions.length > 0 ? (
             filteredSessions.map((session, index) => (
               <RoomCard
                 key={session.id}
@@ -264,9 +175,7 @@ const OradorDashboard: React.FC = () => {
             ))
           ) : (
             <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
-              {isSearching && searchQuery 
-                ? "No se encontraron salas con ese nombre."
-                : "No tienes salas para este día."}
+              No se encontraron salas.
             </p>
           )}
         </div>
