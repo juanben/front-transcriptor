@@ -18,7 +18,7 @@ const AudioRecorder: React.FC = () => {
   const [showQR, setShowQR] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [showClearModal, setShowClearModal] = useState(false)
-  const accessCode = code || "C7B-9P"
+  const accessCode = code || id || ''
 
   const startRecording = async () => {
     try {

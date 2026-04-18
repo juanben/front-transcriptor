@@ -19,6 +19,7 @@ const OradorDashboard: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [ownerEmail, setOwnerEmail] = useState<string>('');
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -30,6 +31,7 @@ const OradorDashboard: React.FC = () => {
 
       try {
         const user = await userService.getUserMe(token);
+        setOwnerEmail(user.email);
         const data = await roomService.getUserRooms(user.email);
         
         const mappedSessions: Session[] = data.rooms.map(room => ({
@@ -53,12 +55,18 @@ const OradorDashboard: React.FC = () => {
   }, [navigate]);
 
   const handleEdit = (session: Session) => {
-    navigate('/nueva-sesion', { state: { isEdit: true, sessionName: session.title, sessionId: session.id } });
+    navigate('/new-room', { state: { isEdit: true, sessionName: session.title, sessionId: session.id } });
   };
 
-  const confirmDelete = (id: string) => {
-    setSessions(sessions.filter(s => s.id !== id));
-    setShowDeleteModal(null);
+  const confirmDelete = async (id: string) => {
+    try {
+      await roomService.deleteRoom(id, ownerEmail);
+      setSessions(sessions.filter(s => s.id !== id));
+    } catch (error: any) {
+      setErrorMsg(error.message || 'Error al eliminar la sala');
+    } finally {
+      setShowDeleteModal(null);
+    }
   };
 
   const handleDelete = (id: string) => {

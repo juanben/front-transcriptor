@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './SessionCard.css';
 
 export interface RecordingSession {
@@ -16,8 +16,8 @@ interface SessionCardProps {
   onClickPlay?: () => void;
   onClick?: () => void;
   onComplementaryResource?: () => void;
-  onToggleVisibility?: (id: string, newVisibility: boolean) => void;
-  onToggleShare?: (id: string, newShareable: boolean) => void;
+  onToggleVisibility?: (id: string, newVisibility: boolean) => void | Promise<void>;
+  onToggleShare?: (id: string, newShareable: boolean) => void | Promise<void>;
   onDelete?: (id: string) => void;
   isEspectador?: boolean;
 }
@@ -34,24 +34,48 @@ const SessionCard: React.FC<SessionCardProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(session.isVisible);
   const [isSharable, setIsSharable] = useState(session.isSharable ?? false);
+  const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false);
+  const [isUpdatingShare, setIsUpdatingShare] = useState(false);
 
-  const handleToggleVisibility = (e: React.MouseEvent) => {
+  useEffect(() => {
+    setIsVisible(session.isVisible);
+  }, [session.isVisible]);
+
+  useEffect(() => {
+    setIsSharable(session.isSharable ?? false);
+  }, [session.isSharable]);
+
+  const handleToggleVisibility = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isEspectador) return;
+    if (isEspectador || isUpdatingVisibility) return;
     const newVisibility = !isVisible;
-    setIsVisible(newVisibility);
-    if (onToggleVisibility) {
-      onToggleVisibility(session.id, newVisibility);
+    try {
+      setIsUpdatingVisibility(true);
+      if (onToggleVisibility) {
+        await onToggleVisibility(session.id, newVisibility);
+      }
+      setIsVisible(newVisibility);
+    } catch {
+      // The parent owns error reporting and keeps the previous value.
+    } finally {
+      setIsUpdatingVisibility(false);
     }
   };
 
-  const handleToggleShare = (e: React.MouseEvent) => {
+  const handleToggleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isEspectador) return;
+    if (isEspectador || isUpdatingShare) return;
     const newSharable = !isSharable;
-    setIsSharable(newSharable);
-    if (onToggleShare) {
-      onToggleShare(session.id, newSharable);
+    try {
+      setIsUpdatingShare(true);
+      if (onToggleShare) {
+        await onToggleShare(session.id, newSharable);
+      }
+      setIsSharable(newSharable);
+    } catch {
+      // The parent owns error reporting and keeps the previous value.
+    } finally {
+      setIsUpdatingShare(false);
     }
   };
 
@@ -100,6 +124,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
                 className={`btn-visibility ${isSharable ? 'visible' : 'hidden'}`} 
                 onClick={handleToggleShare}
                 title={isSharable ? "No permitir compartir" : "Permitir compartir"}
+                disabled={isUpdatingShare}
               >
                 {isSharable ? (
                   <>
@@ -127,6 +152,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
                 className={`btn-visibility ${isVisible ? 'visible' : 'hidden'}`} 
                 onClick={handleToggleVisibility}
                 title={isVisible ? "Hacer no visible" : "Hacer visible"}
+                disabled={isUpdatingVisibility}
               >
                 {isVisible ? (
                   <>

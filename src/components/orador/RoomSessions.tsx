@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SessionCard, { type RecordingSession } from '../common/SessionCard';
 import UserMenu from '../common/UserMenu';
 import './OradorDashboard.css';
 import './RoomSessions.css';
+import { sessionService, type Session } from '../../services/session/sessionService';
+import { userService } from '../../services/user/userService';
+import { roomService } from '../../services/room/roomService';
 
 // Funciones auxiliares para el calendario
 const getWeekDays = (currentDate: Date) => {
@@ -42,17 +45,24 @@ const formatDateForFilter = (date: Date) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-const mockSessions: RecordingSession[] = [
-  { id: '1', title: 'Clase de Introducción', date: '2026-04-13', duration: '45:00', isVisible: true, isProcessing: false, isSharable: true },
-  { id: '2', title: 'Entrevista de Usuario', date: '2026-04-14', duration: '30:20', isVisible: false, isProcessing: true, isSharable: false },
-  { id: '3', title: 'Grabación en curso', date: '2026-04-13', duration: '12:05', isVisible: false, isProcessing: true, isSharable: false },
-  { id: '4', title: 'Reunión Semanal', date: '2026-04-12', duration: '1:15:00', isVisible: true, isProcessing: true, isSharable: true },
-];
+const getComplementaryResource = (session?: Session) => {
+  const resource = session?.complementaryResourses ?? session?.complementaryResources;
+  if (Array.isArray(resource)) {
+    return resource.filter(Boolean).join('\n');
+  }
+  return resource?.toString() || '';
+};
 
 const RoomSessions: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const [sessions, setSessions] = useState<RecordingSession[]>(mockSessions);
+  const { id: roomIdFromParams } = useParams<{ id: string }>();
+  const roomId = roomIdFromParams?.trim();
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [roomName, setRoomName] = useState('');
+  const [roomCode, setRoomCode] = useState('');
+  const [ownerEmail, setOwnerEmail] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'Todos' | 'Publicado' | 'Invisible' | 'Procesando'>('Todos');
 
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -61,6 +71,50 @@ const RoomSessions: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [showResourceModal, setShowResourceModal] = useState<string | null>(null);
   const [resourceLink, setResourceLink] = useState('');
+
+  useEffect(() => {
+    if (!roomId) {
+      setError('No se encontró el ID de la sala.');
+      setLoading(false);
+      return;
+    }
+    const fetchRoomData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const user = await userService.getUserMe(token);
+        setOwnerEmail(user.email);
+        
+        const [data, roomsData] = await Promise.all([
+          sessionService.getSessionsByRoomId(roomId, user.email),
+          roomService.getUserRooms(user.email).catch(() => ({ rooms: [] }))
+        ]);
+
+        setSessions(data.sessions);
+        setRoomName(data.room_name);
+        
+        const currentRoom = roomsData.rooms.find(r => r._id === roomId || (r as Record<string, unknown>).id === roomId);
+        setRoomCode(currentRoom?.room_code || data.sessions[0]?.room_code || '');
+        
+        setError(null);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message || 'Ocurrió un error al cargar las sesiones.');
+        } else {
+          setError('Ocurrió un error al cargar las sesiones.');
+        }
+        setRoomCode('Error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoomData();
+  }, [navigate, roomId]);
 
   const handlePrevWeek = () => {
     const newDate = new Date(selectedDate);
@@ -79,43 +133,107 @@ const RoomSessions: React.FC = () => {
     setShowAllDates(false);
   };
 
-  const filteredSessions = sessions.filter(session => {
-    // Filtro por fecha
-    if (!showAllDates && session.date !== formatDateForFilter(selectedDate)) {
-      return false;
+  const filteredSessions: RecordingSession[] = sessions
+    .filter(session => {
+      if (!showAllDates && session.created_at.split('T')[0] !== formatDateForFilter(selectedDate)) {
+        return false;
+      }
+      const isProcessing = ['processing', 'pending', 'transcribing', 'failed'].includes(session.status);
+      const isPublished = !isProcessing && session.status === 'completed';
+
+      switch (activeTab) {
+        case 'Publicado': return isPublished && session.visible;
+        case 'Invisible': return isPublished && !session.visible;
+        case 'Procesando': return isProcessing;
+        default: return true;
+      }
+    })
+    .map((session): RecordingSession => ({
+      id: session.session_id,
+      title: session.name,
+      date: session.created_at.split('T')[0],
+      duration: 'N/A',
+      isVisible: session.visible,
+      isProcessing: ['processing', 'pending', 'transcribing'].includes(session.status),
+      isSharable: session.allow_download,
+    }));
+
+  const handleToggleVisibility = async (sessionId: string, newVisibility: boolean) => {
+    if (!roomId || !ownerEmail) {
+      const message = 'No se pudo identificar la sala o el usuario.';
+      alert(message);
+      throw new Error(message);
     }
 
-    // Filtro por pestaña
-    switch (activeTab) {
-      case 'Publicado': return session.isVisible && !session.isProcessing;
-      case 'Invisible': return !session.isVisible && !session.isProcessing;
-      case 'Procesando': return session.isProcessing;
-      default: return true; // 'Todos'
+    try {
+      await sessionService.updateSessionVisibility(roomId, sessionId, ownerEmail, newVisibility);
+      setSessions(prev => prev.map(s => s.session_id === sessionId ? { ...s, visible: newVisibility } : s));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al actualizar la visibilidad.';
+      alert(message);
+      throw err;
     }
-  });
-
-  const handleToggleVisibility = (sessionId: string, newVisibility: boolean) => {
-    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, isVisible: newVisibility } : s));
   };
 
-  const handleToggleShare = (sessionId: string, newSharable: boolean) => {
-    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, isSharable: newSharable } : s));
+  const handleToggleShare = async (sessionId: string, newSharable: boolean) => {
+    if (!roomId || !ownerEmail) {
+      const message = 'No se pudo identificar la sala o el usuario.';
+      alert(message);
+      throw new Error(message);
+    }
+
+    try {
+      await sessionService.updateSessionAllowDownload(roomId, sessionId, ownerEmail, newSharable);
+      setSessions(prev => prev.map(s => s.session_id === sessionId ? { ...s, allow_download: newSharable } : s));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al actualizar los permisos de descarga.';
+      alert(message);
+      throw err;
+    }
   };
 
   const confirmDelete = () => {
     if (showDeleteModal) {
-      setSessions(sessions.filter(s => s.id !== showDeleteModal));
+      // TODO: Add API call to delete session
+      setSessions(sessions.filter(s => s.session_id !== showDeleteModal));
       setShowDeleteModal(null);
     }
   };
 
   const openResourceModal = (sessionId: string) => {
+    const selectedSession = sessions.find(session => session.session_id === sessionId);
     setShowResourceModal(sessionId);
-    setResourceLink(''); 
+    setResourceLink(getComplementaryResource(selectedSession));
   };
 
-  const saveResourceLink = () => {
-    setShowResourceModal(null);
+  const saveResourceLink = async () => {
+    if (!roomId || !showResourceModal) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      
+      const email = ownerEmail || (await userService.getUserMe(token)).email;
+      await sessionService.addComplementaryResources(roomId, showResourceModal, email, resourceLink);
+      
+      setSessions(prev => prev.map(s => 
+        s.session_id === showResourceModal 
+          ? { ...s, complementaryResourses: resourceLink, complementaryResources: resourceLink } 
+          : s
+      ));
+      
+      setShowResourceModal(null);
+      alert('Recurso complementario guardado con éxito.');
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(err.message || 'Error al guardar el recurso complementario.');
+      } else {
+        alert('Error al guardar el recurso complementario.');
+      }
+    }
   };
 
   const weekDays = getWeekDays(selectedDate);
@@ -154,20 +272,25 @@ const RoomSessions: React.FC = () => {
         </div>
 
         <div className="room-title-row">
-          <h2 className="room-title-text">Reunion</h2>
-          <button className="btn-waitlist" onClick={() => navigate(`/sala/${id || 'default'}/lista-espera`)}>Lista de espera</button>
+          <h2 className="room-title-text">{loading ? 'Cargando...' : roomName}</h2>
+          <button className="btn-waitlist" onClick={() => navigate(`/sala/${roomId}/lista-espera`)}>Lista de espera</button>
         </div>
 
         <div className="room-code-display">
-          Código: X7B - 9P
+          Código: {loading ? '...' : roomCode || 'N/A'}
         </div>
       </header>
 
       <main className="dashboard-content room-content-main">
+        {error && <p className="error-text" style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>}
+        {loading && <p style={{ textAlign: 'center' }}>Cargando sesiones...</p>}
+
+        {!loading && !error && (
+          <>
         <div className="new-recording-section">
           <button 
             className="btn-new-recording"
-            onClick={() => navigate(`/sala/${id || 'default'}/nombre-sesion`)}
+            onClick={() => navigate(`/sala/${roomId}/nombre-sesion`, { state: { roomCode } })}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -289,8 +412,8 @@ const RoomSessions: React.FC = () => {
               <SessionCard
                 key={session.id}
                 session={session}
-                onClick={() => navigate(`/sala/${id}/sesion/${session.id}`)}
-                onClickPlay={() => navigate(`/sala/${id}/sesion/${session.id}`)}
+                onClick={() => navigate(`/sala/${roomId}/sesion/${session.id}`)}
+                onClickPlay={() => navigate(`/sala/${roomId}/sesion/${session.id}`)}
                 onComplementaryResource={() => openResourceModal(session.id)}
                 onToggleVisibility={handleToggleVisibility}
                 onToggleShare={handleToggleShare}
@@ -303,6 +426,8 @@ const RoomSessions: React.FC = () => {
             </p>
           )}
         </div>
+        </>
+        )}
       </main>
 
       {showDeleteModal && (

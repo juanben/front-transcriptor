@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SessionCard, { type RecordingSession } from '../common/SessionCard';
 import UserMenu from '../common/UserMenu';
 import '../orador/OradorDashboard.css';
 import '../orador/RoomSessions.css';
+import { sessionService, type Session } from '../../services/session/sessionService';
+import { userService } from '../../services/user/userService';
 
 // Funciones auxiliares para el calendario
 const getWeekDays = (currentDate: Date) => {
@@ -42,15 +44,22 @@ const formatDateForFilter = (date: Date) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-const mockSessions: RecordingSession[] = [
-  { id: '1', title: 'Clase de Introducción', date: '2026-04-13', duration: '45:00', isVisible: true, isSharable: true },
-  { id: '4', title: 'Reunión Semanal', date: '2026-04-12', duration: '1:15:00', isVisible: true, isSharable: true },
-];
+const getComplementaryResource = (session?: Session) => {
+  const resource = session?.complementaryResourses ?? session?.complementaryResources;
+  if (Array.isArray(resource)) {
+    return resource.filter(Boolean).join('\n');
+  }
+  return resource?.toString() || '';
+};
 
 const EspectadorRoomSessions: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const [sessions, setSessions] = useState<RecordingSession[]>(mockSessions);
+  const { id: roomIdFromParams } = useParams<{ id: string }>();
+  const roomId = roomIdFromParams?.trim();
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [roomName, setRoomName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -59,6 +68,35 @@ const EspectadorRoomSessions: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [showResourceModal, setShowResourceModal] = useState<string | null>(null);
   const [resourceLink, setResourceLink] = useState('');
+
+  useEffect(() => {
+    if (!roomId) {
+      setError('No se encontró el ID de la sala.');
+      setLoading(false);
+      return;
+    }
+    const fetchRoomData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const user = await userService.getUserMe(token);
+        const data = await sessionService.getSessionsByRoomId(roomId, user.email);
+        setSessions(data.sessions.filter(s => s.visible));
+        setRoomName(data.room_name);
+        setError(null);
+      } catch (err: any) {
+        setError(err.message || 'Ocurrió un error al cargar las sesiones.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoomData();
+  }, [navigate, roomId]);
 
   const handlePrevWeek = () => {
     const newDate = new Date(selectedDate);
@@ -77,22 +115,32 @@ const EspectadorRoomSessions: React.FC = () => {
     setShowAllDates(false);
   };
 
-  const filteredSessions = sessions.filter(session => {
-    const matchSearch = session.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchDate = showAllDates || session.date === formatDateForFilter(selectedDate);
-    return session.isVisible && matchSearch && matchDate;
-  });
+  const filteredSessions: RecordingSession[] = sessions
+    .filter(session => {
+      const matchSearch = session.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchDate = showAllDates || session.created_at.split('T')[0] === formatDateForFilter(selectedDate);
+      return session.visible && matchSearch && matchDate;
+    })
+    .map((session): RecordingSession => ({
+      id: session.session_id,
+      title: session.name,
+      date: session.created_at.split('T')[0],
+      duration: 'N/A',
+      isVisible: session.visible,
+      isSharable: session.allow_download,
+    }));
 
   const confirmDelete = () => {
     if (showDeleteModal) {
-      setSessions(sessions.filter(s => s.id !== showDeleteModal));
+      setSessions(sessions.filter(s => s.session_id !== showDeleteModal));
       setShowDeleteModal(null);
     }
   };
 
   const openResourceModal = (sessionId: string) => {
+    const selectedSession = sessions.find(session => session.session_id === sessionId);
     setShowResourceModal(sessionId);
-    setResourceLink('https://drive.google.com/ejemplo'); 
+    setResourceLink(getComplementaryResource(selectedSession)); 
   };
 
   const weekDays = getWeekDays(selectedDate);
@@ -131,11 +179,16 @@ const EspectadorRoomSessions: React.FC = () => {
         </div>
 
         <div className="room-title-row">
-          <h2 className="room-title-text">Sala {id}</h2>
+          <h2 className="room-title-text">{loading ? 'Cargando...' : roomName}</h2>
         </div>
       </header>
 
       <main className="dashboard-content room-content-main">
+        {error && <p className="error-text" style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>}
+        {loading && <p style={{ textAlign: 'center' }}>Cargando sesiones...</p>}
+
+        {!loading && !error && (
+          <>
         <div className="search-bar-container" style={{ margin: '1rem 0' }}>
           <input 
             type="text" 
@@ -232,8 +285,8 @@ const EspectadorRoomSessions: React.FC = () => {
               <SessionCard
                 key={session.id}
                 session={session}
-                onClick={() => navigate(`/sala/${id}/sesion/${session.id}`)}
-                onClickPlay={() => navigate(`/sala/${id}/sesion/${session.id}`)}
+                onClick={() => navigate(`/espectador/sala/${roomId}/sesion/${session.id}`)}
+                onClickPlay={() => navigate(`/espectador/sala/${roomId}/sesion/${session.id}`)}
                 onComplementaryResource={() => openResourceModal(session.id)}
                 onDelete={(sessionId) => setShowDeleteModal(sessionId)}
                 isEspectador={true}
@@ -245,6 +298,8 @@ const EspectadorRoomSessions: React.FC = () => {
             </p>
           )}
         </div>
+        </>
+        )}
       </main>
 
       {showDeleteModal && (

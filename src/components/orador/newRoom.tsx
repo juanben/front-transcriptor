@@ -49,8 +49,10 @@ const NuevaSesion: React.FC = () => {
 
     try {
       if (state?.isEdit && state.sessionId) {
-        // En el futuro, aquí iría la lógica para editar la sala:
-        // await roomService.updateRoom(state.sessionId, { ... })
+        await roomService.updateRoomName(state.sessionId, {
+          owner_email: ownerEmail,
+          new_name: sessionName.trim()
+        });
         navigate('/orador');
       } else {
         // Crear nueva sala

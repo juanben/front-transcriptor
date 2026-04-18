@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { sessionService } from '../../../services/session/sessionService';
+import { userService } from '../../../services/user/userService';
 import './saveAudioRecord.css';
 
 const SaveAudioRecord: React.FC = () => {
   const navigate = useNavigate();
-  const { id, code } = useParams<{ id: string; code: string }>();
+  const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const state = location.state as { audioURL?: string; recordingTime?: number; sessionName?: string } | null;
 
   const [comment, setComment] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  
+  // Nuevos estados para la integración
+  const [allowDownload, setAllowDownload] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
   const sessionName = state?.sessionName || 'Grabación';
 
   // Redirigir si no hay audio
@@ -37,17 +46,37 @@ const SaveAudioRecord: React.FC = () => {
     minute: '2-digit'
   });
 
-  const handleSave = () => {
-    // Aquí iría la lógica para enviar al backend (audioURL y comentario)
-    console.log('Guardando audio en backend...', {
-      audioURL: state.audioURL,
-      duration: state.recordingTime,
-      comment,
-      sessionName: sessionName,
-      roomCode: code,
-      date: currentDate
-    });
-    setShowSuccessModal(true);
+  const handleSave = async () => {
+    if (!state?.audioURL || !id) return;
+    
+    setIsLoading(true);
+    setErrorMsg('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No hay sesión activa. Por favor, inicia sesión nuevamente.');
+      
+      const user = await userService.getUserMe(token);
+      
+      const response = await fetch(state.audioURL);
+      const blob = await response.blob();
+      
+      await sessionService.createSession({
+        roomId: id,
+        audioFile: blob,
+        sessionName: sessionName,
+        creatorEmail: user.email,
+        allowDownload: allowDownload,
+        visible: visible
+      });
+      
+      setShowSuccessModal(true);
+    } catch (error: any) {
+      console.error('Error al guardar grabación:', error);
+      setErrorMsg(error.message || 'Error al guardar la grabación');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const completeSave = () => {
@@ -112,16 +141,45 @@ const SaveAudioRecord: React.FC = () => {
           />
         </div>
 
-        <div className="form-actions">
+        <div className="input-group-row" style={{ marginTop: '1rem', gap: '2rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#4b5563', fontWeight: '500' }}>
+            <input 
+              type="checkbox" 
+              checked={allowDownload} 
+              onChange={(e) => setAllowDownload(e.target.checked)}
+              style={{ width: '1.2rem', height: '1.2rem' }}
+            />
+            Permitir Descarga
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#4b5563', fontWeight: '500' }}>
+            <input 
+              type="checkbox" 
+              checked={visible} 
+              onChange={(e) => setVisible(e.target.checked)}
+              style={{ width: '1.2rem', height: '1.2rem' }}
+            />
+            Visible
+          </label>
+        </div>
+
+        {errorMsg && (
+          <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '0.5rem', marginTop: '1rem', fontSize: '0.875rem' }}>
+            {errorMsg}
+          </div>
+        )}
+
+        <div className="form-actions" style={{ marginTop: '1.5rem' }}>
           <button 
             className="btn-guardar" 
             onClick={handleSave}
+            disabled={isLoading}
           >
-            Guardar
+            {isLoading ? 'Guardando...' : 'Guardar'}
           </button>
           <button 
             className="btn-cancelar" 
             onClick={() => setShowCancelModal(true)}
+            disabled={isLoading}
           >
             Cancelar
           </button>
