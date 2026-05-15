@@ -15,6 +15,7 @@ self.addEventListener('activate', (event) => {
 });
 
 // Background Sync para tus grabaciones (Tu fuerte)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 self.addEventListener('sync', (event: any) => {
   if (event.tag === 'sync-recordings') {
     event.waitUntil(syncRecordings());
@@ -26,7 +27,11 @@ async function syncRecordings() {
     console.log('Sincronizando grabaciones desde el SW...');
     // Aquí podrías usar una entidad de tu carpeta 'entities' 
     // para tipar los datos de audio recuperados.
-  } catch (error) {
-    console.error('Error al sincronizar:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error al sincronizar:', error.message);
+    } else {
+      console.error('Error al sincronizar:', error);
+    }
   }
 }

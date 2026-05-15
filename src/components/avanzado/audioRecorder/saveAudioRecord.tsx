@@ -71,9 +71,9 @@ const SaveAudioRecord: React.FC = () => {
       });
       
       setShowSuccessModal(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error al guardar grabación:', error);
-      setErrorMsg(error.message || 'Error al guardar la grabación');
+      setErrorMsg((error instanceof Error ? error.message : undefined) || 'Error al guardar la grabación');
     } finally {
       setIsLoading(false);
     }

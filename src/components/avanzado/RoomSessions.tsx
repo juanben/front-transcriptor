@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SessionCard, { type RecordingSession } from '../common/SessionCard';
 import UserMenu from '../common/UserMenu';
-import './OradorDashboard.css';
+import './AvanzadoDashboard.css';
 import './RoomSessions.css';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
@@ -73,12 +73,12 @@ const RoomSessions: React.FC = () => {
   const [resourceLink, setResourceLink] = useState('');
 
   useEffect(() => {
-    if (!roomId) {
-      setError('No se encontró el ID de la sala.');
-      setLoading(false);
-      return;
-    }
     const fetchRoomData = async () => {
+      if (!roomId) {
+        setError('No se encontró el ID de la sala.');
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
@@ -98,7 +98,7 @@ const RoomSessions: React.FC = () => {
         setSessions(data.sessions);
         setRoomName(data.room_name);
         
-        const currentRoom = roomsData.rooms.find(r => r._id === roomId || (r as Record<string, unknown>).id === roomId);
+        const currentRoom = roomsData.rooms.find(r => r._id === roomId || r.id === roomId);
         setRoomCode(currentRoom?.room_code || data.sessions[0]?.room_code || '');
         
         setError(null);
@@ -249,7 +249,7 @@ const RoomSessions: React.FC = () => {
         <div className="header-top-row">
           <button 
             className="btn-back-text" 
-            onClick={() => navigate('/orador')} 
+            onClick={() => navigate('/avanzado')} 
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { apiClient } from '../config';
 import type { Room } from '../../types/rooms';
 
@@ -61,14 +62,11 @@ export const roomService = {
     try {
       const response = await apiClient.get<UserRoomsResponse>(`/room/user-rooms/${encodeURIComponent(email)}`);
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al obtener las salas');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al obtener las salas.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al obtener las salas');
       }
+      throw error;
     }
   },
 
@@ -80,14 +78,11 @@ export const roomService = {
     try {
       const response = await apiClient.post<CreateRoomResponse>('/room/createRoom', data);
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al crear la sala');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al crear la sala.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al crear la sala');
       }
+      throw error;
     }
   },
 
@@ -95,21 +90,18 @@ export const roomService = {
    * Elimina una sala.
    * URL: DELETE /room/{id_room}
    */
-  async deleteRoom(idRoom: string, ownerEmail: string): Promise<any> {
+  async deleteRoom(idRoom: string, ownerEmail: string): Promise<unknown> {
     try {
       // Axios maneja el body en DELETE dentro de un objeto `data`
       const response = await apiClient.delete(`/room/${encodeURIComponent(idRoom)}`, {
         data: { owner_email: ownerEmail }
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al eliminar la sala');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al eliminar la sala.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al eliminar la sala');
       }
+      throw error;
     }
   },
 
@@ -117,19 +109,16 @@ export const roomService = {
    * Edita el nombre de una sala.
    * URL: PUT /room/{id_room}/update-name
    */
-  async updateRoomName(idRoom: string, data: UpdateRoomNameData): Promise<any> {
+  async updateRoomName(idRoom: string, data: UpdateRoomNameData): Promise<unknown> {
     try {
       // Se asume que el método puede ser PUT o PATCH. Si fuera POST, se debe cambiar.
       const response = await apiClient.put(`/room/${encodeURIComponent(idRoom)}/update-name`, data);
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al actualizar el nombre de la sala');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al actualizar el nombre de la sala.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al actualizar el nombre de la sala');
       }
+      throw error;
     }
   },
 
@@ -142,14 +131,11 @@ export const roomService = {
       // Asumiendo que el endpoint es /room/{id_room}/sessions
       const response = await apiClient.get<RoomSessionsResponse>(`/room/${encodeURIComponent(idRoom)}/sessions`);
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al obtener las sesiones de la sala');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al obtener las sesiones de la sala.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al obtener las sesiones de la sala');
       }
+      throw error;
     }
   },
 
@@ -157,7 +143,7 @@ export const roomService = {
    * Recupera la lista de espera de una sala.
    * URL: GET /room/{room_id}/waitlist
    */
-  async getWaitlist(roomId: string, ownerEmail: string): Promise<any> {
+  async getWaitlist(roomId: string, ownerEmail: string): Promise<unknown> {
     try {
       const response = await apiClient.get(`/room/${encodeURIComponent(roomId)}/waitlist`, {
         params: {
@@ -165,14 +151,11 @@ export const roomService = {
         }
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al obtener la lista de espera');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al obtener la lista de espera.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al obtener la lista de espera');
       }
+      throw error;
     }
   },
 
@@ -180,21 +163,18 @@ export const roomService = {
    * Acepta un usuario de la lista de espera.
    * URL: POST /room/{room_id}/waitlist/accept
    */
-  async acceptWaitlistUser(roomId: string, ownerEmail: string, userEmail: string): Promise<any> {
+  async acceptWaitlistUser(roomId: string, ownerEmail: string, userEmail: string): Promise<unknown> {
     try {
       const response = await apiClient.post(`/room/${encodeURIComponent(roomId)}/waitlist/accept`, {
         owner_email: ownerEmail,
         user_email: userEmail
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al aceptar usuario de la lista de espera');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al aceptar usuario.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al aceptar usuario de la lista de espera');
       }
+      throw error;
     }
   },
 
@@ -202,20 +182,17 @@ export const roomService = {
    * Acepta todos los usuarios de la lista de espera.
    * URL: POST /room/{room_id}/waitlist/accept-all
    */
-  async acceptAllWaitlist(roomId: string, ownerEmail: string): Promise<any> {
+  async acceptAllWaitlist(roomId: string, ownerEmail: string): Promise<unknown> {
     try {
       const response = await apiClient.post(`/room/${encodeURIComponent(roomId)}/waitlist/accept-all`, {
         owner_email: ownerEmail
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al aceptar todos los usuarios');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al aceptar todos los usuarios.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al aceptar todos los usuarios');
       }
+      throw error;
     }
   }
 };

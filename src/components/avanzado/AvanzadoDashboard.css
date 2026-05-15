@@ -494,6 +494,43 @@
   box-shadow: 0 6px 10px rgba(79, 70, 229, 0.3);
 }
 
+/* Tabs Styles */
+.tabs-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  padding-bottom: 2px;
+}
+
+.tabs-container::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 0.75rem 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #6b7280;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  flex: 1 0 auto;
+  text-align: center;
+}
+
+.tab-btn:hover {
+  color: #374151;
+}
+
+.tab-btn.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+}
+
 @media (prefers-color-scheme: dark) {
   .dashboard-screen { background: rgba(31, 41, 55, 0.95); color: #f3f4f6; }
   .welcome-text, .section-header h2, .cal-range, .cal-day, .selected-date-header h3, .btn-sort, .session-info h3 { color: #f3f4f6; }
@@ -519,4 +556,19 @@
   .modal-input:focus { border-color: #818cf8; background-color: #374151; }
   .btn-modal-cancel { border-color: #4b5563; color: #d1d5db; }
   .btn-modal-cancel:hover { background-color: #374151; color: #f3f4f6; }
+  
+  .tab-btn { color: #9ca3af; }
+  .tab-btn:hover { color: #d1d5db; }
+  .tab-btn.active { color: #ffffff; border-bottom-color: #ffffff; }
+}
+
+@media (max-width: 600px) {
+  .tabs-container {
+    gap: 0.25rem;
+  }
+  
+  .tab-btn {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.25rem;
+  }
 }

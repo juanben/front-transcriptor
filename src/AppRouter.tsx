@@ -4,16 +4,16 @@ import Login from './components/logIn/Login';
 import SignUp from './components/signUp/SignUp';
 import About from './components/about/About';
 import Home from './components/home/Home';
-import OradorDashboard from './components/orador/OradorDashboard';
-import NuevaSesion from './components/orador/newRoom';
-import RoomSessions from './components/orador/RoomSessions';
-import Waitlist from './components/orador/Waitlist';
-import SessionDetail from './components/orador/SessionDetail';
-import AudioRecorder from './components/orador/audioRecorder/audioRecorder';
-import SessionName from './components/orador/audioRecorder/sessionName';
-import SaveAudioRecord from './components/orador/audioRecorder/saveAudioRecord';
-import EspectadorDashboard from './components/espectador/EspectadorDashboard';
-import EspectadorRoomSessions from './components/espectador/EspectadorRoomSessions';
+import AvanzadoDashboard from './components/avanzado/AvanzadoDashboard';
+import NuevaSesion from './components/avanzado/newRoom';
+import RoomSessions from './components/avanzado/RoomSessions';
+import Waitlist from './components/avanzado/Waitlist';
+import SessionDetail from './components/avanzado/SessionDetail';
+import AudioRecorder from './components/avanzado/audioRecorder/audioRecorder';
+import SessionName from './components/avanzado/audioRecorder/sessionName';
+import SaveAudioRecord from './components/avanzado/audioRecorder/saveAudioRecord';
+import BasicoDashboard from './components/basico/BasicoDashboard';
+import BasicoRoomSessions from './components/basico/BasicoRoomSessions';
 import AuthGuard from './components/common/AuthGuard';
 
 const AppRouter = () => {
@@ -29,8 +29,8 @@ const AppRouter = () => {
         {/* Rutas Protegidas */}
         <Route path="/home" element={<AuthGuard><Home /></AuthGuard>} />
         
-        {/* Orador */}
-        <Route path="/orador" element={<AuthGuard><OradorDashboard /></AuthGuard>} />
+        {/* Avanzado */}
+        <Route path="/avanzado" element={<AuthGuard><AvanzadoDashboard /></AuthGuard>} />
         <Route path="/new-room" element={<AuthGuard><NuevaSesion /></AuthGuard>} />
         <Route path="/sala/:id" element={<AuthGuard><RoomSessions /></AuthGuard>} />
         <Route path="/sala/:id/lista-espera" element={<AuthGuard><Waitlist /></AuthGuard>} />
@@ -39,9 +39,9 @@ const AppRouter = () => {
         <Route path="/sala/:id/sesion/:code/save-audio" element={<AuthGuard><SaveAudioRecord /></AuthGuard>} />
         <Route path="/sala/:id/nombre-sesion" element={<AuthGuard><SessionName /></AuthGuard>} />
         
-        {/* Espectador */}
-        <Route path="/espectador" element={<AuthGuard><EspectadorDashboard /></AuthGuard>} />
-        <Route path="/espectador/sala/:id" element={<AuthGuard><EspectadorRoomSessions /></AuthGuard>} />
+        {/* Basico */}
+        <Route path="/basico" element={<AuthGuard><BasicoDashboard /></AuthGuard>} />
+        <Route path="/basico/sala/:id" element={<AuthGuard><BasicoRoomSessions /></AuthGuard>} />
         
         {/* Testing */}
         <Route path="/testRec" element={<AuthGuard><App /></AuthGuard>} />

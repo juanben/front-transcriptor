@@ -31,8 +31,12 @@ const SignUp: React.FC = () => {
       
       // Si el registro fue correcto, redirigimos a login para que inicie sesión
       navigate('/login');
-    } catch (error: any) {
-      setErrorMessage(error.message || 'Error al registrar usuario');
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message || 'Error al registrar usuario');
+      } else {
+        setErrorMessage('Error al registrar usuario');
+      }
     } finally {
       setIsLoading(false);
     }

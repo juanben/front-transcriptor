@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { apiClient } from '../config';
 
 export interface CreateSessionParams {
@@ -40,7 +41,7 @@ export const sessionService = {
    * Crea una nueva sesión enviando un audio y sus datos
    * Ruta: POST /sessions/{room_id}/create
    */
-  async createSession(params: CreateSessionParams): Promise<any> {
+  async createSession(params: CreateSessionParams): Promise<unknown> {
     const formData = new FormData();
     // Añadir el archivo con un nombre de archivo
     formData.append('file', params.audioFile, 'audio.wav');
@@ -56,14 +57,11 @@ export const sessionService = {
         },
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al crear la sesión');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al crear sesión.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al crear la sesión');
       }
+      throw error;
     }
   },
 
@@ -80,14 +78,11 @@ export const sessionService = {
         }
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al obtener las sesiones');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al obtener sesiones.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al obtener las sesiones');
       }
+      throw error;
     }
   },
 
@@ -103,14 +98,11 @@ export const sessionService = {
         }
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al obtener los detalles de la sesión');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al obtener los detalles.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al obtener los detalles de la sesión');
       }
+      throw error;
     }
   },
 
@@ -118,21 +110,18 @@ export const sessionService = {
    * Añade recursos complementarios a una sesión
    * Ruta: PUT /sessions/{room_id}/{session_id}/complementary-resourses
    */
-  async addComplementaryResources(roomId: string, sessionId: string, ownerEmail: string, resources: string): Promise<any> {
+  async addComplementaryResources(roomId: string, sessionId: string, ownerEmail: string, resources: string): Promise<unknown> {
     try {
       const response = await apiClient.put(`/sessions/${encodeURIComponent(roomId)}/${encodeURIComponent(sessionId)}/complementary-resourses`, {
         owner_email: ownerEmail,
         complementaryResourses: resources
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al añadir recursos complementarios');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al añadir recursos.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al añadir recursos complementarios');
       }
+      throw error;
     }
   },
 
@@ -140,21 +129,18 @@ export const sessionService = {
    * Actualiza la visibilidad de una sesión
    * Ruta: PUT /sessions/{room_id}/{session_id}/visible
    */
-  async updateSessionVisibility(roomId: string, sessionId: string, ownerEmail: string, visible: boolean): Promise<any> {
+  async updateSessionVisibility(roomId: string, sessionId: string, ownerEmail: string, visible: boolean): Promise<unknown> {
     try {
       const response = await apiClient.put(`/sessions/${encodeURIComponent(roomId)}/${encodeURIComponent(sessionId)}/visible`, {
         owner_email: ownerEmail,
         visible: visible
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al actualizar la visibilidad');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al actualizar la visibilidad.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al actualizar la visibilidad');
       }
+      throw error;
     }
   },
 
@@ -162,21 +148,18 @@ export const sessionService = {
    * Actualiza si se permite la descarga de una sesión
    * Ruta: PUT /sessions/{room_id}/{session_id}/allow-download
    */
-  async updateSessionAllowDownload(roomId: string, sessionId: string, ownerEmail: string, allowDownload: boolean): Promise<any> {
+  async updateSessionAllowDownload(roomId: string, sessionId: string, ownerEmail: string, allowDownload: boolean): Promise<unknown> {
     try {
       const response = await apiClient.put(`/sessions/${encodeURIComponent(roomId)}/${encodeURIComponent(sessionId)}/allow-download`, {
         owner_email: ownerEmail,
         allow_download: allowDownload
       });
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al actualizar permisos de descarga');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al actualizar permisos.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al actualizar permisos de descarga');
       }
+      throw error;
     }
   }
 };

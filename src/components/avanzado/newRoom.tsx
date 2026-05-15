@@ -9,23 +9,19 @@ const NuevaSesion: React.FC = () => {
   const location = useLocation();
   const state = location.state as { isEdit?: boolean; sessionName?: string; sessionId?: string } | null;
 
-  const [sessionName, setSessionName] = useState('');
+  const [sessionName, setSessionName] = useState(state?.isEdit ? state?.sessionName || '' : '');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [ownerEmail, setOwnerEmail] = useState<string>('');
 
   useEffect(() => {
-    if (state?.isEdit && state.sessionName) {
-      setSessionName(state.sessionName);
-    }
-
     const fetchUser = async () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
           const user = await userService.getUserMe(token);
           setOwnerEmail(user.email);
-        } catch (error) {
+        } catch {
           navigate('/login');
         }
       } else {
@@ -34,7 +30,7 @@ const NuevaSesion: React.FC = () => {
     };
 
     fetchUser();
-  }, [state, navigate]);
+  }, [navigate]);
 
   const title = state?.isEdit ? 'Editar Sala' : 'Nueva Sala';
 
@@ -53,7 +49,7 @@ const NuevaSesion: React.FC = () => {
           owner_email: ownerEmail,
           new_name: sessionName.trim()
         });
-        navigate('/orador');
+        navigate('/avanzado');
       } else {
         // Crear nueva sala
         await roomService.createRoom({
@@ -62,10 +58,10 @@ const NuevaSesion: React.FC = () => {
           is_public: false,
           allow_download: true
         });
-        navigate('/orador');
+        navigate('/avanzado');
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || 'Error al guardar la sala');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Error al guardar la sala');
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +99,7 @@ const NuevaSesion: React.FC = () => {
           </button>
           <button 
             className="btn-cancelar" 
-            onClick={() => navigate('/orador')}
+            onClick={() => navigate('/avanzado')}
             disabled={isLoading}
           >
             Cancelar

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { apiClient } from '../config';
 
 export interface SignUpData {
@@ -8,7 +9,7 @@ export interface SignUpData {
 
 export interface SignUpResponse {
   message?: string;
-  user?: any;
+  user?: unknown;
 }
 
 export interface UserMeResponse {
@@ -28,14 +29,11 @@ export const userService = {
     try {
       const response = await apiClient.post<SignUpResponse>('/user/', data);
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Error al crear el usuario');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor. Verifica tu conexión o intenta más tarde.');
-      } else {
-        throw new Error('Error interno al intentar registrar usuario.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al crear el usuario');
       }
+      throw error;
     }
   },
 
@@ -47,14 +45,11 @@ export const userService = {
     try {
       const response = await apiClient.get<UserMeResponse>(`/user/me?token=${token}`);
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.detail || error.response.data.message || 'Token inválido');
-      } else if (error.request) {
-        throw new Error('No se pudo conectar con el servidor.');
-      } else {
-        throw new Error('Error interno al verificar sesión.');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Token inválido');
       }
+      throw error;
     }
   }
 };

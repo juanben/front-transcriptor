@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SessionCard, { type RecordingSession } from '../common/SessionCard';
 import UserMenu from '../common/UserMenu';
-import '../orador/OradorDashboard.css';
-import '../orador/RoomSessions.css';
+import '../avanzado/AvanzadoDashboard.css';
+import '../avanzado/RoomSessions.css';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
 
@@ -70,12 +70,12 @@ const EspectadorRoomSessions: React.FC = () => {
   const [resourceLink, setResourceLink] = useState('');
 
   useEffect(() => {
-    if (!roomId) {
-      setError('No se encontró el ID de la sala.');
-      setLoading(false);
-      return;
-    }
     const fetchRoomData = async () => {
+      if (!roomId) {
+        setError('No se encontró el ID de la sala.');
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
@@ -89,8 +89,8 @@ const EspectadorRoomSessions: React.FC = () => {
         setSessions(data.sessions.filter(s => s.visible));
         setRoomName(data.room_name);
         setError(null);
-      } catch (err: any) {
-        setError(err.message || 'Ocurrió un error al cargar las sesiones.');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Ocurrió un error al cargar las sesiones.');
       } finally {
         setLoading(false);
       }
@@ -224,7 +224,9 @@ const EspectadorRoomSessions: React.FC = () => {
                 onClick={(e) => {
                   try {
                     (e.target as HTMLInputElement).showPicker();
-                  } catch (err) {}
+                  } catch {
+                    // Ignorar error si showPicker no está soportado
+                  }
                 }}
                 onChange={(e) => {
                   if (e.target.value) {

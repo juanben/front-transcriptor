@@ -1,5 +1,6 @@
 export interface Room {
   _id: string;
+  id?: string;
   name: string;
   owner_email: string;
   is_public: boolean;
@@ -7,4 +8,5 @@ export interface Room {
   created_at: string;
   members: Array<string>;
   waitlist: Array<string>;
+  room_code?: string;
 }

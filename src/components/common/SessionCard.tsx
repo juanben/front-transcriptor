@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './SessionCard.css';
 
 export interface RecordingSession {
@@ -36,14 +36,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
   const [isSharable, setIsSharable] = useState(session.isSharable ?? false);
   const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false);
   const [isUpdatingShare, setIsUpdatingShare] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(session.isVisible);
-  }, [session.isVisible]);
-
-  useEffect(() => {
-    setIsSharable(session.isSharable ?? false);
-  }, [session.isSharable]);
 
   const handleToggleVisibility = async (e: React.MouseEvent) => {
     e.stopPropagation();

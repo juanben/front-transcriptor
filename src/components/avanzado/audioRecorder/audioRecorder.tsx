@@ -8,7 +8,7 @@ const AudioRecorder: React.FC = () => {
   const navigate = useNavigate()
   const { id, code } = useParams<{ id: string; code: string }>()
   const location = useLocation()
-  const sessionName = (location.state as any)?.sessionName || 'Grabación'
+  const sessionName = (location.state as { sessionName?: string })?.sessionName || 'Grabación'
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const [isRecording, setIsRecording] = useState(false)

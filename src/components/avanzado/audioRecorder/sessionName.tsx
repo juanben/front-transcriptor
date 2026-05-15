@@ -9,14 +9,8 @@ const NuevaSesion: React.FC = () => {
   const location = useLocation();
   const state = location.state as { isEdit?: boolean; sessionName?: string; sessionId?: string; roomCode?: string } | null;
     const { id } = useParams<{ id: string }>();
-  const [sessionName, setSessionName] = useState('');
+  const [sessionName, setSessionName] = useState(state?.isEdit ? state?.sessionName || '' : '');
   const [roomCode, setRoomCode] = useState(state?.roomCode || '');
-
-  useEffect(() => {
-    if (state?.isEdit && state.sessionName) {
-      setSessionName(state.sessionName);
-    }
-  }, [state]);
 
   useEffect(() => {
     if (roomCode || !id) {

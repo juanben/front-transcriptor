@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserMenu from '../common/UserMenu';
-import './OradorDashboard.css';
+import './AvanzadoDashboard.css';
 import './RoomSessions.css';
 import './Waitlist.css';
 import { roomService } from '../../services/room/roomService';
@@ -39,7 +39,7 @@ const Waitlist: React.FC = () => {
         const user = await userService.getUserMe(token);
         setOwnerEmail(user.email);
         
-        const data = await roomService.getWaitlist(roomId, user.email);
+        const data = await roomService.getWaitlist(roomId, user.email) as any;
         
         // Mapear los datos de respuesta a la estructura de WaitingUser
         // Asumimos que data puede ser un arreglo de strings (emails) o de objetos

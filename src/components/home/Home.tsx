@@ -17,15 +17,15 @@ const Home: React.FC = () => {
       <div className="role-buttons">
         <button 
           className="btn-outline" 
-          onClick={() => navigate('/orador')}
+          onClick={() => navigate('/avanzado')}
         >
-          Soy Orador
+          Perfil Avanzado
         </button>
         <button 
           className="btn-outline" 
-          onClick={() => navigate('/espectador')}
+          onClick={() => navigate('/basico')}
         >
-          Soy Espectador
+          Perfil Básico
         </button>
       </div>
 
