@@ -18,6 +18,7 @@ const BasicoDashboard: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [ownerEmail, setOwnerEmail] = useState<string>('');
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -29,6 +30,7 @@ const BasicoDashboard: React.FC = () => {
 
       try {
         const user = await userService.getUserMe(token);
+        setOwnerEmail(user.email);
         const data = await roomService.getUserRooms(user.email);
         
         const mappedSessions: Session[] = data.rooms.map(room => ({
@@ -56,12 +58,17 @@ const BasicoDashboard: React.FC = () => {
     setShowJoinModal(true);
   };
 
-  const submitJoinRoom = () => {
+  const submitJoinRoom = async () => {
     const code = joinCode.trim();
     if (code) {
-      setSessions([...sessions, { id: code, title: `Sala unida (${code})`, date: new Date().toISOString().split('T')[0] }]);
-      setShowJoinModal(false);
-      setJoinCode('');
+      try {
+        await roomService.joinWaitlist(code, ownerEmail);
+        setSessions([...sessions, { id: code, title: `Sala unida (${code})`, date: new Date().toISOString().split('T')[0], status: 'En lista de espera' }]);
+        setShowJoinModal(false);
+        setJoinCode('');
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Error al unirse a la sala');
+      }
     }
   };
 

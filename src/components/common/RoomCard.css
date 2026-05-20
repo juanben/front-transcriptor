@@ -72,6 +72,11 @@
   color: #6b7280;
 }
 
+.session-status {
+  font-weight: 600;
+  color: #f59e0b;
+}
+
 .dropdown-menu {
   position: absolute;
   top: 100%;

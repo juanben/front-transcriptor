@@ -81,13 +81,18 @@ const AvanzadoDashboard: React.FC = () => {
     setShowJoinModal(true);
   };
 
-  const submitJoinRoom = () => {
+  const submitJoinRoom = async () => {
     const code = joinCode.trim();
     if (code) {
-      setJoinedSessions([...joinedSessions, { id: code, title: `Sala unida (${code})`, date: new Date().toISOString().split('T')[0] }]);
-      setShowJoinModal(false);
-      setJoinCode('');
-      setActiveTab('joined-rooms');
+      try {
+        await roomService.joinWaitlist(code, ownerEmail);
+        setJoinedSessions([...joinedSessions, { id: code, title: `Sala unida (${code})`, date: new Date().toISOString().split('T')[0], status: 'En lista de espera' }]);
+        setShowJoinModal(false);
+        setJoinCode('');
+        setActiveTab('joined-rooms');
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Error al unirse a la sala');
+      }
     }
   };
 

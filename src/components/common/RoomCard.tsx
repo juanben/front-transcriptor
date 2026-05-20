@@ -5,6 +5,7 @@ export interface Session {
   id: string;
   title: string;
   date: string;
+  status?: string;
 }
 
 interface RoomCardProps {
@@ -33,7 +34,10 @@ const RoomCard: React.FC<RoomCardProps> = ({
       <div className="session-icon"></div>
       <div className="session-info">
         <h3>{session.title || 'Sin título'}</h3>
-        <p className="session-date-text">Creada: {session.date}</p>
+        <p className="session-date-text">
+          Creada: {session.date}
+          {session.status && <span className="session-status"> | {session.status}</span>}
+        </p>
       </div>
       <div className="session-actions" style={{ position: 'relative' }}>
         {!isEspectador && onSetOpenMenuId && (

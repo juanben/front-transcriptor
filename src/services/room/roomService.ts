@@ -160,6 +160,24 @@ export const roomService = {
   },
 
   /**
+   * Añade un usuario a la lista de espera de una sala.
+   * URL: POST /room/{room_code}/waitlist
+   */
+  async joinWaitlist(roomCode: string, userEmail: string): Promise<unknown> {
+    try {
+      const response = await apiClient.post(`/room/${encodeURIComponent(roomCode)}/waitlist`, {
+        user_email: userEmail
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al unirse a la lista de espera');
+      }
+      throw error;
+    }
+  },
+
+  /**
    * Acepta un usuario de la lista de espera.
    * URL: POST /room/{room_id}/waitlist/accept
    */
