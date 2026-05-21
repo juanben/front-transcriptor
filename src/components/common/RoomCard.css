@@ -53,17 +53,30 @@
 
 .session-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 0.5rem;
 }
 
-.btn-dots, .btn-bell {
+.btn-dots, .btn-bell, .btn-action-icon {
   background: transparent;
   border: none;
   color: #111827;
   cursor: pointer;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action-icon {
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-action-icon:hover {
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 .session-date-text {

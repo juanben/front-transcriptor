@@ -5,6 +5,19 @@ import RoomCard, { type Session } from '../common/RoomCard';
 import UserMenu from '../common/UserMenu';
 import { userService } from '../../services/user/userService';
 import { roomService } from '../../services/room/roomService';
+import type { Room } from '../../types/rooms';
+
+const mapJoinedRoomToSession = (room: Room): Session => {
+  const membershipStatus = room.membership_status ?? (room.is_waitlisted ? 'waitlist' : 'member');
+
+  return {
+    id: room._id,
+    title: room.name,
+    date: room.created_at.split('T')[0],
+    status: membershipStatus === 'waitlist' ? 'En lista de espera' : 'Unido',
+    membership_status: membershipStatus
+  };
+};
 
 const AvanzadoDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +25,7 @@ const AvanzadoDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  const [showLeaveModal, setShowLeaveModal] = useState<Session | null>(null);
   
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
 
@@ -36,15 +50,22 @@ const AvanzadoDashboard: React.FC = () => {
       try {
         const user = await userService.getUserMe(token);
         setOwnerEmail(user.email);
-        const data = await roomService.getUserRooms(user.email);
         
-        const mappedSessions: Session[] = data.rooms.map(room => ({
+        const [userData, playerRoomsData] = await Promise.all([
+          roomService.getUserRooms(user.email),
+          roomService.getPlayerRooms(user.email)
+        ]);
+        
+        const mappedSessions: Session[] = userData.rooms.map(room => ({
           id: room._id,
           title: room.name,
           date: room.created_at.split('T')[0] // Format: YYYY-MM-DD
         }));
         
+        const mappedJoinedSessions: Session[] = playerRoomsData.rooms.map(mapJoinedRoomToSession);
+        
         setSessions(mappedSessions);
+        setJoinedSessions(mappedJoinedSessions);
       } catch (error) {
           if (error instanceof Error) {
             setErrorMsg(error.message || 'Error al cargar las salas.');
@@ -77,6 +98,31 @@ const AvanzadoDashboard: React.FC = () => {
     setShowDeleteModal(id);
   };
 
+  const handleLeave = (id: string) => {
+    const session = joinedSessions.find(joinedSession => joinedSession.id === id);
+    if (session) {
+      setShowLeaveModal(session);
+    }
+  };
+
+  const confirmLeave = async () => {
+    if (!showLeaveModal) return;
+
+    try {
+      if (showLeaveModal.membership_status === 'waitlist') {
+        await roomService.leaveWaitlist(showLeaveModal.id, ownerEmail);
+      } else {
+        await roomService.leaveRoom(showLeaveModal.id, ownerEmail);
+      }
+
+      setJoinedSessions(joinedSessions.filter(session => session.id !== showLeaveModal.id));
+    } catch (error) {
+      setErrorMsg(error instanceof Error ? error.message : 'Error al salir de la sala');
+    } finally {
+      setShowLeaveModal(null);
+    }
+  };
+
   const handleJoinRoom = () => {
     setShowJoinModal(true);
   };
@@ -86,7 +132,8 @@ const AvanzadoDashboard: React.FC = () => {
     if (code) {
       try {
         await roomService.joinWaitlist(code, ownerEmail);
-        setJoinedSessions([...joinedSessions, { id: code, title: `Sala unida (${code})`, date: new Date().toISOString().split('T')[0], status: 'En lista de espera' }]);
+        const playerRoomsData = await roomService.getPlayerRooms(ownerEmail);
+        setJoinedSessions(playerRoomsData.rooms.map(mapJoinedRoomToSession));
         setShowJoinModal(false);
         setJoinCode('');
         setActiveTab('joined-rooms');
@@ -220,7 +267,7 @@ const AvanzadoDashboard: React.FC = () => {
                   : navigate('/basico/sala/' + session.id)
                 }
                 onEdit={activeTab === 'my-rooms' ? handleEdit : undefined}
-                onDelete={activeTab === 'my-rooms' ? handleDelete : undefined}
+                onDelete={activeTab === 'my-rooms' ? handleDelete : handleLeave}
                 isEspectador={activeTab === 'joined-rooms'}
               />
             ))
@@ -268,6 +315,23 @@ const AvanzadoDashboard: React.FC = () => {
             <div className="modal-actions">
               <button className="btn-modal-cancel" onClick={() => setShowDeleteModal(null)}>Cancelar</button>
               <button className="btn-modal-submit" style={{ background: '#ef4444', boxShadow: 'none' }} onClick={() => confirmDelete(showDeleteModal)}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLeaveModal && (
+        <div className="modal-overlay" onClick={() => setShowLeaveModal(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">Salir de la sala</h3>
+            <p className="modal-text">
+              {showLeaveModal.membership_status === 'waitlist' 
+                ? '¿Estás seguro de que deseas salir de la lista de espera de esta sala?' 
+                : '¿Estás seguro de que deseas salir de esta sala?'}
+            </p>
+            <div className="modal-actions">
+              <button className="btn-modal-cancel" onClick={() => setShowLeaveModal(null)}>Cancelar</button>
+              <button className="btn-modal-submit" style={{ background: '#ef4444', boxShadow: 'none' }} onClick={confirmLeave}>Salir</button>
             </div>
           </div>
         </div>

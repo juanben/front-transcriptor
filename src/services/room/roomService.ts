@@ -71,6 +71,22 @@ export const roomService = {
   },
 
   /**
+   * Recupera las salas a las cuales el usuario está unido o en lista de espera.
+   * URL: GET /room/player-rooms/{email}
+   */
+  async getPlayerRooms(email: string): Promise<UserRoomsResponse> {
+    try {
+      const response = await apiClient.get<UserRoomsResponse>(`/room/player-rooms/${encodeURIComponent(email)}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al obtener las salas del jugador');
+      }
+      throw error;
+    }
+  },
+
+  /**
    * Crea una nueva sala (room).
    * URL: POST /room/createRoom
    */
@@ -209,6 +225,42 @@ export const roomService = {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al aceptar todos los usuarios');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Elimina al usuario de la lista de espera de una sala.
+   * URL: DELETE /room/{room_id}/waitlist/self
+   */
+  async leaveWaitlist(roomId: string, userEmail: string): Promise<unknown> {
+    try {
+      const response = await apiClient.delete(`/room/${encodeURIComponent(roomId)}/waitlist/self`, {
+        data: { user_email: userEmail }
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al salir de la lista de espera');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Elimina al usuario de los miembros de una sala.
+   * URL: DELETE /room/{room_id}/members/self
+   */
+  async leaveRoom(roomId: string, userEmail: string): Promise<unknown> {
+    try {
+      const response = await apiClient.delete(`/room/${encodeURIComponent(roomId)}/members/self`, {
+        data: { user_email: userEmail }
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al salir de la sala');
       }
       throw error;
     }

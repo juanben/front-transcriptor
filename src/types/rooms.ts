@@ -9,4 +9,8 @@ export interface Room {
   members: Array<string>;
   waitlist: Array<string>;
   room_code?: string;
+  visible?: boolean;
+  is_member?: boolean;
+  is_waitlisted?: boolean;
+  membership_status?: 'member' | 'waitlist' | 'none' | string;
 }
