@@ -15,7 +15,8 @@ const mapJoinedRoomToSession = (room: Room): Session => {
     title: room.name,
     date: room.created_at.split('T')[0],
     status: membershipStatus === 'waitlist' ? 'En lista de espera' : 'Unido',
-    membership_status: membershipStatus
+    membership_status: membershipStatus,
+    room_code: room.room_code
   };
 };
 
@@ -33,6 +34,7 @@ const AvanzadoDashboard: React.FC = () => {
   const [joinedSessions, setJoinedSessions] = useState<Session[]>([]);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [joinCode, setJoinCode] = useState('');
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,7 +61,8 @@ const AvanzadoDashboard: React.FC = () => {
         const mappedSessions: Session[] = userData.rooms.map(room => ({
           id: room._id,
           title: room.name,
-          date: room.created_at.split('T')[0] // Format: YYYY-MM-DD
+          date: room.created_at.split('T')[0], // Format: YYYY-MM-DD
+          room_code: room.room_code
         }));
         
         const mappedJoinedSessions: Session[] = playerRoomsData.rooms.map(mapJoinedRoomToSession);
@@ -124,12 +127,23 @@ const AvanzadoDashboard: React.FC = () => {
   };
 
   const handleJoinRoom = () => {
+    setJoinError(null);
+    setJoinCode('');
     setShowJoinModal(true);
   };
 
   const submitJoinRoom = async () => {
     const code = joinCode.trim();
     if (code) {
+      if (joinedSessions.some(session => session.room_code === code)) {
+        alert('Ya te has unido o estás en lista de espera para esta sala.');
+        return;
+      }
+      if (sessions.some(session => session.room_code === code)) {
+        alert('No puedes unirte a tu propia sala.');
+        return;
+      }
+
       try {
         await roomService.joinWaitlist(code, ownerEmail);
         const playerRoomsData = await roomService.getPlayerRooms(ownerEmail);
@@ -264,7 +278,7 @@ const AvanzadoDashboard: React.FC = () => {
                 onSetOpenMenuId={setOpenMenuId}
                 onClick={() => activeTab === 'my-rooms' 
                   ? navigate('/sala/' + session.id) 
-                  : navigate('/basico/sala/' + session.id)
+                  : navigate('/sala-unida/' + session.id)
                 }
                 onEdit={activeTab === 'my-rooms' ? handleEdit : undefined}
                 onDelete={activeTab === 'my-rooms' ? handleDelete : handleLeave}
@@ -344,13 +358,14 @@ const AvanzadoDashboard: React.FC = () => {
             <p className="modal-text">Ingresa el código de acceso proporcionado para unirte a la sala.</p>
             <input 
               type="text" 
-              className="modal-input" 
+              className={`modal-input ${joinError ? 'error' : ''}`} 
               placeholder="Ej. C7B-9P" 
               value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
+              onChange={(e) => { setJoinCode(e.target.value); setJoinError(null); }}
               onKeyDown={(e) => e.key === 'Enter' && submitJoinRoom()}
               autoFocus
             />
+            {joinError && <p style={{ color: '#ef4444', fontSize: '0.85rem', margin: '0.5rem 0 0 0', textAlign: 'left' }}>{joinError}</p>}
             <div className="modal-actions">
               <button className="btn-modal-cancel" onClick={() => setShowJoinModal(false)}>Cancelar</button>
               <button className="btn-modal-submit" onClick={submitJoinRoom}>Unirme</button>

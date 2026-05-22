@@ -7,6 +7,7 @@ import Home from './components/home/Home';
 import AvanzadoDashboard from './components/avanzado/AvanzadoDashboard';
 import NuevaSesion from './components/avanzado/newRoom';
 import RoomSessions from './components/avanzado/RoomSessions';
+import JoinedRoomSessions from './components/avanzado/JoinedRoomSessions';
 import Waitlist from './components/avanzado/Waitlist';
 import SessionDetail from './components/avanzado/SessionDetail';
 import AudioRecorder from './components/avanzado/audioRecorder/audioRecorder';
@@ -33,6 +34,7 @@ const AppRouter = () => {
         <Route path="/avanzado" element={<AuthGuard><AvanzadoDashboard /></AuthGuard>} />
         <Route path="/new-room" element={<AuthGuard><NuevaSesion /></AuthGuard>} />
         <Route path="/sala/:id" element={<AuthGuard><RoomSessions /></AuthGuard>} />
+        <Route path="/sala-unida/:id" element={<AuthGuard><JoinedRoomSessions /></AuthGuard>} />
         <Route path="/sala/:id/lista-espera" element={<AuthGuard><Waitlist /></AuthGuard>} />
         <Route path="/sala/:id/sesion/:sessionId" element={<AuthGuard><SessionDetail /></AuthGuard>} />
         <Route path="/sala/:id/sesion/:code/audio" element={<AuthGuard><AudioRecorder /></AuthGuard>} />
@@ -42,6 +44,7 @@ const AppRouter = () => {
         {/* Basico */}
         <Route path="/basico" element={<AuthGuard><BasicoDashboard /></AuthGuard>} />
         <Route path="/basico/sala/:id" element={<AuthGuard><BasicoRoomSessions /></AuthGuard>} />
+        <Route path="/basico/sala/:id/sesion/:sessionId" element={<AuthGuard><SessionDetail /></AuthGuard>} />
         
         {/* Testing */}
         <Route path="/testRec" element={<AuthGuard><App /></AuthGuard>} />

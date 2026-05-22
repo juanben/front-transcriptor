@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import UserMenu from '../common/UserMenu';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
@@ -7,8 +7,11 @@ import './SessionDetail.css';
 
 const SessionDetail: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id, sessionId } = useParams<{ id: string; sessionId: string }>();
   const [activeTab, setActiveTab] = useState<'Resumen' | 'Transcripcion'>('Resumen');
+  
+  const isEspectador = location.state?.isEspectador || false;
 
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,7 +104,7 @@ const SessionDetail: React.FC = () => {
         <div className="header-top-row">
           <button 
             className="btn-back-text" 
-            onClick={() => navigate(`/sala/${id}`)} 
+            onClick={() => navigate(-1)} 
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -171,14 +174,16 @@ const SessionDetail: React.FC = () => {
             </div>
 
             <div className="session-action-buttons">
-              <button className="btn-secondary-large" onClick={handleOpenModal}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                  <polyline points="2 17 12 22 22 17"></polyline>
-                  <polyline points="2 12 12 17 22 12"></polyline>
-                </svg>
-                Recursos complementarios
-              </button>
+              {!isEspectador && (
+                <button className="btn-secondary-large" onClick={handleOpenModal}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                  </svg>
+                  Recursos complementarios
+                </button>
+              )}
               
               <button className="btn-secondary-large" onClick={() => {
                   const resourceLink = session?.complementaryResourses || session?.complementaryResources;

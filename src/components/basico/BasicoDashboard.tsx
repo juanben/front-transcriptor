@@ -14,6 +14,7 @@ const BasicoDashboard: React.FC = () => {
   
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [joinCode, setJoinCode] = useState('');
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +37,8 @@ const BasicoDashboard: React.FC = () => {
         const mappedSessions: Session[] = data.rooms.map(room => ({
           id: room._id,
           title: room.name,
-          date: room.created_at.split('T')[0]
+          date: room.created_at.split('T')[0],
+          room_code: room.room_code
         }));
         
         setSessions(mappedSessions);
@@ -55,19 +57,32 @@ const BasicoDashboard: React.FC = () => {
   }, [navigate]);
 
   const handleJoinRoom = () => {
+    setJoinError(null);
+    setJoinCode('');
     setShowJoinModal(true);
   };
 
   const submitJoinRoom = async () => {
     const code = joinCode.trim();
     if (code) {
+      if (sessions.some(session => session.room_code === code)) {
+        setJoinError('Sala ya agregada');
+        return;
+      }
+
       try {
         await roomService.joinWaitlist(code, ownerEmail);
-        setSessions([...sessions, { id: code, title: `Sala unida (${code})`, date: new Date().toISOString().split('T')[0], status: 'En lista de espera' }]);
+        setSessions([...sessions, { 
+          id: code, 
+          title: `Sala unida (${code})`, 
+          date: new Date().toISOString().split('T')[0], 
+          status: 'En lista de espera',
+          room_code: code 
+        }]);
         setShowJoinModal(false);
         setJoinCode('');
       } catch (error) {
-        alert(error instanceof Error ? error.message : 'Error al unirse a la sala');
+        setJoinError(error instanceof Error ? error.message : 'Error al unirse a la sala');
       }
     }
   };
@@ -203,13 +218,14 @@ const BasicoDashboard: React.FC = () => {
             <p className="modal-text">Ingresa el código de acceso proporcionado por el perfil avanzado para acceder a sus grabaciones.</p>
             <input 
               type="text" 
-              className="modal-input" 
+              className={`modal-input ${joinError ? 'error' : ''}`} 
               placeholder="Ej. C7B-9P" 
               value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
+              onChange={(e) => { setJoinCode(e.target.value); setJoinError(null); }}
               onKeyDown={(e) => e.key === 'Enter' && submitJoinRoom()}
               autoFocus
             />
+            {joinError && <p style={{ color: '#ef4444', fontSize: '0.85rem', margin: '0.5rem 0 0 0', textAlign: 'left' }}>{joinError}</p>}
             <div className="modal-actions">
               <button className="btn-modal-cancel" onClick={() => setShowJoinModal(false)}>Cancelar</button>
               <button className="btn-modal-submit" onClick={submitJoinRoom}>Unirme</button>

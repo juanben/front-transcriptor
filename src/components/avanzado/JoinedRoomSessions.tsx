@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SessionCard, { type RecordingSession } from '../common/SessionCard';
 import UserMenu from '../common/UserMenu';
-import '../avanzado/AvanzadoDashboard.css';
-import '../avanzado/RoomSessions.css';
+import './AvanzadoDashboard.css';
+import './RoomSessions.css';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
+import { roomService } from '../../services/room/roomService';
 
 // Funciones auxiliares para el calendario
 const getWeekDays = (currentDate: Date) => {
   const date = new Date(currentDate);
-  const day = date.getDay(); 
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1); 
+  const day = date.getDay(); // 0 es Domingo, 1 es Lunes
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Ajustar cuando el día es domingo
   const monday = new Date(date.setDate(diff));
   
   const week = [];
@@ -52,20 +53,19 @@ const getComplementaryResource = (session?: Session) => {
   return resource?.toString() || '';
 };
 
-const EspectadorRoomSessions: React.FC = () => {
+const JoinedRoomSessions: React.FC = () => {
   const navigate = useNavigate();
   const { id: roomIdFromParams } = useParams<{ id: string }>();
   const roomId = roomIdFromParams?.trim();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [roomName, setRoomName] = useState('');
+  const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showAllDates, setShowAllDates] = useState(true);
 
-  const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [showResourceModal, setShowResourceModal] = useState<string | null>(null);
   const [resourceLink, setResourceLink] = useState('');
 
@@ -85,12 +85,27 @@ const EspectadorRoomSessions: React.FC = () => {
         }
 
         const user = await userService.getUserMe(token);
-        const data = await sessionService.getSessionsByRoomId(roomId, user.email);
+        
+        const [data, roomsData] = await Promise.all([
+          sessionService.getSessionsByRoomId(roomId, user.email),
+          roomService.getPlayerRooms(user.email).catch(() => ({ rooms: [] }))
+        ]);
+
+        // Solo mostrar sesiones visibles para espectadores
         setSessions(data.sessions.filter(s => s.visible));
         setRoomName(data.room_name);
+        
+        const currentRoom = roomsData.rooms.find(r => r._id === roomId || r.id === roomId);
+        setRoomCode(currentRoom?.room_code || data.sessions[0]?.room_code || '');
+        
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Ocurrió un error al cargar las sesiones.');
+        if (err instanceof Error) {
+          setError(err.message || 'Ocurrió un error al cargar las sesiones.');
+        } else {
+          setError('Ocurrió un error al cargar las sesiones.');
+        }
+        setRoomCode('Error');
       } finally {
         setLoading(false);
       }
@@ -117,9 +132,10 @@ const EspectadorRoomSessions: React.FC = () => {
 
   const filteredSessions: RecordingSession[] = sessions
     .filter(session => {
-      const matchSearch = session.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchDate = showAllDates || session.created_at.split('T')[0] === formatDateForFilter(selectedDate);
-      return session.visible && matchSearch && matchDate;
+      if (!showAllDates && session.created_at.split('T')[0] !== formatDateForFilter(selectedDate)) {
+        return false;
+      }
+      return session.visible;
     })
     .map((session): RecordingSession => ({
       id: session.session_id,
@@ -127,20 +143,14 @@ const EspectadorRoomSessions: React.FC = () => {
       date: session.created_at.split('T')[0],
       duration: 'N/A',
       isVisible: session.visible,
+      isProcessing: ['processing', 'pending', 'transcribing'].includes(session.status),
       isSharable: session.allow_download,
     }));
-
-  const confirmDelete = () => {
-    if (showDeleteModal) {
-      setSessions(sessions.filter(s => s.session_id !== showDeleteModal));
-      setShowDeleteModal(null);
-    }
-  };
 
   const openResourceModal = (sessionId: string) => {
     const selectedSession = sessions.find(session => session.session_id === sessionId);
     setShowResourceModal(sessionId);
-    setResourceLink(getComplementaryResource(selectedSession)); 
+    setResourceLink(getComplementaryResource(selectedSession));
   };
 
   const weekDays = getWeekDays(selectedDate);
@@ -156,7 +166,7 @@ const EspectadorRoomSessions: React.FC = () => {
         <div className="header-top-row">
           <button 
             className="btn-back-text" 
-            onClick={() => navigate('/espectador')} 
+            onClick={() => navigate('/avanzado')} 
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -181,6 +191,10 @@ const EspectadorRoomSessions: React.FC = () => {
         <div className="room-title-row">
           <h2 className="room-title-text">{loading ? 'Cargando...' : roomName}</h2>
         </div>
+
+        <div className="room-code-display">
+          Código: {loading ? '...' : roomCode || 'N/A'}
+        </div>
       </header>
 
       <main className="dashboard-content room-content-main">
@@ -189,18 +203,7 @@ const EspectadorRoomSessions: React.FC = () => {
 
         {!loading && !error && (
           <>
-        <div className="search-bar-container" style={{ margin: '1rem 0' }}>
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder="Buscar grabaciones por nombre..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ width: '100%', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(148, 163, 184, 0.4)', backgroundColor: '#fff', fontSize: '1rem' }}
-          />
-        </div>
-
-        <div className="calendar-widget">
+        <div className="calendar-widget" style={{ marginTop: '1rem' }}>
           <div className="calendar-header">
             <button className="btn-cal-nav" onClick={handlePrevWeek}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -224,8 +227,10 @@ const EspectadorRoomSessions: React.FC = () => {
                 onClick={(e) => {
                   try {
                     (e.target as HTMLInputElement).showPicker();
-                  } catch {
-                    // Ignorar error si showPicker no está soportado
+                  } catch (err) {
+                    if (err instanceof Error) {
+                      console.error(err.message);
+                    }
                   }
                 }}
                 onChange={(e) => {
@@ -281,41 +286,27 @@ const EspectadorRoomSessions: React.FC = () => {
           </h3>
         </div>
 
-        <div className="sessions-list" style={{ marginTop: '1rem' }}>
+        <div className="sessions-list">
           {filteredSessions.length > 0 ? (
             filteredSessions.map((session) => (
               <SessionCard
                 key={session.id}
                 session={session}
-                onClick={() => navigate(`/basico/sala/${roomId}/sesion/${session.id}`, { state: { isEspectador: true } })}
-                onClickPlay={() => navigate(`/basico/sala/${roomId}/sesion/${session.id}`, { state: { isEspectador: true } })}
+                onClick={() => navigate(`/sala/${roomId}/sesion/${session.id}`, { state: { isEspectador: true } })}
+                onClickPlay={() => navigate(`/sala/${roomId}/sesion/${session.id}`, { state: { isEspectador: true } })}
                 onComplementaryResource={() => openResourceModal(session.id)}
-                onDelete={(sessionId) => setShowDeleteModal(sessionId)}
                 isEspectador={true}
               />
             ))
           ) : (
             <p className="empty-state-text">
-              {searchQuery ? "No se encontraron grabaciones con ese nombre." : "No hay grabaciones disponibles en esta fecha."}
+              No hay grabaciones para mostrar en esta fecha.
             </p>
           )}
         </div>
         </>
         )}
       </main>
-
-      {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3 className="modal-title">Ocultar grabación</h3>
-            <p className="modal-text">¿Estás seguro de que deseas ocultar esta grabación de tu vista? No podrás volver a verla a menos que te unas a la sala de nuevo.</p>
-            <div className="modal-actions">
-              <button className="btn-modal-cancel" onClick={() => setShowDeleteModal(null)}>Cancelar</button>
-              <button className="btn-modal-submit" style={{ background: '#ef4444', boxShadow: 'none' }} onClick={confirmDelete}>Ocultar</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {showResourceModal && (
         <div className="modal-overlay" onClick={() => setShowResourceModal(null)}>
@@ -353,4 +344,4 @@ const EspectadorRoomSessions: React.FC = () => {
   );
 };
 
-export default EspectadorRoomSessions;
+export default JoinedRoomSessions;

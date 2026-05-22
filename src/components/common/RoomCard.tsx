@@ -7,6 +7,7 @@ export interface Session {
   date: string;
   status?: string;
   membership_status?: string;
+  room_code?: string;
 }
 
 interface RoomCardProps {
@@ -30,8 +31,17 @@ const RoomCard: React.FC<RoomCardProps> = ({
   onDelete,
   isEspectador = false
 }) => {
+  const isWaitlisted = session.membership_status === 'waitlist';
+
   return (
-    <div className="session-card" onClick={onClick}>
+    <div 
+      className={`session-card ${isWaitlisted ? 'waitlisted' : ''}`} 
+      onClick={() => {
+        if (!isWaitlisted) {
+          onClick();
+        }
+      }}
+    >
       <div className="session-icon"></div>
       <div className="session-info">
         <h3>{session.title || 'Sin título'}</h3>
@@ -39,6 +49,11 @@ const RoomCard: React.FC<RoomCardProps> = ({
           Creada: {session.date}
           {session.status && <span className="session-status"> | {session.status}</span>}
         </p>
+        {session.room_code && (
+          <p className="session-code-text" style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#6b7280', fontWeight: '500' }}>
+            Código: <span style={{ fontFamily: 'monospace', background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', letterSpacing: '1px' }}>{session.room_code}</span>
+          </p>
+        )}
       </div>
       <div className="session-actions" style={{ position: 'relative', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
         {onDelete && (
