@@ -78,68 +78,70 @@ function App() {
   }
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>🎙️ Grabador de Voz PWA</h1>
-        <p>Graba, reproduce y descarga tus notas de voz</p>
-      </header>
+    <div className="app-testing-layout">
+      <div className="app-container">
+        <header className="app-header">
+          <h1>🎙️ Grabador de Voz PWA</h1>
+          <p>Graba, reproduce y descarga tus notas de voz</p>
+        </header>
 
-      <div className="recording-section">
-        <div className="timer-display">
-          {isRecording && <span className="recording-indicator">● Grabando</span>}
-          <span className="time">{formatTime(recordingTime)}</span>
-        </div>
+        <div className="recording-section">
+          <div className="timer-display">
+            {isRecording && <span className="recording-indicator">● Grabando</span>}
+            <span className="time">{formatTime(recordingTime)}</span>
+          </div>
 
-        <div className="button-group">
-          {!isRecording ? (
-            <button 
-              className="btn btn-record" 
-              onClick={startRecording}
-              disabled={isRecording}
-            >
-              ⏺️ Iniciar Grabación
-            </button>
-          ) : (
-            <button 
-              className="btn btn-stop" 
-              onClick={stopRecording}
-            >
-              ⏹️ Detener
-            </button>
+          <div className="button-group">
+            {!isRecording ? (
+              <button 
+                className="btn btn-record" 
+                onClick={startRecording}
+                disabled={isRecording}
+              >
+                ⏺️ Iniciar Grabación
+              </button>
+            ) : (
+              <button 
+                className="btn btn-stop" 
+                onClick={stopRecording}
+              >
+                ⏹️ Detener
+              </button>
+            )}
+          </div>
+
+          {audioURL && (
+            <div className="playback-section">
+              <h3>Grabación guardada</h3>
+              <audio 
+                src={audioURL} 
+                controls 
+                className="audio-player"
+              />
+              <div className="action-buttons">
+                <button className="btn btn-download" onClick={downloadRecording}>
+                  ⬇️ Descargar
+                </button>
+                <button className="btn btn-clear" onClick={clearRecording}>
+                  🗑️ Limpiar
+                </button>
+              </div>
+            </div>
           )}
         </div>
 
-        {audioURL && (
-          <div className="playback-section">
-            <h3>Grabación guardada</h3>
-            <audio 
-              src={audioURL} 
-              controls 
-              className="audio-player"
-            />
-            <div className="action-buttons">
-              <button className="btn btn-download" onClick={downloadRecording}>
-                ⬇️ Descargar
-              </button>
-              <button className="btn btn-clear" onClick={clearRecording}>
-                🗑️ Limpiar
-              </button>
+        {showErrorModal && (
+          <div className="modal-overlay" onClick={() => setShowErrorModal(false)}>
+            <div className="modal-box" onClick={e => e.stopPropagation()}>
+              <h3 className="modal-title">Error de Micrófono</h3>
+              <p className="modal-text">No se pudo acceder al micrófono. Por favor, verifica que esté conectado y que hayas concedido los permisos necesarios en tu navegador.</p>
+              <div className="modal-actions" style={{ justifyContent: 'center' }}>
+                <button className="btn btn-record" style={{ width: '100%' }} onClick={() => setShowErrorModal(false)}>Entendido</button>
+              </div>
             </div>
           </div>
         )}
       </div>
-
-      {showErrorModal && (
-        <div className="modal-overlay" onClick={() => setShowErrorModal(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3 className="modal-title">Error de Micrófono</h3>
-            <p className="modal-text">No se pudo acceder al micrófono. Por favor, verifica que esté conectado y que hayas concedido los permisos necesarios en tu navegador.</p>
-            <div className="modal-actions" style={{ justifyContent: 'center' }}>
-              <button className="btn btn-record" style={{ width: '100%' }} onClick={() => setShowErrorModal(false)}>Entendido</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
