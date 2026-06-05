@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/user/userService';
 import { roomService } from '../../services/room/roomService';
 import { sessionService, type Session } from '../../services/session/sessionService';
+import BasicoOwnRecords from './BasicoOwnRecords';
 import './BasicoMenu.css';
 
 interface RoomItem {
@@ -64,53 +65,45 @@ const BasicoMenu: React.FC = () => {
     navigate('/home');
   };
 
-  // Cargar salas del usuario (tanto propias como unidas) para iniciar grabación
+  // Crear o recuperar la sala por defecto y navegar al grabador
   const handleStartRecordingClick = async () => {
-    speakText('Iniciar grabación. Selecciona una sala.');
+    speakText('Iniciando grabación en sala por defecto.');
     setIsLoading(true);
     setErrorMsg(null);
-    setViewState('select-room');
 
     try {
-      // Obtener salas que posee y salas a las que se ha unido
-      const [ownedData, playerData] = await Promise.all([
-        roomService.getUserRooms(userEmail).catch(() => ({ rooms: [] })),
-        roomService.getPlayerRooms(userEmail).catch(() => ({ rooms: [] }))
-      ]);
+      let roomData;
+      try {
+        roomData = await roomService.createDefaultRoom(userEmail);
+      } catch (error) {
+        console.log('La sala por defecto ya podría existir, intentando recuperar...', error);
+        roomData = await roomService.getDefaultRoom(userEmail);
+      }
 
-      const allRooms: RoomItem[] = [];
+      // Extraer el ID dependiendo de la estructura de respuesta (ej: roomData.room._id o roomData._id)
+      const defaultRoomId = roomData?.room?._id || roomData?._id;
+      const defaultRoomName = roomData?.room?.name || roomData?.name || 'Sala General';
+      const defaultRoomCode = roomData?.room?.room_code || roomData?.room_code || '';
 
-      // Añadir salas propias
-      ownedData.rooms.forEach(r => {
-        allRooms.push({ id: r._id, name: r.name, code: r.room_code });
-      });
+      if (!defaultRoomId) {
+        throw new Error('No se pudo obtener el ID de la sala por defecto.');
+      }
 
-      // Añadir salas unidas donde no esté en lista de espera
-      playerData.rooms.forEach(r => {
-        const membership = r.membership_status ?? (r.is_waitlisted ? 'waitlist' : 'member');
-        if (membership !== 'waitlist') {
-          // Evitar duplicados
-          if (!allRooms.some(existing => existing.id === r._id)) {
-            allRooms.push({ id: r._id, name: r.name, code: r.room_code });
-          }
-        }
-      });
-
-      setRooms(allRooms);
+      speakText(`Abriendo grabador en ${defaultRoomName}.`);
+      navigate(`/basico/grabar/${defaultRoomId}`, { state: { roomName: defaultRoomName, roomCode: defaultRoomCode } });
     } catch (error) {
-      console.error('Error al cargar salas:', error);
-      setErrorMsg('Error al cargar las salas disponibles.');
-    } finally {
+      console.error('Error al iniciar grabación en sala por defecto:', error);
+      setErrorMsg('Error al preparar la sala de grabación.');
       setIsLoading(false);
     }
   };
 
   const selectRoomForRecording = (room: RoomItem) => {
     speakText(`Sala seleccionada: ${room.name}. Abriendo grabador.`);
-    navigate(`/basico/grabar/${room.id}`, { state: { roomName: room.name } });
+    navigate(`/basico/grabar/${room.id}`, { state: { roomName: room.name, roomCode: room.code } });
   };
 
-  // Cargar grabaciones propias del usuario en todas sus salas
+  // Cargar grabaciones propias del usuario solo en la sala por defecto
   const handleMyRecordingsClick = async () => {
     speakText('Abriendo mis grabaciones.');
     setIsLoading(true);
@@ -118,33 +111,24 @@ const BasicoMenu: React.FC = () => {
     setViewState('my-recordings');
 
     try {
-      // 1. Obtener todas sus salas
-      const [ownedData, playerData] = await Promise.all([
-        roomService.getUserRooms(userEmail).catch(() => ({ rooms: [] })),
-        roomService.getPlayerRooms(userEmail).catch(() => ({ rooms: [] }))
-      ]);
+      // 1. Obtener la sala por defecto
+      let defaultRoomData;
+      try {
+        defaultRoomData = await roomService.getDefaultRoom(userEmail);
+      } catch (error) {
+        defaultRoomData = await roomService.createDefaultRoom(userEmail);
+      }
 
-      const roomIds = new Set<string>();
-      ownedData.rooms.forEach(r => roomIds.add(r._id));
-      playerData.rooms.forEach(r => {
-        const membership = r.membership_status ?? (r.is_waitlisted ? 'waitlist' : 'member');
-        if (membership !== 'waitlist') {
-          roomIds.add(r._id);
-        }
-      });
+      const defaultRoomId = defaultRoomData?.room?._id || defaultRoomData?._id;
 
-      // 2. Traer sesiones de cada sala
-      const fetchSessionsPromises = Array.from(roomIds).map(async (roomId) => {
-        try {
-          const res = await sessionService.getSessionsByRoomId(roomId, userEmail);
-          return res.sessions;
-        } catch {
-          return [];
-        }
-      });
+      if (!defaultRoomId) {
+        setMyRecordings([]);
+        return;
+      }
 
-      const allSessionsArrays = await Promise.all(fetchSessionsPromises);
-      const allSessions = allSessionsArrays.flat();
+      // 2. Traer sesiones de la sala por defecto
+      const res = await sessionService.getSessionsByRoomId(defaultRoomId, userEmail);
+      const allSessions = res.sessions || [];
 
       // 3. Filtrar las creadas por este usuario
       const userSessions = allSessions.filter(s => s.creator_email === userEmail);
@@ -178,8 +162,8 @@ const BasicoMenu: React.FC = () => {
         </button>
 
         <div className="basico-header-title">
-          <h2>Menú Básico</h2>
-          <span className="user-indicator">Usuario: {userName}</span>
+          <h2>Modo Básico</h2>
+          <span className="user-indicator">Bienvenido: {userName}</span>
         </div>
 
         <button 
@@ -308,57 +292,16 @@ const BasicoMenu: React.FC = () => {
 
         {/* SUB-VISTA: MIS GRABACIONES */}
         {viewState === 'my-recordings' && (
-          <div className="accessible-subview">
-            <div className="subview-header">
-              <button 
-                className="btn-back-giant" 
-                onClick={() => {
-                  speakText('Volviendo al menú principal');
-                  setViewState('menu');
-                }}
-                onFocus={() => speakText('Botón volver atrás')}
-              >
-                ← Volver al Menú
-              </button>
-              <h3 className="subview-title">Mis Grabaciones Guardadas</h3>
-            </div>
-
-            {isLoading ? (
-              <div className="subview-message">Cargando grabaciones...</div>
-            ) : errorMsg ? (
-              <div className="subview-message error">{errorMsg}</div>
-            ) : myRecordings.length > 0 ? (
-              <div className="accessible-list-grid">
-                {myRecordings.map(session => (
-                  <button 
-                    key={session.session_id} 
-                    className="btn-item-giant recording-item" 
-                    onClick={() => {
-                      speakText(`Abriendo detalle de ${session.name}`);
-                      // Redirigir al detalle de la sesión usando el enrutamiento existente
-                      navigate(`/basico/sala/${session.room_id}/sesion/${session.session_id}`, { state: { isEspectador: true } });
-                    }}
-                    onFocus={() => speakText(`Grabación ${session.name}, grabada el ${session.created_at.split('T')[0]}`)}
-                  >
-                    <div className="recording-details">
-                      <span className="recording-name">{session.name}</span>
-                      <span className="recording-date">Fecha: {session.created_at.split('T')[0]}</span>
-                      <span className="recording-status">Estado: {session.status === 'completed' ? 'Completado' : 'Procesando'}</span>
-                    </div>
-                    <div className="recording-action-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
-                      </svg>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="subview-message">
-                No tienes grabaciones propias en el sistema.
-              </div>
-            )}
-          </div>
+          <BasicoOwnRecords
+            myRecordings={myRecordings}
+            isLoading={isLoading}
+            errorMsg={errorMsg}
+            onBack={() => {
+              speakText('Volviendo al menú principal');
+              setViewState('menu');
+            }}
+            speakText={speakText}
+          />
         )}
       </main>
     </div>

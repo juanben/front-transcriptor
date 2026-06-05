@@ -87,6 +87,38 @@ export const roomService = {
   },
 
   /**
+   * Crea la sala por defecto de un usuario.
+   * URL: POST /room/createDefaultRoom
+   */
+  async createDefaultRoom(ownerEmail: string): Promise<any> {
+    try {
+      const response = await apiClient.post('/room/createDefaultRoom', { owner_email: ownerEmail });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al crear la sala por defecto');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Recupera la sala por defecto de un usuario.
+   * URL: POST /room/getDefaultRoom
+   */
+  async getDefaultRoom(ownerEmail: string): Promise<any> {
+    try {
+      const response = await apiClient.post('/room/getDefaultRoom', { owner_email: ownerEmail });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al obtener la sala por defecto');
+      }
+      throw error;
+    }
+  },
+
+  /**
    * Crea una nueva sala (room).
    * URL: POST /room/createRoom
    */

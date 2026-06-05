@@ -9,8 +9,10 @@ const BasicoAudioRecorder: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Obtener nombre de la sala si se pasó por el estado de navegación
-  const roomName = (location.state as { roomName?: string })?.roomName || 'Sala';
+  // Obtener nombre y código de la sala si se pasaron por el estado de navegación
+  const locationState = location.state as { roomName?: string; roomCode?: string };
+  const roomName = locationState?.roomName || 'Sala';
+  const roomCode = locationState?.roomCode || '';
 
   const [userEmail, setUserEmail] = useState<string>('');
   const [isRecording, setIsRecording] = useState(false);
@@ -193,6 +195,19 @@ const BasicoAudioRecorder: React.FC = () => {
     setShowDiscardModal(false);
   };
 
+  const goHome = () => {
+    if (isRecording) stopRecording();
+    speakText('Volviendo a la pantalla principal');
+    navigate('/home');
+  };
+
+  const handleLogout = () => {
+    if (isRecording) stopRecording();
+    speakText('Cerrando sesión');
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   const handleCancelBack = () => {
     if (isRecording) {
       stopRecording();
@@ -203,20 +218,45 @@ const BasicoAudioRecorder: React.FC = () => {
 
   return (
     <div className="basico-recorder-screen">
-      <header className="basico-recorder-header">
+      {/* Barra de menú superior extra ancha (estilo BasicoMenu) */}
+      <header className="basico-header">
         <button 
-          className="btn-header-back-large" 
+          className="btn-header-large btn-header-home" 
           onClick={handleCancelBack}
-          onFocus={() => speakText('Volver al menú')}
+          onFocus={() => speakText('Volver al menú básico')}
+          title="Volver al Menú"
         >
-          ← Menú
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          <span>Atrás</span>
         </button>
-        <div className="recorder-title-info">
-          <h2>Grabación Accesible</h2>
-          <span className="room-indicator">Sala: {roomName}</span>
-        </div>
-      </header>
 
+        <div className="basico-header-title">
+          <h2>Grabar</h2>
+          <span className="user-indicator">
+            {roomName} 
+          </span>
+        </div>
+
+        <button 
+          className="btn-header-large btn-header-logout" 
+          onClick={handleLogout}
+          onFocus={() => speakText('Botón cerrar sesión')}
+          title="Cerrar Sesión"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Salir</span>
+        </button>
+      </header>
+      <div className="basico-recorder-conten">
+              <span className="access-code-label">Código de Acceso:</span>
+              <span className="access-code-value">{roomCode}</span>
+            </div>
       <main className="basico-recorder-content">
         {/* Indicador de tiempo gigante */}
         <div className="timer-giant-display">
