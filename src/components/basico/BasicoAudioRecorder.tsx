@@ -350,6 +350,17 @@ const BasicoAudioRecorder: React.FC = () => {
         )}
       </main>
 
+      {/* Botón Volver al Menú abajo y centrado */}
+      <div className="subview-footer" style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', marginBottom: '2rem', width: '100%' }}>
+        <button 
+          className="btn-back-giant" 
+          onClick={handleCancelBack}
+          onFocus={() => speakText('Botón volver atrás')}
+        >
+          ← Volver al Menú
+        </button>
+      </div>
+
       {/* Modal gigante de confirmación para descartar */}
       {showDiscardModal && (
         <div className="discard-modal-overlay">

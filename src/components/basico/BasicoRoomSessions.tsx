@@ -1,82 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import SessionCard, { type RecordingSession } from '../common/SessionCard';
-import UserMenu from '../common/UserMenu';
-import '../avanzado/AvanzadoDashboard.css';
-import '../avanzado/RoomSessions.css';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
-
-// Funciones auxiliares para el calendario
-const getWeekDays = (currentDate: Date) => {
-  const date = new Date(currentDate);
-  const day = date.getDay(); 
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1); 
-  const monday = new Date(date.setDate(diff));
-  
-  const week = [];
-  for (let i = 0; i < 7; i++) {
-    const nextDate = new Date(monday);
-    nextDate.setDate(monday.getDate() + i);
-    week.push(nextDate);
-  }
-  return week;
-};
-
-const getMonthNameShort = (date: Date) => {
-  const str = date.toLocaleDateString('es-ES', { month: 'short' });
-  return str.replace('.', '');
-};
-
-const getDayNameShort = (date: Date) => {
-  const name = date.toLocaleDateString('es-ES', { weekday: 'short' });
-  return name.charAt(0).toUpperCase() + name.slice(1, 3).replace('.', '');
-};
-
-const getFullDateString = (date: Date) => {
-  return date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-};
-
-const formatDateForFilter = (date: Date) => {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-};
-
-const getComplementaryResource = (session?: Session) => {
-  const resource = session?.complementaryResourses ?? session?.complementaryResources;
-  if (Array.isArray(resource)) {
-    return resource.filter(Boolean).join('\n');
-  }
-  return resource?.toString() || '';
-};
+import './BasicoMenu.css';
 
 const EspectadorRoomSessions: React.FC = () => {
   const navigate = useNavigate();
   const { id: roomIdFromParams } = useParams<{ id: string }>();
   const roomId = roomIdFromParams?.trim();
+
   const [sessions, setSessions] = useState<Session[]>([]);
   const [roomName, setRoomName] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showAllDates, setShowAllDates] = useState(true);
-
-  const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
-  const [showResourceModal, setShowResourceModal] = useState<string | null>(null);
-  const [resourceLink, setResourceLink] = useState('');
+  // Síntesis de voz para accesibilidad
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   useEffect(() => {
     const fetchRoomData = async () => {
       if (!roomId) {
-        setError('No se encontró el ID de la sala.');
-        setLoading(false);
+        setErrorMsg('No se encontró el ID de la sala.');
+        setIsLoading(false);
         return;
       }
-      setLoading(true);
+      setIsLoading(true);
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -85,270 +40,140 @@ const EspectadorRoomSessions: React.FC = () => {
         }
 
         const user = await userService.getUserMe(token);
+        speakText('Cargando grabaciones de la sala.');
+
         const data = await sessionService.getSessionsByRoomId(roomId, user.email);
-        setSessions(data.sessions.filter(s => s.visible));
-        setRoomName(data.room_name);
-        setError(null);
+        // Filtrar sesiones visibles
+        const visibleSessions = data.sessions.filter(s => s.visible);
+        
+        // Ordenar por fecha reciente
+        visibleSessions.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+        setSessions(visibleSessions);
+        setRoomName(data.room_name || 'Sala');
+        speakText(`Cargadas ${visibleSessions.length} grabaciones.`);
+        setErrorMsg(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Ocurrió un error al cargar las sesiones.');
+        setErrorMsg(err instanceof Error ? err.message : 'Error al cargar las sesiones.');
+        speakText('Error al cargar las grabaciones.');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     fetchRoomData();
   }, [navigate, roomId]);
 
-  const handlePrevWeek = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() - 7);
-    setSelectedDate(newDate);
+  const handleLogout = () => {
+    speakText('Cerrando sesión');
+    localStorage.removeItem('token');
+    navigate('/login');
   };
-
-  const handleNextWeek = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + 7);
-    setSelectedDate(newDate);
-  };
-
-  const handleDateSelect = (day: Date) => {
-    setSelectedDate(day);
-    setShowAllDates(false);
-  };
-
-  const filteredSessions: RecordingSession[] = sessions
-    .filter(session => {
-      const matchSearch = session.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchDate = showAllDates || session.created_at.split('T')[0] === formatDateForFilter(selectedDate);
-      return session.visible && matchSearch && matchDate;
-    })
-    .map((session): RecordingSession => ({
-      id: session.session_id,
-      title: session.name,
-      date: session.created_at.split('T')[0],
-      duration: 'N/A',
-      isVisible: session.visible,
-      isSharable: session.allow_download,
-    }));
-
-  const confirmDelete = () => {
-    if (showDeleteModal) {
-      setSessions(sessions.filter(s => s.session_id !== showDeleteModal));
-      setShowDeleteModal(null);
-    }
-  };
-
-  const openResourceModal = (sessionId: string) => {
-    const selectedSession = sessions.find(session => session.session_id === sessionId);
-    setShowResourceModal(sessionId);
-    setResourceLink(getComplementaryResource(selectedSession)); 
-  };
-
-  const weekDays = getWeekDays(selectedDate);
-  const weekStart = weekDays[0];
-  const weekEnd = weekDays[6];
-  
-  const dateRangeStr = `${getMonthNameShort(weekStart)} ${weekStart.getDate()} - ${getMonthNameShort(weekEnd)} ${weekEnd.getDate()}`;
-  const selectedDateStr = getFullDateString(selectedDate);
 
   return (
-    <div className="dashboard-screen room-sessions-screen">
-      <header className="room-sessions-header">
-        <div className="header-top-row">
-          <button 
-            className="btn-back-text" 
-            onClick={() => navigate('/basico/salas')} 
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12"></line>
-              <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-            Volver
-          </button>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <UserMenu />
-            <button 
-              className="btn-home-icon" 
-              onClick={() => navigate('/home')} 
-              title="Ir a Home"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-              </svg>
-            </button>
-          </div>
+    <div className="basico-menu-screen">
+      {/* Barra de menú superior extra ancha */}
+      <header className="basico-header">
+        <button 
+          className="btn-header-large btn-header-home" 
+          onClick={() => {
+            speakText('Volviendo a salas');
+            navigate('/basico/salas');
+          }}
+          onFocus={() => speakText('Botón volver atrás')}
+          title="Volver a Salas"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          <span>Atrás</span>
+        </button>
+
+        <div className="basico-header-title">
+          <h2>Grabaciones</h2>
+          <span className="user-indicator">Sala: {roomName}</span>
         </div>
 
-        <div className="room-title-row">
-          <h2 className="room-title-text">{loading ? 'Cargando...' : roomName}</h2>
-        </div>
+        <button 
+          className="btn-header-large btn-header-logout" 
+          onClick={handleLogout}
+          onFocus={() => speakText('Botón cerrar sesión')}
+          title="Cerrar Sesión"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Salir</span>
+        </button>
       </header>
 
-      <main className="dashboard-content room-content-main">
-        {error && <p className="error-text" style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>}
-        {loading && <p style={{ textAlign: 'center' }}>Cargando sesiones...</p>}
-
-        {!loading && !error && (
-          <>
-        <div className="search-bar-container" style={{ margin: '1rem 0' }}>
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder="Buscar grabaciones por nombre..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ width: '100%', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(148, 163, 184, 0.4)', backgroundColor: '#fff', fontSize: '1rem' }}
-          />
-        </div>
-
-        <div className="calendar-widget">
-          <div className="calendar-header">
-            <button className="btn-cal-nav" onClick={handlePrevWeek}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-            <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.2s' }} className="cal-range-container">
-              <span className="cal-range" style={{ pointerEvents: 'none' }}>{dateRangeStr}</span>
-              <input 
-                type="month" 
-                value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`}
-                style={{ 
-                  position: 'absolute', 
-                  top: 0, left: 0, right: 0, bottom: 0, 
-                  width: '100%', height: '100%', 
-                  opacity: 0, 
-                  cursor: 'pointer',
-                  fontSize: '1.5rem',
-                  zIndex: 10
-                }}
-                onClick={(e) => {
-                  try {
-                    (e.target as HTMLInputElement).showPicker();
-                  } catch {
-                    // Ignorar error si showPicker no está soportado
-                  }
-                }}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    const [year, month] = e.target.value.split('-');
-                    handleDateSelect(new Date(parseInt(year), parseInt(month) - 1, 1));
-                  }
-                }}
-              />
-            </div>
-            <button className="btn-cal-nav" onClick={handleNextWeek}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
+      {/* Contenedor Principal */}
+      <main className="basico-menu-content" style={{ overflow: 'hidden', width: '100%', height: '100%' }}>
+        <div className="accessible-subview" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
+          
+          <div className="subview-header" style={{ alignItems: 'center', textAlign: 'center', width: '100%', marginBottom: '1rem' }}>
+            <h3 className="subview-title" style={{ width: '100%', textAlign: 'center' }}>Grabaciones de la Sala</h3>
           </div>
-          <div className="calendar-days">
-            {weekDays.map((day, index) => {
-              const isSelected = !showAllDates && formatDateForFilter(day) === formatDateForFilter(selectedDate);
-              return (
-                <div 
-                  key={index} 
-                  className={`cal-day ${isSelected ? 'selected' : ''}`}
-                  onClick={() => handleDateSelect(day)}
-                >
-                  <span>{getDayNameShort(day)}</span>
-                  <span>{day.getDate()}</span>
-                </div>
-              );
-            })}
+
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', justifyContent: 'center', minHeight: 0 }}>
+            {isLoading ? (
+              <div className="subview-message">Cargando grabaciones...</div>
+            ) : errorMsg ? (
+              <div className="subview-message error">{errorMsg}</div>
+            ) : sessions.length > 0 ? (
+              <div className="accessible-list-grid" style={{ maxHeight: '100%', flex: 1 }}>
+                {sessions.map(session => (
+                  <button 
+                    key={session.session_id} 
+                    className="btn-item-giant recording-item" 
+                    onClick={() => {
+                      speakText(`Abriendo detalle de ${session.name}`);
+                      navigate(`/basico/sala/${roomId}/sesion/${session.session_id}`, { state: { isEspectador: true } });
+                    }}
+                    onFocus={() => speakText(`Grabación ${session.name}, grabada el ${session.created_at.split('T')[0]}`)}
+                  >
+                    <div className="recording-details">
+                      <span className="recording-name">{session.name}</span>
+                      <span className="recording-date">Fecha: {session.created_at.split('T')[0]}</span>
+                      <span className="recording-status">Estado: {session.status === 'completed' ? 'Completado' : 'Procesando'}</span>
+                    </div>
+                    <div className="recording-action-icon">
+                      {session.status === 'processing' || session.status === 'procesando' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spinner-icon">
+                           <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
+                        </svg>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="subview-message">
+                Esta sala no tiene grabaciones disponibles.
+              </div>
+            )}
           </div>
-        </div>
 
-        <div className="sort-section" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-          <button 
-            onClick={() => setShowAllDates(true)}
-            style={{ 
-              background: showAllDates ? '#e0e7ff' : '#f3f4f6', 
-              border: showAllDates ? '1px solid #818cf8' : '1px solid #d1d5db', 
-              color: showAllDates ? '#4f46e5' : '#374151', 
-              fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
-              padding: '0.4rem 1.2rem', borderRadius: '20px',
-              transition: 'all 0.2s'
-            }}
-          >
-            Mostrar todos los días
-          </button>
-        </div>
-
-        <div className="selected-date-header">
-          <h3 style={{ textTransform: 'capitalize', margin: '0 0 1rem 0', fontSize: '1rem', color: '#4b5563' }}>
-            {showAllDates ? 'Todas las fechas' : selectedDateStr}
-          </h3>
-        </div>
-
-        <div className="sessions-list" style={{ marginTop: '1rem' }}>
-          {filteredSessions.length > 0 ? (
-            filteredSessions.map((session) => (
-              <SessionCard
-                key={session.id}
-                session={session}
-                onClick={() => navigate(`/basico/sala/${roomId}/sesion/${session.id}`, { state: { isEspectador: true } })}
-                onClickPlay={() => navigate(`/basico/sala/${roomId}/sesion/${session.id}`, { state: { isEspectador: true } })}
-                onComplementaryResource={() => openResourceModal(session.id)}
-                onDelete={(sessionId) => setShowDeleteModal(sessionId)}
-                isEspectador={true}
-              />
-            ))
-          ) : (
-            <p className="empty-state-text">
-              {searchQuery ? "No se encontraron grabaciones con ese nombre." : "No hay grabaciones disponibles en esta fecha."}
-            </p>
-          )}
-        </div>
-        </>
-        )}
-      </main>
-
-      {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3 className="modal-title">Ocultar grabación</h3>
-            <p className="modal-text">¿Estás seguro de que deseas ocultar esta grabación de tu vista? No podrás volver a verla a menos que te unas a la sala de nuevo.</p>
-            <div className="modal-actions">
-              <button className="btn-modal-cancel" onClick={() => setShowDeleteModal(null)}>Cancelar</button>
-              <button className="btn-modal-submit" style={{ background: '#ef4444', boxShadow: 'none' }} onClick={confirmDelete}>Ocultar</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showResourceModal && (
-        <div className="modal-overlay" onClick={() => setShowResourceModal(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3 className="modal-title">Recurso Complementario</h3>
-            <p className="modal-text">Material adjunto para esta grabación proporcionado por el orador.</p>
-            <div 
-              className="modal-input" 
-              style={{ 
-                textTransform: 'none', 
-                backgroundColor: '#f3f4f6', 
-                cursor: 'default',
-                overflowX: 'auto',
-                whiteSpace: 'nowrap',
-                display: 'flex',
-                alignItems: 'center',
-                color: resourceLink ? '#4f46e5' : '#9ca3af'
+          {/* Botón Volver a Salas abajo y centrado */}
+          <div className="subview-footer" style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', width: '100%' }}>
+            <button 
+              className="btn-back-giant" 
+              onClick={() => {
+                speakText('Volviendo a salas');
+                navigate('/basico/salas');
               }}
+              onFocus={() => speakText('Botón volver atrás')}
             >
-              {resourceLink ? (
-                <a href={resourceLink.startsWith('http') ? resourceLink : `https://${resourceLink}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
-                  {resourceLink}
-                </a>
-              ) : (
-                'Enlace no disponible'
-              )}
-            </div>
-            <div className="modal-actions" style={{ justifyContent: 'center' }}>
-              <button className="btn-modal-submit" onClick={() => setShowResourceModal(null)}>Aceptar</button>
-            </div>
+              ← Volver a Salas
+            </button>
           </div>
         </div>
-      )}
+      </main>
     </div>
   );
 };
