@@ -8,7 +8,7 @@ const BasicoAudioRecorder: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Obtener nombre y código de la sala si se pasaron por el estado de navegación
   const locationState = location.state as { roomName?: string; roomCode?: string };
   const roomName = locationState?.roomName || 'Sala';
@@ -54,6 +54,16 @@ const BasicoAudioRecorder: React.FC = () => {
     };
   }, [navigate]);
 
+  // Auto-iniciar grabación si se pasa el flag autoStart (desde la cuenta regresiva de BasicoSession)
+  useEffect(() => {
+    if (locationState?.autoStart && userEmail) {
+      const t = setTimeout(() => {
+        startRecording();
+      }, 600);
+      return () => clearTimeout(t);
+    }
+  }, [locationState?.autoStart, userEmail]);
+
   // Síntesis de voz para accesibilidad
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -80,7 +90,7 @@ const BasicoAudioRecorder: React.FC = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      
+
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       const chunks: Blob[] = [];
@@ -163,8 +173,8 @@ const BasicoAudioRecorder: React.FC = () => {
         URL.revokeObjectURL(audioURL);
       }
 
-      // Volver a la pantalla de menú básico
-      navigate('/basico');
+      // Volver a la pantalla de la sala
+      navigate(`/basico`);
     } catch (error) {
       console.error('Error al guardar sesión:', error);
       setErrorMsg('No se pudo guardar la grabación en el servidor.');
@@ -198,7 +208,7 @@ const BasicoAudioRecorder: React.FC = () => {
   const goHome = () => {
     if (isRecording) stopRecording();
     speakText('Volviendo a la pantalla principal');
-    navigate('/home');
+    navigate('/basico');
   };
 
   const handleLogout = () => {
@@ -213,21 +223,21 @@ const BasicoAudioRecorder: React.FC = () => {
       stopRecording();
     }
     speakText('Cancelando grabación. Volviendo al menú.');
-    navigate('/basico');
+    navigate(`/basico`);
   };
 
   return (
     <div className="basico-recorder-screen">
       {/* Barra de menú superior extra ancha (estilo BasicoMenu) */}
       <header className="basico-header">
-        <button 
-          className="btn-header-large btn-header-home" 
+        <button
+          className="btn-header-large btn-header-home"
           onClick={handleCancelBack}
           onFocus={() => speakText('Volver al menú básico')}
           title="Volver al Menú"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
           </svg>
           <span>Atrás</span>
         </button>
@@ -235,12 +245,12 @@ const BasicoAudioRecorder: React.FC = () => {
         <div className="basico-header-title">
           <h2>Grabar</h2>
           <span className="user-indicator">
-            {roomName} 
+            {roomName}
           </span>
         </div>
 
-        <button 
-          className="btn-header-large btn-header-logout" 
+        <button
+          className="btn-header-large btn-header-logout"
           onClick={handleLogout}
           onFocus={() => speakText('Botón cerrar sesión')}
           title="Cerrar Sesión"
@@ -254,9 +264,9 @@ const BasicoAudioRecorder: React.FC = () => {
         </button>
       </header>
       <div className="basico-recorder-conten">
-              <span className="access-code-label">Código de Acceso:</span>
-              <span className="access-code-value">{roomCode}</span>
-            </div>
+        <span className="access-code-label">Código de Acceso:</span>
+        <span className="access-code-value">{roomCode}</span>
+      </div>
       <main className="basico-recorder-content">
         {/* Indicador de tiempo gigante */}
         <div className="timer-giant-display">
@@ -269,8 +279,8 @@ const BasicoAudioRecorder: React.FC = () => {
         {/* FASE 1: NO GRABANDO Y SIN AUDIO GUARDADO */}
         {!isRecording && !audioURL && (
           <div className="recorder-action-container">
-            <button 
-              className="btn-giant-action start-btn" 
+            <button
+              className="btn-giant-action start-btn"
               onClick={startRecording}
               onFocus={() => speakText('Botón iniciar grabación')}
             >
@@ -289,8 +299,8 @@ const BasicoAudioRecorder: React.FC = () => {
         {/* FASE 2: GRABANDO */}
         {isRecording && (
           <div className="recorder-action-container">
-            <button 
-              className="btn-giant-action stop-btn" 
+            <button
+              className="btn-giant-action stop-btn"
               onClick={stopRecording}
               onFocus={() => speakText('Botón detener grabación')}
             >
@@ -314,8 +324,8 @@ const BasicoAudioRecorder: React.FC = () => {
 
             <div className="save-discard-buttons-row">
               {/* BOTÓN GUARDAR */}
-              <button 
-                className="btn-giant-action save-btn" 
+              <button
+                className="btn-giant-action save-btn"
                 onClick={handleSave}
                 disabled={isSaving}
                 onFocus={() => speakText(isSaving ? 'Guardando' : 'Botón guardar grabación en la sala')}
@@ -331,8 +341,8 @@ const BasicoAudioRecorder: React.FC = () => {
               </button>
 
               {/* BOTÓN DESCARTAR */}
-              <button 
-                className="btn-giant-action discard-btn" 
+              <button
+                className="btn-giant-action discard-btn"
                 onClick={handleDiscard}
                 disabled={isSaving}
                 onFocus={() => speakText('Botón descartar grabación actual')}
@@ -351,9 +361,9 @@ const BasicoAudioRecorder: React.FC = () => {
       </main>
 
       {/* Botón Volver al Menú abajo y centrado */}
-      <div className="subview-footer" style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', marginBottom: '2rem', width: '100%' }}>
-        <button 
-          className="btn-back-giant" 
+      <div className="subview-footer">
+        <button
+          className="btn-back-giant"
           onClick={handleCancelBack}
           onFocus={() => speakText('Botón volver atrás')}
         >
@@ -368,15 +378,15 @@ const BasicoAudioRecorder: React.FC = () => {
             <h3>¿Seguro que quieres borrar la grabación?</h3>
             <p>Esta acción no se puede deshacer.</p>
             <div className="modal-actions-row">
-              <button 
-                className="btn-modal-action confirm-discard-btn" 
+              <button
+                className="btn-modal-action confirm-discard-btn"
                 onClick={confirmDiscard}
                 onFocus={() => speakText('Confirmar borrar grabación')}
               >
                 Sí, Borrar
               </button>
-              <button 
-                className="btn-modal-action cancel-discard-btn" 
+              <button
+                className="btn-modal-action cancel-discard-btn"
                 onClick={cancelDiscard}
                 onFocus={() => speakText('No borrar, volver')}
               >

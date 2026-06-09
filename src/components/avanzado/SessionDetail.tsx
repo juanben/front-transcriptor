@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import UserMenu from '../common/UserMenu';
 import { sessionService, type Session } from '../../services/session/sessionService';
@@ -21,6 +21,56 @@ const SessionDetail: React.FC = () => {
   const [resourcesText, setResourcesText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Custom Audio Player State
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  // Audio Playback Controls
+  const handlePlayPause = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleAudioEnded = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    setCurrentTime(val);
+    if (audioRef.current) {
+      audioRef.current.currentTime = val;
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds)) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const fetchSessionData = async () => {
@@ -138,11 +188,56 @@ const SessionDetail: React.FC = () => {
         
         {!isLoading && !fetchError && session && (
           <>
-            <div className="audio-player-container" style={{ padding: '1rem', background: '#f3f4f6', borderRadius: '12px', display: 'flex', justifyContent: 'center' }}>
+            <div className="audio-player-container">
+              <audio
+                ref={audioRef}
+                src={audioUrl || undefined}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={handleAudioEnded}
+              />
+              
               {audioUrl ? (
-                <audio controls src={audioUrl} style={{ width: '100%' }}>
-                  Tu navegador no soporta el elemento de audio.
-                </audio>
+                <>
+                  <button
+                    className="btn-play-audio"
+                    onClick={handlePlayPause}
+                    aria-label={isPlaying ? 'Pausar audio' : 'Reproducir audio'}
+                  >
+                    {isPlaying ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path fillRule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+
+                  <div className="audio-progress-wrapper">
+                    <input
+                      type="range"
+                      className="audio-slider"
+                      min={0}
+                      max={duration || 100}
+                      value={currentTime}
+                      onChange={handleSeek}
+                      style={{
+                        background: `linear-gradient(to right, 
+                          var(--slider-fill, #111827) 0%, 
+                          var(--slider-fill, #111827) ${duration ? (currentTime / duration) * 100 : 0}%, 
+                          var(--slider-track, #e5e7eb) ${duration ? (currentTime / duration) * 100 : 0}%, 
+                          var(--slider-track, #e5e7eb) 100%)`
+                      }}
+                      aria-label="Progreso del audio"
+                    />
+                    <div className="audio-times">
+                      <span>{formatTime(currentTime)}</span>
+                      <span>{formatTime(duration)}</span>
+                    </div>
+                  </div>
+                </>
               ) : (
                 <p style={{ color: '#6b7280', margin: 0 }}>No hay audio disponible para esta sesión.</p>
               )}

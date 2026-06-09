@@ -1,0 +1,149 @@
+/* Estilos exclusivos para la pantalla BasicoSessionDetail */
+
+/* Asegurar que la pantalla de detalle sea desplazable en pantallas pequeñas */
+.session-detail-container {
+  overflow-y: auto !important;
+}
+
+.session-detail-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important; /* Previene el corte de contenido en flexbox */
+  padding: 2rem 1.5rem !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  min-height: 0;
+  width: 100% !important;
+}
+
+.session-detail-subview {
+  width: 100% !important;
+  max-width: 800px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+  height: auto !important;
+  margin: 0 auto;
+}
+
+/* Ajustes del reproductor de audio */
+.session-detail-subview .accessible-player-container {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0.5rem;
+}
+
+/* Ajustes del card de texto para monitores (limitar altura máxima para mantener botones en pantalla) */
+.session-detail-subview .detail-content-card {
+  max-height: 350px;
+  min-height: 200px;
+  overflow-y: auto;
+  border-radius: 20px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.session-detail-subview .detail-text-body {
+  font-size: 1.25rem;
+  line-height: 1.7;
+}
+
+/* Fila de acciones */
+.session-detail-subview .recording-actions-row {
+  margin-top: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsividad para tabletas y dispositivos móviles */
+@media (max-width: 768px) {
+  .session-detail-content {
+    padding: 1rem 0.75rem !important;
+  }
+
+  .session-detail-subview {
+    gap: 1rem !important;
+  }
+
+  .session-detail-subview .accessible-player-container {
+    padding: 1rem;
+    border-radius: 18px;
+    gap: 0.8rem;
+  }
+
+  .session-detail-subview .btn-play-giant {
+    width: 75px;
+    height: 75px;
+  }
+
+  .session-detail-subview .btn-play-giant svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .session-detail-subview .giant-progress-bar {
+    height: 10px;
+  }
+
+  .session-detail-subview .giant-progress-bar::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  .session-detail-subview .giant-progress-bar::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  .session-detail-subview .player-time-row {
+    font-size: 0.95rem;
+  }
+
+  .session-detail-subview .tab-btn-giant {
+    padding: 0.9rem;
+    font-size: 1.15rem;
+    border-radius: 12px;
+  }
+
+  .session-detail-subview .detail-content-card {
+    padding: 1rem;
+    border-radius: 16px;
+    min-height: 150px;
+    max-height: 250px; /* Reducido en móvil para evitar scroll excesivo de la página */
+  }
+
+  .session-detail-subview .detail-text-body {
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  /* Apilar botones de acción en pantallas pequeñas */
+  .session-detail-subview .recording-actions-row {
+    flex-direction: column !important;
+    gap: 0.8rem !important;
+  }
+
+  .session-detail-subview .recording-actions-row button {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .session-detail-subview .subview-footer {
+    margin-top: 1.5rem !important;
+  }
+}
+
+/* Optimización para móviles muy pequeños o en orientación horizontal corta */
+@media (max-height: 600px) {
+  .session-detail-subview .detail-content-card {
+    min-height: 100px;
+    max-height: 150px;
+  }
+  
+  .session-detail-subview .btn-play-giant {
+    width: 60px;
+    height: 60px;
+  }
+}

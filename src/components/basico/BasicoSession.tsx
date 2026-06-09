@@ -4,7 +4,7 @@ import { sessionService, type Session } from '../../services/session/sessionServ
 import { userService } from '../../services/user/userService';
 import './BasicoMenu.css';
 
-const EspectadorRoomSessions: React.FC = () => {
+const BasicoSession: React.FC = () => {
   const navigate = useNavigate();
   const { id: roomIdFromParams } = useParams<{ id: string }>();
   const roomId = roomIdFromParams?.trim();
@@ -90,7 +90,7 @@ const EspectadorRoomSessions: React.FC = () => {
 
         <div className="basico-header-title">
           <h2>Grabaciones</h2>
-          <span className="user-indicator">Sala: {roomName}</span>
+          <span className="user-indicator">{roomName}</span>
         </div>
 
         <button
@@ -178,4 +178,4 @@ const EspectadorRoomSessions: React.FC = () => {
   );
 };
 
-export default EspectadorRoomSessions;
+export default BasicoSession;

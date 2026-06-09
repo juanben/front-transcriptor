@@ -14,9 +14,11 @@ import AudioRecorder from './components/avanzado/audioRecorder/audioRecorder';
 import SessionName from './components/avanzado/audioRecorder/sessionName';
 import SaveAudioRecord from './components/avanzado/audioRecorder/saveAudioRecord';
 import BasicoDashboard from './components/basico/BasicoDashboard';
-import BasicoRoomSessions from './components/basico/BasicoRoomSessions';
+import BasicoSession from './components/basico/BasicoSession';
 import BasicoMenu from './components/basico/BasicoMenu';
 import BasicoAudioRecorder from './components/basico/BasicoAudioRecorder';
+import BasicoJoinRoom from './components/basico/BasicoJoinRoom';
+import BasicoSessionDetail from './components/basico/BasicoSessionDetail';
 import AuthGuard from './components/common/AuthGuard';
 
 const AppRouter = () => {
@@ -27,11 +29,11 @@ const AppRouter = () => {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/about" element={<About />} /> 
-        
+        <Route path="/about" element={<About />} />
+
         {/* Rutas Protegidas */}
         <Route path="/home" element={<AuthGuard><Home /></AuthGuard>} />
-        
+
         {/* Avanzado */}
         <Route path="/avanzado" element={<AuthGuard><AvanzadoDashboard /></AuthGuard>} />
         <Route path="/new-room" element={<AuthGuard><NuevaSesion /></AuthGuard>} />
@@ -42,14 +44,15 @@ const AppRouter = () => {
         <Route path="/sala/:id/sesion/:code/audio" element={<AuthGuard><AudioRecorder /></AuthGuard>} />
         <Route path="/sala/:id/sesion/:code/save-audio" element={<AuthGuard><SaveAudioRecord /></AuthGuard>} />
         <Route path="/sala/:id/nombre-sesion" element={<AuthGuard><SessionName /></AuthGuard>} />
-        
+
         {/* Basico */}
         <Route path="/basico" element={<AuthGuard><BasicoMenu /></AuthGuard>} />
         <Route path="/basico/salas" element={<AuthGuard><BasicoDashboard /></AuthGuard>} />
-        <Route path="/basico/sala/:id" element={<AuthGuard><BasicoRoomSessions /></AuthGuard>} />
+        <Route path="/basico/unirse" element={<AuthGuard><BasicoJoinRoom /></AuthGuard>} />
+        <Route path="/basico/sala/:id" element={<AuthGuard><BasicoSession /></AuthGuard>} />
         <Route path="/basico/grabar/:id" element={<AuthGuard><BasicoAudioRecorder /></AuthGuard>} />
-        <Route path="/basico/sala/:id/sesion/:sessionId" element={<AuthGuard><SessionDetail /></AuthGuard>} />
-        
+        <Route path="/basico/sala/:id/sesion/:sessionId" element={<AuthGuard><BasicoSessionDetail /></AuthGuard>} />
+
         {/* Testing */}
         <Route path="/testRec" element={<AuthGuard><App /></AuthGuard>} />
       </Routes>

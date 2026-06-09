@@ -69,7 +69,7 @@ const BasicoOwnRecords: React.FC<BasicoOwnRecordsProps> = ({
       </div>
 
       {/* Botón Volver al Menú abajo y centrado */}
-      <div className="subview-footer" style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', width: '100%' }}>
+      <div className="subview-footer">
         <button 
           className="btn-back-giant" 
           onClick={() => {

@@ -16,10 +16,7 @@ const BasicoDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
-  
-  const [showJoinModal, setShowJoinModal] = useState(false);
-  const [joinCode, setJoinCode] = useState('');
-  const [joinError, setJoinError] = useState<string | null>(null);
+
 
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,42 +82,7 @@ const BasicoDashboard: React.FC = () => {
     fetchRooms();
   }, [navigate]);
 
-  const handleJoinRoom = () => {
-    setJoinError(null);
-    setJoinCode('');
-    setShowJoinModal(true);
-    speakText('Ventana para unirse a una sala abierta. Introduce el código.');
-  };
 
-  const submitJoinRoom = async () => {
-    const code = joinCode.trim();
-    if (code) {
-      if (sessions.some(session => session.room_code === code)) {
-        setJoinError('Sala ya agregada');
-        speakText('Error. Esta sala ya ha sido agregada.');
-        return;
-      }
-
-      try {
-        speakText('Enviando solicitud para unirse');
-        await roomService.joinWaitlist(code, ownerEmail);
-        setSessions([...sessions, { 
-          id: code, 
-          title: `Sala unida (${code})`, 
-          date: new Date().toISOString().split('T')[0], 
-          status: 'En lista de espera',
-          room_code: code 
-        }]);
-        setShowJoinModal(false);
-        setJoinCode('');
-        speakText('Te has unido a la lista de espera de la sala.');
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : 'Error al unirse a la sala';
-        setJoinError(msg);
-        speakText(`Error. ${msg}`);
-      }
-    }
-  };
 
   const toggleSort = () => {
     const nextSort = sortBy === 'recent' ? 'alphabetical' : 'recent';
@@ -235,7 +197,7 @@ const BasicoDashboard: React.FC = () => {
           </div>
 
           {/* Botones inferiores: Regresar y Unirse a Sala */}
-          <div className="subview-footer" style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem', width: '100%' }}>
+          <div className="subview-footer">
             <button 
               className="btn-back-giant" 
               onClick={() => {
@@ -249,7 +211,10 @@ const BasicoDashboard: React.FC = () => {
 
             <button 
               className="btn-join-giant" 
-              onClick={handleJoinRoom}
+              onClick={() => {
+                speakText('Abriendo pantalla para unirse a sala');
+                navigate('/basico/unirse');
+              }}
               onFocus={() => speakText('Botón unirse a sala')}
             >
               + Unirse a Sala
@@ -257,45 +222,6 @@ const BasicoDashboard: React.FC = () => {
           </div>
         </div>
       </main>
-
-      {/* Modal gigante accesible para unirse a sala */}
-      {showJoinModal && (
-        <div className="basico-modal-overlay" onClick={() => setShowJoinModal(false)}>
-          <div className="basico-modal-box" onClick={e => e.stopPropagation()}>
-            <h3>Unirse a una sala</h3>
-            <p>Ingresa el código de acceso proporcionado por el perfil avanzado para poder acceder a sus grabaciones.</p>
-            <input 
-              type="text" 
-              placeholder="Ej. C7B-9P" 
-              value={joinCode}
-              onChange={(e) => { setJoinCode(e.target.value); setJoinError(null); }}
-              onKeyDown={(e) => e.key === 'Enter' && submitJoinRoom()}
-              autoFocus
-            />
-            {joinError && <p style={{ color: '#ef4444', fontSize: '1.1rem', margin: '0.5rem 0 1.5rem 0', textAlign: 'center', fontWeight: 'bold' }}>{joinError}</p>}
-            <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
-              <button 
-                className="btn-back-giant" 
-                onClick={() => {
-                  speakText('Cancelar unirse a sala');
-                  setShowJoinModal(false);
-                }}
-                onFocus={() => speakText('Cancelar')}
-                style={{ backgroundColor: '#e5e7eb', color: '#111827' }}
-              >
-                Cancelar
-              </button>
-              <button 
-                className="btn-join-giant" 
-                onClick={submitJoinRoom}
-                onFocus={() => speakText('Confirmar unirse')}
-              >
-                Unirme
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
