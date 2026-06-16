@@ -19,7 +19,7 @@ const BasicoMenu: React.FC = () => {
   
   // Estados para vistas secundarias
   const [viewState, setViewState] = useState<'menu' | 'select-room' | 'my-recordings'>('menu');
-  const [rooms, setRooms] = useState<RoomItem[]>([]);
+  const [rooms] = useState<RoomItem[]>([]);
   const [myRecordings, setMyRecordings] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
