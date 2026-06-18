@@ -268,11 +268,7 @@ const BasicoAudioRecorder: React.FC = () => {
         <span className="access-code-value">{roomCode}</span>
       </div>
       <main className="basico-recorder-content">
-        {/* Indicador de tiempo gigante */}
-        <div className="timer-giant-display">
-          {isRecording && <span className="pulsing-record-dot"></span>}
-          <span className="time-text">{formatTime(recordingTime)}</span>
-        </div>
+ 
 
         {errorMsg && <div className="recorder-error-banner">{errorMsg}</div>}
 
@@ -313,6 +309,11 @@ const BasicoAudioRecorder: React.FC = () => {
             </button>
           </div>
         )}
+               {/* Indicador de tiempo gigante */}
+        <div className="timer-giant-display">
+          {isRecording && <span className="pulsing-record-dot"></span>}
+          <span className="time-text">{formatTime(recordingTime)}</span>
+        </div>
 
         {/* FASE 3: AUDIO COMPLETADO (GUARDAR O DESCARTAR) */}
         {!isRecording && audioURL && (
