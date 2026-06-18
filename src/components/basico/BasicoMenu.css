@@ -120,7 +120,7 @@
   font-weight: 700;
   border-radius: 28px;
   cursor: pointer;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 2px solid #94a3b8;
   background-color: #ffffff;
   box-shadow: var(--shadow);
   color: #111827;
@@ -146,7 +146,7 @@
 .btn-giant-text {
   text-align: center;
   line-height: 1.3;
-  color: #ffffff;
+  color: inherit;
   margin-top: 0.5rem;
 }
 
