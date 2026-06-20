@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './BasicoMenu.css';
 import { userService } from '../../services/user/userService';
 import { roomService } from '../../services/room/roomService';
+import { speakText } from '../../utils/speak';
+import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 
 interface SessionItem {
   id: string;
@@ -14,6 +16,7 @@ interface SessionItem {
 
 const BasicoDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const handleLogout = useBasicoLogout();
   const [userName, setUserName] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
 
@@ -21,17 +24,6 @@ const BasicoDashboard: React.FC = () => {
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [ownerEmail, setOwnerEmail] = useState<string>('');
-
-  // Síntesis de voz para accesibilidad
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
-    }
-  };
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -43,9 +35,8 @@ const BasicoDashboard: React.FC = () => {
 
       try {
         const user = await userService.getUserMe(token);
-        setOwnerEmail(user.email);
-        setUserName(user.nombre || user.email);
-        speakText('Cargando tus salas');
+        setUserName(user.name || user.email);
+        speakText('Cargando tus Biblioteca');
 
         // Obtener la sala por defecto para saber cuál excluir
         let defaultRoomId = '';
@@ -55,24 +46,24 @@ const BasicoDashboard: React.FC = () => {
         } catch (err) {
           console.log('No default room found for this user yet.');
         }
-        
+
         const data = await roomService.getUserRooms(user.email);
-        
+
         const filteredRooms = data.rooms.filter(room => room._id !== defaultRoomId);
-        
+
         const mappedSessions: SessionItem[] = filteredRooms.map(room => ({
           id: room._id,
           title: room.name,
           date: room.created_at.split('T')[0],
-          room_code: room.room_code
+          room_code: room.room_code || ''
         }));
-        
+
         setSessions(mappedSessions);
-        speakText(`Cargadas ${mappedSessions.length} salas.`);
+        speakText(`Cargadas ${mappedSessions.length} Colecciones.`);
       } catch (error) {
         if (error instanceof Error) {
-          setErrorMsg(error.message || 'Error al cargar las salas.');
-          speakText('Error al cargar las salas');
+          setErrorMsg(error.message || 'Error al cargar Colecciones.');
+          speakText('Error al cargar las Colecciones');
         }
       } finally {
         setIsLoading(false);
@@ -90,11 +81,7 @@ const BasicoDashboard: React.FC = () => {
     speakText(`Ordenando por ${nextSort === 'recent' ? 'más recientes' : 'orden alfabético'}`);
   };
 
-  const handleLogout = () => {
-    speakText('Cerrando sesión');
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+
 
   const filteredSessions = sessions
     .sort((a, b) => {
@@ -109,28 +96,28 @@ const BasicoDashboard: React.FC = () => {
     <div className="basico-menu-screen">
       {/* Barra de menú superior extra ancha */}
       <header className="basico-header">
-        <button 
-          className="btn-header-large btn-header-home" 
+        <button
+          className="btn-header-large btn-header-home"
           onClick={() => {
             speakText('Volviendo al menú principal');
             navigate('/basico');
           }}
-          onFocus={() => speakText('Botón volver a inicio')}
-          title="Volver a Inicio"
+          onFocus={() => speakText('Botón volver al menu principal')}
+          title="Volver al menu principal"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
           </svg>
           <span>Inicio</span>
         </button>
 
         <div className="basico-header-title">
-          <h2>Salas</h2>
-          <span className="user-indicator">Bienvenido: {userName}</span>
+          <h2>Mi Biblioteca</h2>
+          <span className="user-indicator">Biblioteca de {userName}</span>
         </div>
 
-        <button 
-          className="btn-header-large btn-header-logout" 
+        <button
+          className="btn-header-large btn-header-logout"
           onClick={handleLogout}
           onFocus={() => speakText('Botón cerrar sesión')}
           title="Cerrar Sesión"
@@ -146,14 +133,14 @@ const BasicoDashboard: React.FC = () => {
 
       <main className="basico-menu-content" style={{ overflow: 'hidden', width: '100%', height: '100%' }}>
         <div className="accessible-subview" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
-          
+
           {/* Fila de búsqueda y ordenación accesible */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', width: '100%', marginBottom: '0.5rem' }}>
-            <h3 className="subview-title" style={{ margin: 0, fontSize: '1.6rem' }}>Mis Salas</h3>
-            <button 
-              className="btn-back-giant" 
+            <h3 className="subview-title" style={{ margin: 0, fontSize: '1.6rem' }}>Colecciones</h3>
+            <button
+              className="btn-back-giant"
               onClick={toggleSort}
-              onFocus={() => speakText(`Botón ordenar salas. Actual: ${sortBy === 'recent' ? 'más recientes' : 'orden alfabético'}`)}
+              onFocus={() => speakText(`Botón ordenar colecciones. Actual: ${sortBy === 'recent' ? 'más recientes' : 'orden alfabético'}`)}
               style={{ padding: '0.8rem 1.6rem', fontSize: '1.1rem', borderRadius: '12px', minWidth: 'auto', backgroundColor: '#e5e7eb', color: '#111827' }}
             >
               Ordenar: {sortBy === 'recent' ? 'Recientes' : 'A-Z'}
@@ -164,24 +151,24 @@ const BasicoDashboard: React.FC = () => {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             <div className="accessible-list-grid" style={{ maxHeight: '100%', flex: 1 }}>
               {isLoading ? (
-                <div className="subview-message">Cargando salas...</div>
+                <div className="subview-message">Cargando Colecciones...</div>
               ) : errorMsg ? (
                 <div className="subview-message error">{errorMsg}</div>
               ) : filteredSessions.length > 0 ? (
                 filteredSessions.map(session => (
-                  <button 
-                    key={session.id} 
-                    className="btn-item-giant" 
+                  <button
+                    key={session.id}
+                    className="btn-item-giant"
                     onClick={() => {
                       if (session.status === 'En lista de espera') {
-                        speakText('Sala en lista de espera. El moderador debe aceptarte.');
-                        alert('Esta sala está en lista de espera. El moderador de la sala debe aceptarte.');
+                        speakText('Coleccion en lista de espera. El moderador debe aceptarte.');
+                        alert('Esta coleccion está en lista de espera. El moderador de la coleccion debe aceptarte.');
                       } else {
-                        speakText(`Abriendo sala ${session.title}`);
+                        speakText(`Abriendo coleccion ${session.title}`);
                         navigate('/basico/sala/' + session.id);
                       }
                     }}
-                    onFocus={() => speakText(`Sala ${session.title}. Código ${session.room_code} ${session.status ? `, Estado: ${session.status}` : ''}`)}
+                    onFocus={() => speakText(`Coleccion ${session.title}. Código ${session.room_code} ${session.status ? `, Estado: ${session.status}` : ''}`)}
                     style={{ width: '100%' }}
                   >
                     <span className="room-name">{session.title}</span>
@@ -198,26 +185,26 @@ const BasicoDashboard: React.FC = () => {
 
           {/* Botones inferiores: Regresar y Unirse a Sala */}
           <div className="subview-footer">
-            <button 
-              className="btn-back-giant" 
+            <button
+              className="btn-back-giant"
               onClick={() => {
                 speakText('Volviendo al menú principal');
                 navigate('/basico');
               }}
-              onFocus={() => speakText('Botón volver al menú principal')}
+              onFocus={() => speakText('Botón regresar')}
             >
-              ← Volver al Menú
+              ← Regresar
             </button>
 
-            <button 
-              className="btn-join-giant" 
+            <button
+              className="btn-join-giant"
               onClick={() => {
-                speakText('Abriendo pantalla para unirse a sala');
+                speakText('Abriendo pantalla para agregar coleccion');
                 navigate('/basico/unirse');
               }}
-              onFocus={() => speakText('Botón unirse a sala')}
+              onFocus={() => speakText('Botón para agregar coleccion')}
             >
-              + Unirse a Sala
+              + Agregar Colección
             </button>
           </div>
         </div>

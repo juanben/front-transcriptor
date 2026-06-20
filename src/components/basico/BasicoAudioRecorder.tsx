@@ -3,14 +3,17 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { userService } from '../../services/user/userService';
 import { sessionService } from '../../services/session/sessionService';
 import './BasicoAudioRecorder.css';
+import { speakText } from '../../utils/speak';
+import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 
 const BasicoAudioRecorder: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const logout = useBasicoLogout();
   const location = useLocation();
 
   // Obtener nombre y código de la sala si se pasaron por el estado de navegación
-  const locationState = location.state as { roomName?: string; roomCode?: string };
+  const locationState = location.state as { roomName?: string; roomCode?: string; autoStart?: boolean };
   const roomName = locationState?.roomName || 'Sala';
   const roomCode = locationState?.roomCode || '';
 
@@ -64,15 +67,7 @@ const BasicoAudioRecorder: React.FC = () => {
     }
   }, [locationState?.autoStart, userEmail]);
 
-  // Síntesis de voz para accesibilidad
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+
 
   // Formatear segundos en MM:SS
   const formatTime = (seconds: number) => {
@@ -205,17 +200,10 @@ const BasicoAudioRecorder: React.FC = () => {
     setShowDiscardModal(false);
   };
 
-  const goHome = () => {
-    if (isRecording) stopRecording();
-    speakText('Volviendo a la pantalla principal');
-    navigate('/basico');
-  };
-
   const handleLogout = () => {
-    if (isRecording) stopRecording();
-    speakText('Cerrando sesión');
-    localStorage.removeItem('token');
-    navigate('/login');
+    logout(() => {
+      if (isRecording) stopRecording();
+    });
   };
 
   const handleCancelBack = () => {
@@ -243,7 +231,7 @@ const BasicoAudioRecorder: React.FC = () => {
         </button>
 
         <div className="basico-header-title">
-          <h2>Grabar</h2>
+          <h2>Nueva Grabación</h2>
           <span className="user-indicator">
             {roomName}
           </span>
@@ -268,7 +256,7 @@ const BasicoAudioRecorder: React.FC = () => {
         <span className="access-code-value">{roomCode}</span>
       </div>
       <main className="basico-recorder-content">
- 
+
 
         {errorMsg && <div className="recorder-error-banner">{errorMsg}</div>}
 
@@ -309,7 +297,7 @@ const BasicoAudioRecorder: React.FC = () => {
             </button>
           </div>
         )}
-               {/* Indicador de tiempo gigante */}
+        {/* Indicador de tiempo gigante */}
         <div className="timer-giant-display">
           {isRecording && <span className="pulsing-record-dot"></span>}
           <span className="time-text">{formatTime(recordingTime)}</span>
@@ -368,7 +356,7 @@ const BasicoAudioRecorder: React.FC = () => {
           onClick={handleCancelBack}
           onFocus={() => speakText('Botón volver atrás')}
         >
-          ← Volver al Menú
+          ← Regresar
         </button>
       </div>
 

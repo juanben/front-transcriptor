@@ -3,9 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
 import './BasicoMenu.css';
+import { speakText } from '../../utils/speak';
+import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 
 const EspectadorRoomSessions: React.FC = () => {
   const navigate = useNavigate();
+  const handleLogout = useBasicoLogout();
   const { id: roomIdFromParams } = useParams<{ id: string }>();
   const roomId = roomIdFromParams?.trim();
 
@@ -14,15 +17,7 @@ const EspectadorRoomSessions: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Síntesis de voz para accesibilidad
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+
 
   useEffect(() => {
     const fetchRoomData = async () => {
@@ -63,11 +58,7 @@ const EspectadorRoomSessions: React.FC = () => {
     fetchRoomData();
   }, [navigate, roomId]);
 
-  const handleLogout = () => {
-    speakText('Cerrando sesión');
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+
 
   return (
     <div className="basico-menu-screen">

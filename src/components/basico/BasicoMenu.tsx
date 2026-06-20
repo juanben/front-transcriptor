@@ -5,6 +5,8 @@ import { roomService } from '../../services/room/roomService';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import BasicoOwnRecords from './BasicoOwnRecords';
 import './BasicoMenu.css';
+import { speakText } from '../../utils/speak';
+import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 
 interface RoomItem {
   id: string;
@@ -16,7 +18,7 @@ const BasicoMenu: React.FC = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string>('');
-  
+
   // Estados para vistas secundarias
   const [viewState, setViewState] = useState<'menu' | 'select-room' | 'my-recordings'>('menu');
   const [rooms] = useState<RoomItem[]>([]);
@@ -44,6 +46,7 @@ const BasicoMenu: React.FC = () => {
     fetchUser();
   }, [navigate]);
 
+
   // Función para leer texto en voz alta (accesibilidad)
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -53,12 +56,8 @@ const BasicoMenu: React.FC = () => {
       window.speechSynthesis.speak(utterance);
     }
   };
+  const handleLogout = useBasicoLogout();
 
-  const handleLogout = () => {
-    speakText('Cerrando sesión');
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
 
   const goHome = () => {
     speakText('Volviendo a la pantalla principal');
@@ -132,7 +131,7 @@ const BasicoMenu: React.FC = () => {
 
       // 3. Filtrar las creadas por este usuario
       const userSessions = allSessions.filter(s => s.creator_email === userEmail);
-      
+
       // Ordenar por fecha reciente
       userSessions.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -149,14 +148,14 @@ const BasicoMenu: React.FC = () => {
     <div className="basico-menu-screen">
       {/* Barra de menú superior extra ancha */}
       <header className="basico-header">
-        <button 
-          className="btn-header-large btn-header-home" 
+        <button
+          className="btn-header-large btn-header-home"
           onClick={goHome}
           onFocus={() => speakText('Botón volver a inicio')}
           title="Volver a Inicio"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
           </svg>
           <span>Inicio</span>
         </button>
@@ -166,8 +165,8 @@ const BasicoMenu: React.FC = () => {
           <span className="user-indicator">Bienvenido: {userName}</span>
         </div>
 
-        <button 
-          className="btn-header-large btn-header-logout" 
+        <button
+          className="btn-header-large btn-header-logout"
           onClick={handleLogout}
           onFocus={() => speakText('Botón cerrar sesión')}
           title="Cerrar Sesión"
@@ -186,8 +185,8 @@ const BasicoMenu: React.FC = () => {
         {viewState === 'menu' && (
           <div className="giant-buttons-grid">
             {/* BOTÓN 1: INICIAR GRABACIÓN */}
-            <button 
-              className="btn-giant btn-recording" 
+            <button
+              className="btn-giant btn-recording"
               onClick={handleStartRecordingClick}
               onFocus={() => speakText('Iniciar Grabación')}
             >
@@ -202,13 +201,13 @@ const BasicoMenu: React.FC = () => {
             </button>
 
             {/* BOTÓN 2: VER SALAS */}
-            <button 
-              className="btn-giant btn-rooms" 
+            <button
+              className="btn-giant btn-rooms"
               onClick={() => {
-                speakText('Abriendo lista de salas');
+                speakText('Abriendo biblioteca');
                 navigate('/basico/salas');
               }}
-              onFocus={() => speakText('Ver salas')}
+              onFocus={() => speakText('Mi Biblioteca')}
             >
               <div className="btn-giant-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -216,12 +215,12 @@ const BasicoMenu: React.FC = () => {
                   <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
-              <span className="btn-giant-text">Ver salas</span>
+              <span className="btn-giant-text">Mi Biblioteca</span>
             </button>
 
             {/* BOTÓN 3: MIS GRABACIONES */}
-            <button 
-              className="btn-giant btn-history" 
+            <button
+              className="btn-giant btn-history"
               onClick={handleMyRecordingsClick}
               onFocus={() => speakText('Mis Grabaciones')}
             >
@@ -243,8 +242,8 @@ const BasicoMenu: React.FC = () => {
         {viewState === 'select-room' && (
           <div className="accessible-subview">
             <div className="subview-header">
-              <button 
-                className="btn-back-giant" 
+              <button
+                className="btn-back-giant"
                 onClick={() => {
                   speakText('Volviendo al menú principal');
                   setViewState('menu');
@@ -263,9 +262,9 @@ const BasicoMenu: React.FC = () => {
             ) : rooms.length > 0 ? (
               <div className="accessible-list-grid">
                 {rooms.map(room => (
-                  <button 
-                    key={room.id} 
-                    className="btn-item-giant" 
+                  <button
+                    key={room.id}
+                    className="btn-item-giant"
                     onClick={() => selectRoomForRecording(room)}
                     onFocus={() => speakText(`Sala ${room.name}`)}
                   >
@@ -277,8 +276,8 @@ const BasicoMenu: React.FC = () => {
             ) : (
               <div className="subview-message">
                 <p>No estás unido a ninguna sala activa.</p>
-                <button 
-                  className="btn-item-giant join-first" 
+                <button
+                  className="btn-item-giant join-first"
                   onClick={() => navigate('/basico/salas')}
                   onFocus={() => speakText('Unirse a una sala ahora')}
                   style={{ marginTop: '2rem' }}

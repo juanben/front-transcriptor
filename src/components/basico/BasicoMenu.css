@@ -250,7 +250,7 @@
 }
 
 .btn-back-giant {
-  padding: 1.4rem 1.5rem;
+  padding: 1.8rem 1.5rem;
   font-size: 1.3rem;
   font-weight: 700;
   background-color: #0d9dc6;
@@ -275,7 +275,7 @@
 }
 
 .btn-join-giant {
-  padding: 1.4rem 1.5rem;
+  padding: 1.8rem 1.5rem;
   font-size: 1.3rem;
   font-weight: 700;
   background-color: #10b981;
@@ -694,7 +694,7 @@
 
   .btn-back-giant,
   .btn-join-giant {
-    padding: 1.1rem 2rem;
+    padding: 1.5rem 2rem;
     font-size: 1.15rem;
     border-radius: 14px;
     flex: 1 1 0%;
@@ -780,7 +780,7 @@
 
   .btn-back-giant,
   .btn-join-giant {
-    padding: 0.85rem 0.8rem;
+    padding: 1.2rem 0.8rem;
     font-size: 0.95rem;
     border-radius: 12px;
     flex: 1 1 0%;

@@ -3,9 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
 import './BasicoMenu.css';
+import { speakText } from '../../utils/speak';
+import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 
 const BasicoSession: React.FC = () => {
   const navigate = useNavigate();
+  const handleLogout = useBasicoLogout();
   const { id: roomIdFromParams } = useParams<{ id: string }>();
   const roomId = roomIdFromParams?.trim();
 
@@ -14,15 +17,7 @@ const BasicoSession: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Síntesis de voz para accesibilidad
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+
 
   useEffect(() => {
     const fetchRoomData = async () => {
@@ -63,11 +58,7 @@ const BasicoSession: React.FC = () => {
     fetchRoomData();
   }, [navigate, roomId]);
 
-  const handleLogout = () => {
-    speakText('Cerrando sesión');
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+
 
   return (
     <div className="basico-menu-screen">
@@ -76,11 +67,11 @@ const BasicoSession: React.FC = () => {
         <button
           className="btn-header-large btn-header-home"
           onClick={() => {
-            speakText('Volviendo a salas');
+            speakText('Regresando a Biblioteca');
             navigate('/basico/salas');
           }}
-          onFocus={() => speakText('Botón volver atrás')}
-          title="Volver a Salas"
+          onFocus={() => speakText('Regresar')}
+          title="Volver a mi biblioteca"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
@@ -164,12 +155,12 @@ const BasicoSession: React.FC = () => {
             <button
               className="btn-back-giant"
               onClick={() => {
-                speakText('Volviendo a salas');
+                speakText('Regresando a mi biblioteca');
                 navigate('/basico/salas');
               }}
-              onFocus={() => speakText('Botón volver atrás')}
+              onFocus={() => speakText('Resgresar a mi biblioteca')}
             >
-              ← Volver a Salas
+              ← Regresar
             </button>
           </div>
         </div>

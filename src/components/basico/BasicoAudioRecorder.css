@@ -553,20 +553,20 @@
     background-color: #4b5563;
     outline-color: #f3f4f6;
   }
-  .btn-back-giant {
+  .basico-recorder-screen .btn-back-giant {
     background-color: #0d9dc6;
     color: #ffffff;
   }
-  .btn-back-giant:hover,
-  .btn-back-giant:focus {
+  .basico-recorder-screen .btn-back-giant:hover,
+  .basico-recorder-screen .btn-back-giant:focus {
     background-color: #0b82a4;
     outline: 3px solid #818cf8;
     color: #ffffff;
   }
 }
 
-.btn-back-giant {
-  padding: 1.4rem 3.5rem;
+.basico-recorder-screen .btn-back-giant {
+  padding: 1.8rem 3.5rem;
   font-size: 1.3rem;
   font-weight: 700;
   background-color: #0d9dc6;
@@ -577,8 +577,8 @@
   transition: all 0.2s ease;
 }
 
-.btn-back-giant:hover,
-.btn-back-giant:focus {
+.basico-recorder-screen .btn-back-giant:hover,
+.basico-recorder-screen .btn-back-giant:focus {
   outline: 3px solid #6366f1;
   background-color: #0b82a4;
   color: #ffffff;

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './BasicoMenu.css';
 import { userService } from '../../services/user/userService';
 import { roomService } from '../../services/room/roomService';
+import { speakText } from '../../utils/speak';
+import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 
 const BasicoJoinRoom: React.FC = () => {
   const navigate = useNavigate();
@@ -16,15 +18,7 @@ const BasicoJoinRoom: React.FC = () => {
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   const recognitionRef = useRef<any>(null);
 
-  // Síntesis de voz para accesibilidad
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+  const handleLogout = useBasicoLogout();
 
   // Cargar usuario
   useEffect(() => {
@@ -37,7 +31,7 @@ const BasicoJoinRoom: React.FC = () => {
       try {
         const user = await userService.getUserMe(token);
         setUserEmail(user.email);
-        setUserName(user.nombre || user.email);
+        setUserName(user.name || user.email);
         speakText('Pantalla para unirse a una nueva sala. Di entrar seguido de tu código de cinco letras, o ingrésalo manualmente.');
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -187,11 +181,7 @@ const BasicoJoinRoom: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    speakText('Cerrando sesión');
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+
 
   return (
     <div className="basico-menu-screen">

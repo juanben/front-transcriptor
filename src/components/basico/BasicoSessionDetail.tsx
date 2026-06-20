@@ -4,9 +4,12 @@ import { sessionService, type Session } from '../../services/session/sessionServ
 import { userService } from '../../services/user/userService';
 import './BasicoMenu.css';
 import './BasicoSessionDetail.css';
+import { speakText } from '../../utils/speak';
+import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 
 const BasicoSessionDetail: React.FC = () => {
   const navigate = useNavigate();
+  const handleLogout = useBasicoLogout();
   const location = useLocation();
   const { id, sessionId } = useParams<{ id: string; sessionId: string }>();
   const [activeTab, setActiveTab] = useState<'Resumen' | 'Transcripcion'>('Resumen');
@@ -28,15 +31,7 @@ const BasicoSessionDetail: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  // Síntesis de voz para accesibilidad
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+
 
   useEffect(() => {
     const fetchSessionData = async () => {
@@ -112,11 +107,7 @@ const BasicoSessionDetail: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    speakText('Cerrando sesión');
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+
 
   // Audio Playback Controls
   const handlePlayPause = () => {
