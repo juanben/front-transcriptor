@@ -5,6 +5,7 @@ import { sessionService } from '../../services/session/sessionService';
 import './BasicoAudioRecorder.css';
 import { speakText } from '../../utils/speak';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
+import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
 
 const BasicoAudioRecorder: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
@@ -216,41 +217,12 @@ const BasicoAudioRecorder: React.FC = () => {
 
   return (
     <div className="basico-recorder-screen">
-      {/* Barra de menú superior extra ancha (estilo BasicoMenu) */}
-      <header className="basico-header">
-        <button
-          className="btn-header-large btn-header-home"
-          onClick={handleCancelBack}
-          onFocus={() => speakText('Volver al menú básico')}
-          title="Volver al Menú"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-          </svg>
-          <span>Atrás</span>
-        </button>
-
-        <div className="basico-header-title">
-          <h2>Nueva Grabación</h2>
-          <span className="user-indicator">
-            {roomName}
-          </span>
-        </div>
-
-        <button
-          className="btn-header-large btn-header-logout"
-          onClick={handleLogout}
-          onFocus={() => speakText('Botón cerrar sesión')}
-          title="Cerrar Sesión"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-          <span>Salir</span>
-        </button>
-      </header>
+      <BasicoTopMenu
+        title="Nueva Grabación"
+        subtitle={roomName}
+        onBackClick={handleCancelBack}
+        onLogoutClick={handleLogout}
+      />
       <div className="basico-recorder-conten">
         <span className="access-code-label">Código de Acceso:</span>
         <span className="access-code-value">{roomCode}</span>

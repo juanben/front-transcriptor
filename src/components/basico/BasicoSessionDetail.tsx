@@ -6,6 +6,7 @@ import './BasicoMenu.css';
 import './BasicoSessionDetail.css';
 import { speakText } from '../../utils/speak';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
+import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
 
 const BasicoSessionDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -162,42 +163,18 @@ const BasicoSessionDetail: React.FC = () => {
 
   return (
     <div className="basico-menu-screen session-detail-container">
-      {/* Barra de menú superior extra ancha */}
-      <header className="basico-header">
-        <button
-          className="btn-header-large btn-header-home"
-          onClick={() => {
-            speakText('Volviendo a la pantalla anterior');
-            navigate(-1);
-          }}
-          onFocus={() => speakText('Botón volver atrás')}
-          title="Volver"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-          </svg>
-          <span>Atrás</span>
-        </button>
-
-        <div className="basico-header-title">
-          <h2>Detalle de Sesión</h2>
-          <span className="user-indicator">{session?.name || 'Cargando...'}</span>
-        </div>
-
-        <button
-          className="btn-header-large btn-header-logout"
-          onClick={handleLogout}
-          onFocus={() => speakText('Botón cerrar sesión')}
-          title="Cerrar Sesión"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-          <span>Salir</span>
-        </button>
-      </header>
+      <BasicoTopMenu
+        title="Detalle de Sesión"
+        subtitle={session?.name || 'Cargando...'}
+        onBackClick={() => {
+          speakText('Volviendo a la pantalla anterior');
+          navigate(-1);
+        }}
+        backTitle="Volver"
+        backSpeakText="Botón volver atrás"
+        backIcon="arrow-left"
+        onLogoutClick={handleLogout}
+      />
 
       {/* Contenedor Principal */}
       <main className="basico-menu-content session-detail-content">

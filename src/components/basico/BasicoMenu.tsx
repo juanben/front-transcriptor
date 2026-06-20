@@ -5,8 +5,8 @@ import { roomService } from '../../services/room/roomService';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import BasicoOwnRecords from './BasicoOwnRecords';
 import './BasicoMenu.css';
-import { speakText } from '../../utils/speak';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
+import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
 
 interface RoomItem {
   id: string;
@@ -25,6 +25,7 @@ const BasicoMenu: React.FC = () => {
   const [myRecordings, setMyRecordings] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [defaultRoomId, setDefaultRoomId] = useState<string>('');
 
   // Cargar información del usuario
   useEffect(() => {
@@ -61,7 +62,7 @@ const BasicoMenu: React.FC = () => {
 
   const goHome = () => {
     speakText('Volviendo a la pantalla principal');
-    navigate('/home');
+    navigate('/basico');
   };
 
   // Crear o recuperar la sala por defecto y navegar al grabador
@@ -124,6 +125,7 @@ const BasicoMenu: React.FC = () => {
         setMyRecordings([]);
         return;
       }
+      setDefaultRoomId(defaultRoomId);
 
       // 2. Traer sesiones de la sala por defecto
       const res = await sessionService.getSessionsByRoomId(defaultRoomId, userEmail);
@@ -146,42 +148,21 @@ const BasicoMenu: React.FC = () => {
 
   return (
     <div className="basico-menu-screen">
-      {/* Barra de menú superior extra ancha */}
-      <header className="basico-header">
-        <button
-          className="btn-header-large btn-header-home"
-          onClick={goHome}
-          onFocus={() => speakText('Botón volver a inicio')}
-          title="Volver a Inicio"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-          </svg>
-          <span>Inicio</span>
-        </button>
-
-        <div className="basico-header-title">
-          <h2>Modo Básico</h2>
-          <span className="user-indicator">Bienvenido: {userName}</span>
-        </div>
-
-        <button
-          className="btn-header-large btn-header-logout"
-          onClick={handleLogout}
-          onFocus={() => speakText('Botón cerrar sesión')}
-          title="Cerrar Sesión"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-          <span>Salir</span>
-        </button>
-      </header>
+      <BasicoTopMenu
+        title="Modo Básico"
+        subtitle={`Bienvenido: ${userName}`}
+        onBackClick={goHome}
+        backText="Inicio"
+        backTitle="Volver a Inicio"
+        backSpeakText="Botón volver a inicio"
+        onLogoutClick={handleLogout}
+      />
 
       {/* Contenedor Principal */}
-      <main className="basico-menu-content">
+      <main
+        className="basico-menu-content"
+        style={viewState !== 'menu' ? { overflow: 'hidden', width: '100%', height: '100%' } : undefined}
+      >
         {viewState === 'menu' && (
           <div className="giant-buttons-grid">
             {/* BOTÓN 1: INICIAR GRABACIÓN */}
@@ -295,6 +276,7 @@ const BasicoMenu: React.FC = () => {
             myRecordings={myRecordings}
             isLoading={isLoading}
             errorMsg={errorMsg}
+            defaultRoomId={defaultRoomId}
             onBack={() => {
               speakText('Volviendo al menú principal');
               setViewState('menu');
