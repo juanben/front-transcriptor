@@ -5,7 +5,7 @@ export interface RecordingSession {
   id: string;
   title: string;
   date: string;
-  duration: string;
+  duration: number;
   isVisible: boolean;
   isProcessing?: boolean;
   isSharable?: boolean;
@@ -21,6 +21,13 @@ interface SessionCardProps {
   onDelete?: (id: string) => void;
   isEspectador?: boolean;
 }
+
+const formatDuration = (seconds: number | undefined | null) => {
+  if (seconds === null || seconds === undefined || isNaN(seconds) || seconds < 0) return '00:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
 
 const SessionCard: React.FC<SessionCardProps> = ({
   session,
@@ -78,14 +85,14 @@ const SessionCard: React.FC<SessionCardProps> = ({
   };
 
   return (
-    <div 
-      className="recording-card" 
-      onClick={handleCardClick} 
+    <div
+      className="recording-card"
+      onClick={handleCardClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
       role="button"
     >
-      <div 
-        className="recording-icon-play" 
+      <div
+        className="recording-icon-play"
         onClick={(e) => {
           e.stopPropagation();
           if (session.isProcessing) return;
@@ -103,11 +110,11 @@ const SessionCard: React.FC<SessionCardProps> = ({
           </svg>
         )}
       </div>
-      
+
       <div className="recording-info">
         <h3 className="recording-title">{session.title || 'Grabación sin título'}</h3>
         <p className="recording-meta">
-          Fecha: {session.date} • Duración: {session.duration}
+          Fecha: {session.date} • Duración: {formatDuration(session.duration)}
           <span className={`recording-status ${session.isProcessing ? 'processing' : 'completed'}`}>
             • Estado: {session.isProcessing ? 'Procesando' : 'Completado'}
           </span>
@@ -115,8 +122,8 @@ const SessionCard: React.FC<SessionCardProps> = ({
       </div>
 
       <div className="recording-actions">
-        <button 
-          className="btn-resource" 
+        <button
+          className="btn-resource"
           onClick={(e) => {
             e.stopPropagation();
             if (onComplementaryResource) onComplementaryResource();
@@ -128,8 +135,8 @@ const SessionCard: React.FC<SessionCardProps> = ({
         <div className="action-buttons-row" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end', width: '100%' }}>
           {!isEspectador && (
             <>
-              <button 
-                className={`btn-visibility ${isSharable ? 'visible' : 'hidden'}`} 
+              <button
+                className={`btn-visibility ${isSharable ? 'visible' : 'hidden'}`}
                 onClick={handleToggleShare}
                 title={isSharable ? "No permitir compartir" : "Permitir compartir"}
                 disabled={isUpdatingShare}
@@ -156,8 +163,8 @@ const SessionCard: React.FC<SessionCardProps> = ({
                 )}
               </button>
 
-              <button 
-                className={`btn-visibility ${isVisible ? 'visible' : 'hidden'}`} 
+              <button
+                className={`btn-visibility ${isVisible ? 'visible' : 'hidden'}`}
                 onClick={handleToggleVisibility}
                 title={isVisible ? "Hacer no visible" : "Hacer visible"}
                 disabled={isUpdatingVisibility}
@@ -184,8 +191,8 @@ const SessionCard: React.FC<SessionCardProps> = ({
           )}
 
           {onDelete && (
-            <button 
-              className="btn-visibility hidden" 
+            <button
+              className="btn-visibility hidden"
               style={{ color: '#ef4444' }}
               onClick={(e) => {
                 e.stopPropagation();

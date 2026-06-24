@@ -13,6 +13,7 @@ interface SessionItem {
   date: string;
   room_code: string;
   status?: string;
+  isOwn?: boolean;
 }
 
 const BasicoDashboard: React.FC = () => {
@@ -37,7 +38,7 @@ const BasicoDashboard: React.FC = () => {
       try {
         const user = await userService.getUserMe(token);
         setUserName(user.name || user.email);
-        speakText('Cargando tus Biblioteca');
+        speakText('Cargando tu biblioteca');
 
         // Obtener la sala por defecto para saber cuál excluir
         let defaultRoomId = '';
@@ -48,19 +49,36 @@ const BasicoDashboard: React.FC = () => {
           console.log('No default room found for this user yet.');
         }
 
-        const data = await roomService.getUserRooms(user.email);
+        const [ownRoomsData, joinedRoomsData] = await Promise.all([
+          roomService.getUserRooms(user.email),
+          roomService.getPlayerRooms(user.email).catch(() => ({ rooms: [] }))
+        ]);
 
-        const filteredRooms = data.rooms.filter(room => room._id !== defaultRoomId);
+        const filteredOwnRooms = ownRoomsData.rooms.filter(room => room._id !== defaultRoomId);
 
-        const mappedSessions: SessionItem[] = filteredRooms.map(room => ({
+        const mappedOwnRooms: SessionItem[] = filteredOwnRooms.map(room => ({
           id: room._id,
           title: room.name,
           date: room.created_at.split('T')[0],
-          room_code: room.room_code || ''
+          room_code: room.room_code || '',
+          isOwn: true
         }));
 
-        setSessions(mappedSessions);
-        speakText(`Cargadas ${mappedSessions.length} Colecciones.`);
+        const mappedJoinedRooms: SessionItem[] = joinedRoomsData.rooms.map(room => {
+          const membershipStatus = room.membership_status ?? (room.is_waitlisted ? 'waitlist' : 'member');
+          return {
+            id: room._id,
+            title: room.name,
+            date: room.created_at.split('T')[0],
+            room_code: room.room_code || '',
+            status: membershipStatus === 'waitlist' ? 'En lista de espera' : 'Unido',
+            isOwn: false
+          };
+        });
+
+        const combined = [...mappedOwnRooms, ...mappedJoinedRooms];
+        setSessions(combined);
+        speakText(`Cargadas ${combined.length} Colecciones.`);
       } catch (error) {
         if (error instanceof Error) {
           setErrorMsg(error.message || 'Error al cargar Colecciones.');
@@ -135,7 +153,7 @@ const BasicoDashboard: React.FC = () => {
                 filteredSessions.map(session => (
                   <button
                     key={session.id}
-                    className="btn-item-giant"
+                    className="btn-item-giant room-item-card"
                     onClick={() => {
                       if (session.status === 'En lista de espera') {
                         speakText('Coleccion en lista de espera. El moderador debe aceptarte.');
@@ -146,15 +164,30 @@ const BasicoDashboard: React.FC = () => {
                       }
                     }}
                     onFocus={() => speakText(`Coleccion ${session.title}. Código ${session.room_code} ${session.status ? `, Estado: ${session.status}` : ''}`)}
-                    style={{ width: '100%' }}
                   >
-                    <span className="room-name">{session.title}</span>
-                    <span className="room-code">Código: {session.room_code} {session.status ? `(${session.status})` : ''}</span>
+                    <div className="room-info">
+                      <span className="room-name">{session.title}</span>
+                      <span className="room-code">Código: {session.room_code} {session.status ? `(${session.status})` : ''}</span>
+                    </div>
+                    <div className="room-icon-container">
+                      {session.isOwn ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="room-type-icon own-room" title="Colección propia">
+                          <circle cx="7.5" cy="15.5" r="5.5" />
+                          <path d="m21 2-9.6 9.6" />
+                          <path d="m15.5 7.5 3 3L22 7l-3-3" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="room-type-icon joined-room" title="Colección compartida">
+                          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                      )}
+                    </div>
                   </button>
                 ))
               ) : (
                 <div className="subview-message">
-                  No estás unido a ninguna sala activa.
+                  No haz agregado níngua colección activa.
                 </div>
               )}
             </div>

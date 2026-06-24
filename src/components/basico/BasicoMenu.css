@@ -1611,3 +1611,49 @@
     font-size: 1.1rem;
   }
 }
+
+/* Estilos para las tarjetas de sala en el dashboard básico */
+.btn-item-giant.room-item-card {
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.room-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.room-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.room-type-icon {
+  width: 36px;
+  height: 36px;
+  stroke: currentColor;
+}
+
+.room-type-icon.own-room {
+  color: #10b981; /* Verde esmeralda para propio */
+}
+
+.room-type-icon.joined-room {
+  color: #0d9dc6; /* Azul para unido/ajeno */
+}
+
+@media (prefers-color-scheme: dark) {
+  .room-type-icon.own-room {
+    color: #34d399;
+  }
+  .room-type-icon.joined-room {
+    color: #38bdf8;
+  }
+}

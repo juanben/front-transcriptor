@@ -16,6 +16,7 @@ export interface Session {
   room_code: string;
   name: string;
   creator_email: string;
+  duration: number;
   allow_download: boolean;
   record_path: string;
   status: string;
