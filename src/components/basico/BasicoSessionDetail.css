@@ -2,18 +2,21 @@
 
 /* Asegurar que la pantalla de detalle sea desplazable en pantallas pequeñas */
 .session-detail-container {
-  overflow-y: auto !important;
+  overflow: hidden !important;
+  height: 100vh !important;
 }
 
 .session-detail-content {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  justify-content: flex-start !important; /* Previene el corte de contenido en flexbox */
+  justify-content: flex-start !important;
   padding: 2rem 1.5rem !important;
-  overflow-y: auto !important;
+  overflow: hidden !important;
   box-sizing: border-box !important;
-  min-height: 0;
+  flex: 1 !important;
+  min-height: 0 !important;
+  height: 100% !important;
   width: 100% !important;
 }
 
@@ -22,8 +25,10 @@
   max-width: 800px !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 1.5rem !important;
-  height: auto !important;
+  gap: 1.2rem !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
   margin: 0 auto;
 }
 
@@ -34,11 +39,14 @@
   margin-bottom: 0.5rem;
 }
 
-/* Ajustes del card de texto para monitores (limitar altura máxima para mantener botones en pantalla) */
+/* Ajustes del card de texto para monitores (tamaño flexbox dinámico y scrollable) */
 .session-detail-subview .detail-content-card {
-  max-height: 350px;
-  min-height: 200px;
-  overflow-y: auto;
+  position: relative;
+  flex: 1;
+  min-height: 120px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   border-radius: 20px;
   box-sizing: border-box;
   width: 100%;
@@ -47,6 +55,9 @@
 .session-detail-subview .detail-text-body {
   font-size: 1.25rem;
   line-height: 1.7;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 2.2rem; /* Espacio para evitar superposición con el botón */
 }
 
 /* Fila de acciones */
@@ -109,13 +120,19 @@
   .session-detail-subview .detail-content-card {
     padding: 1rem;
     border-radius: 16px;
-    min-height: 150px;
-    max-height: 250px; /* Reducido en móvil para evitar scroll excesivo de la página */
+    flex: 1;
+    min-height: 100px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
   .session-detail-subview .detail-text-body {
     font-size: 1.1rem;
     line-height: 1.5;
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 2rem;
   }
 
   /* Apilar botones de acción en pantallas pequeñas */
@@ -138,12 +155,333 @@
 /* Optimización para móviles muy pequeños o en orientación horizontal corta */
 @media (max-height: 600px) {
   .session-detail-subview .detail-content-card {
-    min-height: 100px;
-    max-height: 150px;
+    min-height: 80px;
   }
   
   .session-detail-subview .btn-play-giant {
     width: 60px;
     height: 60px;
+  }
+}
+
+/* Botón expandir en la esquina superior derecha */
+.btn-expand-card {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.btn-expand-card:hover,
+.btn-expand-card:focus {
+  background-color: #4f46e5;
+  color: #ffffff;
+  outline: 3px solid #818cf8;
+  transform: scale(1.1);
+}
+
+.btn-expand-card svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Modal de Lectura Completa (Fullscreen) */
+.full-read-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.full-read-modal-box {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 28px;
+  width: 100%;
+  height: 100%;
+  max-width: 800px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: modal-appear 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-appear {
+  from {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.full-read-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1.5px solid rgba(148, 163, 184, 0.2);
+}
+
+.full-read-modal-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-color, #111827);
+}
+
+.btn-close-x {
+  background: transparent;
+  border: none;
+  font-size: 2.2rem;
+  color: #64748b;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 0.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.btn-close-x:hover,
+.btn-close-x:focus {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+  outline: none;
+}
+
+.full-read-modal-body {
+  flex: 1;
+  display: flex;
+  gap: 1.5rem;
+  padding: 2rem;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.full-read-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  overflow: hidden;
+}
+
+.full-read-column h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.full-read-column h3 svg {
+  color: #6366f1;
+}
+
+.full-read-text-card {
+  flex: 1;
+  background: rgba(248, 250, 252, 0.75);
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  border-radius: 20px;
+  padding: 1.5rem;
+  overflow-y: auto;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.full-read-text-card:focus {
+  outline: 3px solid #818cf8;
+}
+
+.full-read-text-card p {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--text-color, #334155);
+  white-space: pre-wrap;
+}
+
+.full-read-modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1.5px solid rgba(148, 163, 184, 0.2);
+  display: flex;
+  justify-content: center;
+}
+
+/* Modo oscuro para modal */
+@media (prefers-color-scheme: dark) {
+  .btn-expand-card {
+    background-color: rgba(129, 140, 248, 0.15);
+    color: #818cf8;
+  }
+
+  .btn-expand-card:hover,
+  .btn-expand-card:focus {
+    background-color: #818cf8;
+    color: #111827;
+    outline-color: #818cf8;
+  }
+
+  .full-read-modal-box {
+    background: #1f2937;
+    border-color: #4b5563;
+  }
+
+  .full-read-modal-header h2 {
+    color: #f3f4f6;
+  }
+
+  .btn-close-x {
+    color: #94a3b8;
+  }
+
+  .btn-close-x:hover,
+  .btn-close-x:focus {
+    color: #f87171;
+    background-color: rgba(248, 113, 113, 0.1);
+  }
+
+  .full-read-column h3 {
+    color: #818cf8;
+  }
+
+  .full-read-column h3 svg {
+    color: #818cf8;
+  }
+
+  .full-read-text-card {
+    background: rgba(17, 24, 39, 0.4);
+    border-color: #4b5563;
+  }
+
+  .full-read-text-card p {
+    color: #cbd5e1;
+  }
+}
+
+/* Responsividad para móviles y tabletas */
+@media (max-width: 850px) {
+  .full-read-modal-box {
+    max-height: 90vh;
+    border-radius: 20px;
+  }
+
+  .full-read-modal-header {
+    padding: 1.2rem 1.5rem;
+  }
+
+  .full-read-modal-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .full-read-modal-body {
+    padding: 1.2rem 1.5rem;
+  }
+
+  .full-read-modal-footer {
+    padding: 1.2rem 1.5rem;
+  }
+}
+
+/* Contenedor vertical de acciones para el detalle */
+.session-detail-actions-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 1.5rem;
+}
+
+.session-detail-actions-vertical button {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 1.5rem 1rem !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  border-radius: 16px !important;
+  text-transform: none !important;
+}
+
+@media (max-width: 768px) {
+  .session-detail-actions-vertical {
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+  }
+  
+  .session-detail-actions-vertical button {
+    padding: 1.2rem 1rem !important;
+    font-size: 1.2rem !important;
+  }
+}
+
+/* Optimización extra para pantallas muy cortas (como teléfonos en modo horizontal o pantallas pequeñas) */
+@media (max-height: 650px) {
+  .session-detail-content {
+    padding: 0.8rem 1rem !important;
+  }
+  
+  .session-detail-subview {
+    gap: 0.6rem !important;
+  }
+  
+  .session-detail-subview .accessible-player-container {
+    padding: 0.6rem 1rem !important;
+    gap: 0.6rem !important;
+    margin-bottom: 0.2rem !important;
+  }
+  
+  .session-detail-subview .btn-play-giant {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  
+  .session-detail-subview .btn-play-giant svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  
+  .session-detail-actions-vertical {
+    gap: 0.5rem !important;
+    margin-top: 0.5rem !important;
+  }
+  
+  .session-detail-actions-vertical button {
+    padding: 0.9rem 0.5rem !important;
+    font-size: 1.15rem !important;
+    border-radius: 12px !important;
   }
 }

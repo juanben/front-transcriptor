@@ -25,6 +25,7 @@ const BasicoSessionDetail: React.FC = () => {
   const [resourcesText, setResourcesText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isFullReadModalOpen, setIsFullReadModalOpen] = useState(false);
 
   // Custom Audio Player State
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -180,7 +181,7 @@ const BasicoSessionDetail: React.FC = () => {
       <main className="basico-menu-content session-detail-content">
         <div className="accessible-subview session-detail-subview">
 
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible', minHeight: 0 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             {isLoading ? (
               <div className="subview-message">Cargando detalles de la sesión...</div>
             ) : fetchError ? (
@@ -270,6 +271,16 @@ const BasicoSessionDetail: React.FC = () => {
                   tabIndex={0}
                   onFocus={() => speakText(activeTab === 'Resumen' ? 'Contenido del resumen' : 'Contenido de la transcripción')}
                 >
+                  <button 
+                    className="btn-expand-card"
+                    onClick={() => setIsFullReadModalOpen(true)}
+                    onFocus={() => speakText('Botón ver en pantalla completa')}
+                    aria-label="Ver en pantalla completa"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9m5.25 11.25v-4.5m0 4.5h-4.5m4.5 0L15 15" />
+                    </svg>
+                  </button>
                   <div className="detail-text-body">
                     {activeTab === 'Resumen'
                       ? (session.summary || 'No hay resumen disponible.')
@@ -278,22 +289,21 @@ const BasicoSessionDetail: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Botones de acción */}
-                <div className="recording-actions-row" style={{ marginTop: '1.5rem', gap: '1rem' }}>
-                  {!isEspectador && (
-                    <button
-                      className="btn-join-giant"
-                      style={{ flex: 1, maxWidth: 'none', padding: '1rem 0.5rem', fontSize: '1.15rem' }}
-                      onClick={handleOpenModal}
-                      onFocus={() => speakText('Botón añadir recursos complementarios')}
-                    >
-                      Recursos
-                    </button>
-                  )}
+                {/* Botones de acción en columna vertical */}
+                <div className="session-detail-actions-vertical">
+                  <button
+                    className="btn-back-giant"
+                    onClick={() => {
+                      speakText('Abriendo modal de lectura completa');
+                      setIsFullReadModalOpen(true);
+                    }}
+                    onFocus={() => speakText('Botón expandir texto')}
+                  >
+                    Expandir texto
+                  </button>
 
                   <button
                     className="btn-back-giant"
-                    style={{ flex: 1, maxWidth: 'none', padding: '1rem 0.5rem', fontSize: '1.15rem' }}
                     onClick={() => {
                       const resourceLink = session?.complementaryResourses || session?.complementaryResources;
                       if (resourceLink) {
@@ -309,25 +319,32 @@ const BasicoSessionDetail: React.FC = () => {
                     }}
                     onFocus={() => speakText('Botón abrir recursos complementarios')}
                   >
-                    Abrir Recursos
+                    Abrir recursos
+                  </button>
+
+                  {!isEspectador && (
+                    <button
+                      className="btn-back-giant"
+                      onClick={handleOpenModal}
+                      onFocus={() => speakText('Botón añadir recursos complementarios')}
+                    >
+                      Añadir recursos
+                    </button>
+                  )}
+
+                  <button
+                    className="btn-back-giant"
+                    onClick={() => {
+                      speakText('Volviendo a la pantalla anterior');
+                      navigate(-1);
+                    }}
+                    onFocus={() => speakText('Botón regresar')}
+                  >
+                    Regresar
                   </button>
                 </div>
               </>
             ) : null}
-          </div>
-
-          {/* Botón Volver abajo y centrado */}
-          <div className="subview-footer" style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', width: '100%' }}>
-            <button
-              className="btn-back-giant"
-              onClick={() => {
-                speakText('Volviendo a la pantalla anterior');
-                navigate(-1);
-              }}
-              onFocus={() => speakText('Botón volver atrás')}
-            >
-              ← Volver
-            </button>
           </div>
         </div>
       </main>
@@ -377,6 +394,68 @@ const BasicoSessionDetail: React.FC = () => {
                 style={{ flex: 1, padding: '1rem 0.5rem', fontSize: '1.15rem' }}
               >
                 {isSubmitting ? 'Guardando...' : 'Guardar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Lectura Completa */}
+      {isFullReadModalOpen && (
+        <div className="full-read-modal-overlay" onClick={() => setIsFullReadModalOpen(false)}>
+          <div className="full-read-modal-box" onClick={e => e.stopPropagation()}>
+            <div className="full-read-modal-header">
+              <h2>{activeTab === 'Resumen' ? 'Resumen Completo' : 'Transcripción Completa'}</h2>
+              <button 
+                className="btn-close-x" 
+                onClick={() => setIsFullReadModalOpen(false)}
+                aria-label="Cerrar modal"
+                onFocus={() => speakText('Botón cerrar')}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="full-read-modal-body">
+              <div className="full-read-column">
+                <h3>
+                  {activeTab === 'Resumen' ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" style={{ width: '1.25rem', height: '1.25rem' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                      </svg>
+                      Resumen
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" style={{ width: '1.25rem', height: '1.25rem' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                      </svg>
+                      Transcripción
+                    </>
+                  )}
+                </h3>
+                <div 
+                  className="full-read-text-card" 
+                  tabIndex={0} 
+                  onFocus={() => speakText(activeTab === 'Resumen' ? 'Texto del resumen completo' : 'Texto de la transcripción completa')}
+                >
+                  <p>
+                    {activeTab === 'Resumen'
+                      ? (session?.summary || 'No hay resumen disponible.')
+                      : (session?.transcription || 'No hay transcripción disponible.')
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="full-read-modal-footer">
+              <button
+                className="btn-back-giant"
+                onClick={() => setIsFullReadModalOpen(false)}
+                onFocus={() => speakText('Botón cerrar modal')}
+                style={{ minWidth: '220px', padding: '1rem 2rem', fontSize: '1.25rem' }}
+              >
+                Cerrar
               </button>
             </div>
           </div>
