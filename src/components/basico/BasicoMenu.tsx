@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/user/userService';
 import { roomService } from '../../services/room/roomService';
-import { sessionService, type Session } from '../../services/session/sessionService';
-import BasicoOwnRecords from './BasicoOwnRecords';
 import './BasicoMenu.css';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
@@ -20,12 +18,10 @@ const BasicoMenu: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string>('');
 
   // Estados para vistas secundarias
-  const [viewState, setViewState] = useState<'menu' | 'select-room' | 'my-recordings'>('menu');
+  const [viewState, setViewState] = useState<'menu' | 'select-room'>('menu');
   const [rooms] = useState<RoomItem[]>([]);
-  const [myRecordings, setMyRecordings] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [defaultRoomId, setDefaultRoomId] = useState<string>('');
 
   // Cargar información del usuario
   useEffect(() => {
@@ -90,7 +86,7 @@ const BasicoMenu: React.FC = () => {
       }
 
       speakText(`Abriendo grabador en ${defaultRoomName}.`);
-      navigate(`/basico/grabar/${defaultRoomId}`, { state: { roomName: defaultRoomName, roomCode: defaultRoomCode } });
+      navigate(`/basico/grabar/${defaultRoomId}`, { state: { roomName: defaultRoomName, roomCode: defaultRoomCode, autoStart: true } });
     } catch (error) {
       console.error('Error al iniciar grabación en sala por defecto:', error);
       setErrorMsg('Error al preparar la sala de grabación.');
@@ -100,51 +96,10 @@ const BasicoMenu: React.FC = () => {
 
   const selectRoomForRecording = (room: RoomItem) => {
     speakText(`Sala seleccionada: ${room.name}. Abriendo grabador.`);
-    navigate(`/basico/grabar/${room.id}`, { state: { roomName: room.name, roomCode: room.code } });
+    navigate(`/basico/grabar/${room.id}`, { state: { roomName: room.name, roomCode: room.code, autoStart: true } });
   };
 
-  // Cargar grabaciones propias del usuario solo en la sala por defecto
-  const handleMyRecordingsClick = async () => {
-    speakText('Abriendo mis grabaciones.');
-    setIsLoading(true);
-    setErrorMsg(null);
-    setViewState('my-recordings');
 
-    try {
-      // 1. Obtener la sala por defecto
-      let defaultRoomData;
-      try {
-        defaultRoomData = await roomService.getDefaultRoom(userEmail);
-      } catch (error) {
-        defaultRoomData = await roomService.createDefaultRoom(userEmail);
-      }
-
-      const defaultRoomId = defaultRoomData?.room?._id || defaultRoomData?._id;
-
-      if (!defaultRoomId) {
-        setMyRecordings([]);
-        return;
-      }
-      setDefaultRoomId(defaultRoomId);
-
-      // 2. Traer sesiones de la sala por defecto
-      const res = await sessionService.getSessionsByRoomId(defaultRoomId, userEmail);
-      const allSessions = res.sessions || [];
-
-      // 3. Filtrar las creadas por este usuario
-      const userSessions = allSessions.filter(s => s.creator_email === userEmail);
-
-      // Ordenar por fecha reciente
-      userSessions.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-      setMyRecordings(userSessions);
-    } catch (error) {
-      console.error('Error al cargar grabaciones:', error);
-      setErrorMsg('Error al obtener tus grabaciones.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="basico-menu-screen">
@@ -202,7 +157,10 @@ const BasicoMenu: React.FC = () => {
             {/* BOTÓN 3: MIS GRABACIONES */}
             <button
               className="btn-giant btn-history"
-              onClick={handleMyRecordingsClick}
+              onClick={() => {
+                speakText('Abriendo mis grabaciones.');
+                navigate('/basico/ownRecords');
+              }}
               onFocus={() => speakText('Mis Grabaciones')}
             >
               <div className="btn-giant-icon">
@@ -270,20 +228,7 @@ const BasicoMenu: React.FC = () => {
           </div>
         )}
 
-        {/* SUB-VISTA: MIS GRABACIONES */}
-        {viewState === 'my-recordings' && (
-          <BasicoOwnRecords
-            myRecordings={myRecordings}
-            isLoading={isLoading}
-            errorMsg={errorMsg}
-            defaultRoomId={defaultRoomId}
-            onBack={() => {
-              speakText('Volviendo al menú principal');
-              setViewState('menu');
-            }}
-            speakText={speakText}
-          />
-        )}
+
       </main>
     </div>
   );

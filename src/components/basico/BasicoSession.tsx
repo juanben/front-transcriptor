@@ -80,7 +80,7 @@ const BasicoSession: React.FC = () => {
         <div className="accessible-subview" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
 
           <div className="subview-header" style={{ alignItems: 'center', textAlign: 'center', width: '100%', marginBottom: '1rem' }}>
-            <h3 className="subview-title" style={{ width: '100%', textAlign: 'center' }}>Grabaciones de la Sala</h3>
+            <h3 className="subview-title" style={{ width: '100%', textAlign: 'center' }}>Grabaciones de la Coleccion</h3>
           </div>
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', justifyContent: 'center', minHeight: 0 }}>
@@ -103,7 +103,7 @@ const BasicoSession: React.FC = () => {
                     <div className="recording-details">
                       <span className="recording-name">{session.name}</span>
                       <span className="recording-date">Fecha: {session.created_at.split('T')[0]}</span>
-                      <span className="recording-status">Estado: {session.status === 'completed' ? 'Completado' : 'Procesando'}</span>
+
                     </div>
                     <div className="recording-action-icon">
                       {session.status === 'processing' || session.status === 'procesando' ? (
@@ -115,6 +115,7 @@ const BasicoSession: React.FC = () => {
                           <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
                         </svg>
                       )}
+                      <span className="recording-status">Estado: {session.status === 'completed' ? 'Completado' : 'Procesando'}</span>
                     </div>
                   </button>
                 ))}

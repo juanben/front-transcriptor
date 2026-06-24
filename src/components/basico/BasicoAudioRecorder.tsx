@@ -30,6 +30,7 @@ const BasicoAudioRecorder: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const hasAutoStartedRef = useRef(false);
 
   // Obtener información del usuario actual
   useEffect(() => {
@@ -58,9 +59,10 @@ const BasicoAudioRecorder: React.FC = () => {
     };
   }, [navigate]);
 
-  // Auto-iniciar grabación si se pasa el flag autoStart (desde la cuenta regresiva de BasicoSession)
+  // Auto-iniciar grabación si se pasa el flag autoStart
   useEffect(() => {
-    if (locationState?.autoStart && userEmail) {
+    if (locationState?.autoStart && userEmail && !hasAutoStartedRef.current) {
+      hasAutoStartedRef.current = true;
       const t = setTimeout(() => {
         startRecording();
       }, 600);

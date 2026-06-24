@@ -312,3 +312,22 @@
     color: #60a5fa;
   }
 }
+
+@media (max-width: 480px) {
+  .playback-container {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .playback-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .btn-action {
+    width: 100%;
+    flex: none;
+    padding: 0.75rem;
+  }
+}

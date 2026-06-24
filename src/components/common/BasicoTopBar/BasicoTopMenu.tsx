@@ -20,7 +20,6 @@ export const BasicoTopMenu: React.FC<BasicoTopMenuProps> = ({
 
   title,
   subtitle,
-  onBackClick,
   backText = 'Inicio',
   backTitle = 'Volver al Menú',
   backSpeakText = 'Menu Principal',
@@ -28,15 +27,14 @@ export const BasicoTopMenu: React.FC<BasicoTopMenuProps> = ({
   onLogoutClick,
   logoutSpeakText = 'Botón cerrar sesión',
 }) => {
-  const navigate = useNavigate(); // 👈 2. Inicializas el hook dentro del componente
+  const navigate = useNavigate();
   return (
     <header className="basico-header">
       <button
         className="btn-header-large btn-header-home"
         onClick={() => {
-          speakText('Menu Principal')
-          navigate("/basico")
-
+          speakText('Volviendo al menú principal');
+          navigate('/basico');
         }}
         onFocus={() => speakText(backSpeakText)}
         title={backTitle}

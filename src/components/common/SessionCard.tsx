@@ -84,18 +84,34 @@ const SessionCard: React.FC<SessionCardProps> = ({
       style={{ cursor: onClick ? 'pointer' : 'default' }}
       role="button"
     >
-      <div className="recording-icon-play" onClick={(e) => {
-        e.stopPropagation();
-        if (onClickPlay) onClickPlay();
-      }}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
+      <div 
+        className="recording-icon-play" 
+        onClick={(e) => {
+          e.stopPropagation();
+          if (session.isProcessing) return;
+          if (onClickPlay) onClickPlay();
+        }}
+        style={session.isProcessing ? { cursor: 'default' } : undefined}
+      >
+        {session.isProcessing ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="spinner-icon">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        )}
       </div>
       
       <div className="recording-info">
         <h3 className="recording-title">{session.title || 'Grabación sin título'}</h3>
-        <p className="recording-meta">Fecha: {session.date} • Duración: {session.duration}</p>
+        <p className="recording-meta">
+          Fecha: {session.date} • Duración: {session.duration}
+          <span className={`recording-status ${session.isProcessing ? 'processing' : 'completed'}`}>
+            • Estado: {session.isProcessing ? 'Procesando' : 'Completado'}
+          </span>
+        </p>
       </div>
 
       <div className="recording-actions">

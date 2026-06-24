@@ -19,6 +19,7 @@ import BasicoMenu from './components/basico/BasicoMenu';
 import BasicoAudioRecorder from './components/basico/BasicoAudioRecorder';
 import BasicoJoinRoom from './components/basico/BasicoJoinRoom';
 import BasicoSessionDetail from './components/basico/BasicoSessionDetail';
+import BasicoOwnRecords from './components/basico/BasicoOwnRecords';
 import AuthGuard from './components/common/AuthGuard';
 
 const AppRouter = () => {
@@ -52,6 +53,7 @@ const AppRouter = () => {
         <Route path="/basico/sala/:id" element={<AuthGuard><BasicoSession /></AuthGuard>} />
         <Route path="/basico/grabar/:id" element={<AuthGuard><BasicoAudioRecorder /></AuthGuard>} />
         <Route path="/basico/sala/:id/sesion/:sessionId" element={<AuthGuard><BasicoSessionDetail /></AuthGuard>} />
+        <Route path="/basico/ownRecords" element={<AuthGuard><BasicoOwnRecords /></AuthGuard>} />
 
         {/* Testing */}
         <Route path="/testRec" element={<AuthGuard><App /></AuthGuard>} />

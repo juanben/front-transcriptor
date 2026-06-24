@@ -28,7 +28,7 @@ const SignUp: React.FC = () => {
 
     try {
       await userService.signUp({ name, email, password });
-      
+
       // Si el registro fue correcto, redirigimos a login para que inicie sesión
       navigate('/login');
     } catch (error) {
@@ -44,44 +44,44 @@ const SignUp: React.FC = () => {
 
   return (
     <div className="screen">
-      <div className="logo">EDU</div>
-      <h1>Sign Up</h1>
+      <img src="/LogoEscribIA.svg" alt="Logo Aplicación EscribIA" className='logo' />
+      <h1>Registrarse</h1>
       <form onSubmit={handleSubmit}>
         <div className="input-group">
           <label htmlFor="username">Nombre de Usuario</label>
-          <input 
-            id="username" 
-            placeholder="nombre" 
+          <input
+            id="username"
+            placeholder="nombre"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
         <div className="input-group">
           <label htmlFor="email">Correo Electrónico</label>
-          <input 
-            type="email" 
-            id="email" 
-            placeholder="correo@ejemplo.com" 
+          <input
+            type="email"
+            id="email"
+            placeholder="correo@ejemplo.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="input-group">
           <label htmlFor="password">Contraseña</label>
-          <input 
-            type="password" 
-            id="password" 
-            placeholder="........" 
+          <input
+            type="password"
+            id="password"
+            placeholder="........"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         <div className="input-group">
           <label htmlFor="confirm-password">Confirmar Contraseña</label>
-          <input 
-            type="password" 
-            id="confirm-password" 
-            placeholder="........" 
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="........"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
@@ -89,6 +89,12 @@ const SignUp: React.FC = () => {
         <button type="submit" className="btn-primary" disabled={isLoading}>
           {isLoading ? 'Registrando...' : '→ Registrarse'}
         </button>
+
+        <button
+          onClick={() => navigate('/login')}
+          className="btn-primary" >Regresar
+        </button>
+
       </form>
       <p>¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
 
@@ -98,8 +104,8 @@ const SignUp: React.FC = () => {
             <h3 className="modal-title">Error de Registro</h3>
             <p className="modal-text">{errorMessage}</p>
             <div className="modal-actions" style={{ justifyContent: 'center' }}>
-              <button 
-                className="btn-modal-submit" 
+              <button
+                className="btn-modal-submit"
                 style={{ background: '#ef4444', boxShadow: 'none' }}
                 onClick={() => setErrorMessage(null)}
               >

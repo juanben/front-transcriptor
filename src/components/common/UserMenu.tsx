@@ -30,7 +30,7 @@ const UserMenu: React.FC = () => {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -42,63 +42,46 @@ const UserMenu: React.FC = () => {
   if (!userName) return null;
 
   return (
-    <div className="user-menu-container" ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
+    <div className="user-menu-container relative inline-block" ref={menuRef}>
       <button 
-        className="btn-user-profile"
+        className="btn-user-profile flex items-center gap-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 px-4 py-2 rounded-full cursor-pointer font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          background: '#f3f4f6',
-          border: '1px solid #d1d5db',
-          padding: '0.4rem 0.8rem',
-          borderRadius: '20px',
-          cursor: 'pointer',
-          fontWeight: 600,
-          color: '#374151'
-        }}
         title="Perfil de usuario"
       >
-        <div style={{
-          width: '24px', height: '24px', borderRadius: '50%', background: '#4f46e5', color: 'white',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem'
-        }}>
+        <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
           {userName.charAt(0).toUpperCase()}
         </div>
-        {userName}
+        <span>{userName}</span>
       </button>
 
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          right: 0,
-          marginTop: '0.5rem',
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          zIndex: 50,
-          minWidth: '150px',
-          overflow: 'hidden'
-        }}>
+        <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 min-w-[170px] overflow-hidden">
+          {/* Cambiar a Modo Básico */}
           <button 
-            onClick={handleLogout}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-              padding: '0.75rem 1rem',
-              background: 'none',
-              border: 'none',
-              color: '#ef4444',
-              cursor: 'pointer',
-              textAlign: 'left',
-              gap: '0.5rem',
-              fontSize: '0.9rem',
-              fontWeight: 500
+            onClick={() => {
+              setIsOpen(false);
+              navigate('/basico');
             }}
+            className="flex items-center gap-2 w-full px-4 py-3 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 text-indigo-600 dark:text-indigo-400 border-none cursor-pointer text-left text-sm font-medium transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            Modo Básico
+          </button>
+
+          {/* Separador */}
+          <div className="border-t border-gray-100 dark:border-gray-700" />
+
+          {/* Cerrar Sesión */}
+          <button 
+            onClick={() => {
+              setIsOpen(false);
+              handleLogout();
+            }}
+            className="flex items-center gap-2 w-full px-4 py-3 bg-transparent hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 border-none cursor-pointer text-left text-sm font-medium transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AvanzadoDashboard.css';
 import RoomCard, { type Session } from '../common/RoomCard';
-import UserMenu from '../common/UserMenu';
+import AvanzadoTopBar from '../common/AvanzadoTopBar/AvanzadoTopBar';
 import { userService } from '../../services/user/userService';
 import { roomService } from '../../services/room/roomService';
 import type { Room } from '../../types/rooms';
@@ -27,7 +27,7 @@ const AvanzadoDashboard: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [showLeaveModal, setShowLeaveModal] = useState<Session | null>(null);
-  
+
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
 
   const [activeTab, setActiveTab] = useState<'my-rooms' | 'joined-rooms'>('my-rooms');
@@ -52,27 +52,27 @@ const AvanzadoDashboard: React.FC = () => {
       try {
         const user = await userService.getUserMe(token);
         setOwnerEmail(user.email);
-        
+
         const [userData, playerRoomsData] = await Promise.all([
           roomService.getUserRooms(user.email),
           roomService.getPlayerRooms(user.email)
         ]);
-        
+
         const mappedSessions: Session[] = userData.rooms.map(room => ({
           id: room._id,
           title: room.name,
           date: room.created_at.split('T')[0], // Format: YYYY-MM-DD
           room_code: room.room_code
         }));
-        
+
         const mappedJoinedSessions: Session[] = playerRoomsData.rooms.map(mapJoinedRoomToSession);
-        
+
         setSessions(mappedSessions);
         setJoinedSessions(mappedJoinedSessions);
       } catch (error) {
-          if (error instanceof Error) {
-            setErrorMsg(error.message || 'Error al cargar las salas.');
-          }
+        if (error instanceof Error) {
+          setErrorMsg(error.message || 'Error al cargar las salas.');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -181,35 +181,21 @@ const AvanzadoDashboard: React.FC = () => {
 
   return (
     <div className="dashboard-screen">
-      <header className="dashboard-header">
-        <h1 className="welcome-text">Bienvenido perfil avanzado</h1>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <UserMenu />
-          <button 
-            className="btn-home-icon" 
-            onClick={() => navigate('/home')} 
-            title="Volver a Home"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-          </button>
-        </div>
-      </header>
+      <AvanzadoTopBar />
 
       <div className="info-banner">
-        <p>Aquí puedes crear salas para ordenar tus grabaciones y unirte a otras</p>
+        <p>Aquí puedes crear colecciones para ordenar tus grabaciones o unirte a otras</p>
       </div>
-      
+
       <main className="dashboard-content">
         <div className="tabs-container">
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'my-rooms' ? 'active' : ''}`}
             onClick={() => setActiveTab('my-rooms')}
           >
-            Mis Salas
+            Mis Biblioteca
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'joined-rooms' ? 'active' : ''}`}
             onClick={() => setActiveTab('joined-rooms')}
           >
@@ -230,10 +216,10 @@ const AvanzadoDashboard: React.FC = () => {
             </>
           ) : (
             <div className="search-bar-container">
-              <input 
-                type="text" 
-                className="search-input" 
-                placeholder="Buscar sesión por nombre..." 
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Buscar colección por nombre..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
@@ -247,10 +233,10 @@ const AvanzadoDashboard: React.FC = () => {
             </div>
           )}
         </div>
-        
+
         <div className="sort-section" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <button className="btn-sort" onClick={toggleSort}>
-            Ordenar por: {sortBy === 'recent' ? 'Más recientes' : 'Alfabético'} 
+            Ordenar por: {sortBy === 'recent' ? 'Más recientes' : 'Alfabético'}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '4px' }}>
               <line x1="4" y1="6" x2="20" y2="6"></line>
               <line x1="4" y1="12" x2="14" y2="12"></line>
@@ -262,7 +248,7 @@ const AvanzadoDashboard: React.FC = () => {
         <div className="sessions-list">
           {isLoading && activeTab === 'my-rooms' ? (
             <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
-              Cargando salas...
+              Cargando Colecciones...
             </p>
           ) : errorMsg && activeTab === 'my-rooms' ? (
             <p style={{ textAlign: 'center', color: '#ef4444', marginTop: '2rem' }}>
@@ -273,11 +259,11 @@ const AvanzadoDashboard: React.FC = () => {
               <RoomCard
                 key={session.id}
                 session={session}
-                isFirst={index === 0}
+                isFirst={index === -1}
                 openMenuId={openMenuId}
                 onSetOpenMenuId={setOpenMenuId}
-                onClick={() => activeTab === 'my-rooms' 
-                  ? navigate('/sala/' + session.id) 
+                onClick={() => activeTab === 'my-rooms'
+                  ? navigate('/sala/' + session.id)
                   : navigate('/sala-unida/' + session.id)
                 }
                 onEdit={activeTab === 'my-rooms' ? handleEdit : undefined}
@@ -287,19 +273,19 @@ const AvanzadoDashboard: React.FC = () => {
             ))
           ) : (
             <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem' }}>
-              {activeTab === 'my-rooms' 
-                ? 'No se encontraron salas.' 
-                : 'No te has unido a ninguna sala aún.'}
+              {activeTab === 'my-rooms'
+                ? 'No se encontraron Colecciones.'
+                : 'No te has unido a ninguna Colección aún.'}
             </p>
           )}
         </div>
       </main>
 
       {activeTab === 'my-rooms' ? (
-        <button 
-          className="fab-button" 
+        <button
+          className="fab-button"
           onClick={() => navigate('/new-room')}
-          title="Crear nueva sesión"
+          title="Crear nueva colección"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -307,10 +293,10 @@ const AvanzadoDashboard: React.FC = () => {
           </svg>
         </button>
       ) : (
-        <button 
-          className="fab-button" 
+        <button
+          className="fab-button"
           onClick={handleJoinRoom}
-          title="Unirse a una sala"
+          title="Unirse a una colección"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
@@ -324,8 +310,8 @@ const AvanzadoDashboard: React.FC = () => {
       {showDeleteModal && (
         <div className="modal-overlay" onClick={() => setShowDeleteModal(null)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3 className="modal-title">Eliminar sesión</h3>
-            <p className="modal-text">¿Estás seguro de que deseas eliminar esta sesión? Esta acción no se puede deshacer.</p>
+            <h3 className="modal-title">Eliminar colección</h3>
+            <p className="modal-text">¿Estás seguro de que deseas eliminar esta colección? Esta acción no se puede deshacer.</p>
             <div className="modal-actions">
               <button className="btn-modal-cancel" onClick={() => setShowDeleteModal(null)}>Cancelar</button>
               <button className="btn-modal-submit" style={{ background: '#ef4444', boxShadow: 'none' }} onClick={() => confirmDelete(showDeleteModal)}>Eliminar</button>
@@ -339,8 +325,8 @@ const AvanzadoDashboard: React.FC = () => {
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <h3 className="modal-title">Salir de la sala</h3>
             <p className="modal-text">
-              {showLeaveModal.membership_status === 'waitlist' 
-                ? '¿Estás seguro de que deseas salir de la lista de espera de esta sala?' 
+              {showLeaveModal.membership_status === 'waitlist'
+                ? '¿Estás seguro de que deseas salir de la lista de espera de esta sala?'
                 : '¿Estás seguro de que deseas salir de esta sala?'}
             </p>
             <div className="modal-actions">
@@ -356,10 +342,10 @@ const AvanzadoDashboard: React.FC = () => {
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <h3 className="modal-title">Unirse a una sala</h3>
             <p className="modal-text">Ingresa el código de acceso proporcionado para unirte a la sala.</p>
-            <input 
-              type="text" 
-              className={`modal-input ${joinError ? 'error' : ''}`} 
-              placeholder="Ej. C7B-9P" 
+            <input
+              type="text"
+              className={`modal-input ${joinError ? 'error' : ''}`}
+              placeholder="Ej. C7B-9P"
               value={joinCode}
               onChange={(e) => { setJoinCode(e.target.value); setJoinError(null); }}
               onKeyDown={(e) => e.key === 'Enter' && submitJoinRoom()}

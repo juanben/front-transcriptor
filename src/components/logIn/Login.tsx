@@ -121,7 +121,7 @@ const Login: React.FC = () => {
         </button>
       </form>
       {/* 4. Toggle Switch (Modo Fácil) */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 mt-4">
         <button
           type="button"
           role="switch"

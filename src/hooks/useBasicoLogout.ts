@@ -8,7 +8,7 @@ export const useBasicoLogout = () => {
   const navigate = useNavigate();
 
   const handleLogout = (beforeLogout?: () => void) => {
-    if (beforeLogout) {
+    if (typeof beforeLogout === 'function') {
       beforeLogout();
     }
     speakText('Cerrando sesión');

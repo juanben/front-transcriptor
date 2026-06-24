@@ -172,3 +172,42 @@
     justify-content: center;
   }
 }
+
+/* Estado de procesamiento */
+.recording-status {
+  margin-left: 0.6rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+}
+
+.recording-status.processing {
+  color: #ef4444;
+}
+
+.recording-status.completed {
+  color: #10b981;
+}
+
+/* Icono giratorio */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@media (prefers-color-scheme: dark) {
+  .recording-status.processing {
+    color: #f87171;
+  }
+  .recording-status.completed {
+    color: #34d399;
+  }
+}
