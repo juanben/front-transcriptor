@@ -71,7 +71,7 @@ const BasicoSession: React.FC = () => {
           navigate('/basico/salas');
         }}
         backTitle="Volver a mi biblioteca"
-        backSpeakText="Regresar"
+        backSpeakText="Volver"
         onLogoutClick={handleLogout}
       />
 
@@ -137,7 +137,7 @@ const BasicoSession: React.FC = () => {
               }}
               onFocus={() => speakText('Resgresar a mi biblioteca')}
             >
-              ← Regresar
+              ← Volver
             </button>
           </div>
         </div>

@@ -193,7 +193,7 @@ const BasicoDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Botones inferiores: Regresar y Unirse a Sala */}
+          {/* Botones inferiores: Volver y Unirse a Sala */}
           <div className="subview-footer">
             <button
               className="btn-back-giant"
@@ -201,9 +201,9 @@ const BasicoDashboard: React.FC = () => {
                 speakText('Volviendo al menú principal');
                 navigate('/basico');
               }}
-              onFocus={() => speakText('Botón regresar')}
+              onFocus={() => speakText('Botón Volver')}
             >
-              ← Regresar
+              ← Volver
             </button>
 
             <button

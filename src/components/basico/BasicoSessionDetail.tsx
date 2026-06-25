@@ -197,7 +197,7 @@ const BasicoSessionDetail: React.FC = () => {
                     onLoadedMetadata={handleLoadedMetadata}
                     onEnded={handleAudioEnded}
                   />
-                  
+
                   {audioUrl ? (
                     <>
                       <button
@@ -266,12 +266,12 @@ const BasicoSessionDetail: React.FC = () => {
                 </div>
 
                 {/* Contenido del detalle */}
-                <div 
+                <div
                   className="detail-content-card"
                   tabIndex={0}
                   onFocus={() => speakText(activeTab === 'Resumen' ? 'Contenido del resumen' : 'Contenido de la transcripción')}
                 >
-                  <button 
+                  <button
                     className="btn-expand-card"
                     onClick={() => setIsFullReadModalOpen(true)}
                     onFocus={() => speakText('Botón ver en pantalla completa')}
@@ -338,9 +338,9 @@ const BasicoSessionDetail: React.FC = () => {
                       speakText('Volviendo a la pantalla anterior');
                       navigate(-1);
                     }}
-                    onFocus={() => speakText('Botón regresar')}
+                    onFocus={() => speakText('Botón Volver')}
                   >
-                    Regresar
+                    Volver
                   </button>
                 </div>
               </>
@@ -406,8 +406,8 @@ const BasicoSessionDetail: React.FC = () => {
           <div className="full-read-modal-box" onClick={e => e.stopPropagation()}>
             <div className="full-read-modal-header">
               <h2>{activeTab === 'Resumen' ? 'Resumen Completo' : 'Transcripción Completa'}</h2>
-              <button 
-                className="btn-close-x" 
+              <button
+                className="btn-close-x"
                 onClick={() => setIsFullReadModalOpen(false)}
                 aria-label="Cerrar modal"
                 onFocus={() => speakText('Botón cerrar')}
@@ -434,9 +434,9 @@ const BasicoSessionDetail: React.FC = () => {
                     </>
                   )}
                 </h3>
-                <div 
-                  className="full-read-text-card" 
-                  tabIndex={0} 
+                <div
+                  className="full-read-text-card"
+                  tabIndex={0}
                   onFocus={() => speakText(activeTab === 'Resumen' ? 'Texto del resumen completo' : 'Texto de la transcripción completa')}
                 >
                   <p>

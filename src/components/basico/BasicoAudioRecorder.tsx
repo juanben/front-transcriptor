@@ -330,7 +330,7 @@ const BasicoAudioRecorder: React.FC = () => {
           onClick={handleCancelBack}
           onFocus={() => speakText('Botón volver atrás')}
         >
-          ← Regresar
+          ← Volver
         </button>
       </div>
 

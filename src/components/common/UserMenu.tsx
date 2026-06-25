@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/user/userService';
+import LogoutConfirmModal from './LogoutConfirmModal';
 
 const UserMenu: React.FC = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,7 +81,7 @@ const UserMenu: React.FC = () => {
           <button 
             onClick={() => {
               setIsOpen(false);
-              handleLogout();
+              setShowLogoutModal(true);
             }}
             className="flex items-center gap-2 w-full px-4 py-3 bg-transparent hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 border-none cursor-pointer text-left text-sm font-medium transition-colors"
           >
@@ -92,6 +94,11 @@ const UserMenu: React.FC = () => {
           </button>
         </div>
       )}
+      <LogoutConfirmModal 
+        isOpen={showLogoutModal} 
+        onClose={() => setShowLogoutModal(false)} 
+        onConfirm={handleLogout} 
+      />
     </div>
   );
 };

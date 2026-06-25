@@ -92,7 +92,7 @@ const SignUp: React.FC = () => {
 
         <button
           onClick={() => navigate('/login')}
-          className="btn-primary" >Regresar
+          className="btn-primary" >Volver
         </button>
 
       </form>

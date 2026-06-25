@@ -23,7 +23,7 @@ const BasicoOwnRecords: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       setErrorMsg(null);
-      
+
       const token = localStorage.getItem('token');
       if (!token) {
         navigate('/login');
@@ -87,7 +87,7 @@ const BasicoOwnRecords: React.FC = () => {
           navigate('/basico');
         }}
         backTitle="Volver al Menú"
-        backSpeakText="Regresar al menú principal"
+        backSpeakText="Volver al menú principal"
         onLogoutClick={handleLogout}
       />
 
@@ -145,17 +145,28 @@ const BasicoOwnRecords: React.FC = () => {
             )}
           </div>
 
-          {/* Botón Volver al Menú abajo y centrado */}
-          <div className="subview-footer" style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', width: '100%' }}>
+          {/* Botones inferiores en paralelo */}
+          <div className="subview-footer" style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', width: '100%', gap: '2rem' }}>
             <button
               className="btn-back-giant"
               onClick={() => {
                 speakText('Volviendo al menú principal');
                 navigate('/basico');
               }}
-              onFocus={() => speakText('Botón regresar')}
+              onFocus={() => speakText('Botón Volver')}
             >
-              ← Regresar
+              ← Volver
+            </button>
+
+            <button
+              className="btn-waitlist-giant"
+              onClick={() => {
+                speakText('Abriendo lista de espera');
+                navigate('/basico/ownRecords/waitlist', { state: { roomId: defaultRoomId } });
+              }}
+              onFocus={() => speakText('Botón Lista de espera')}
+            >
+              Lista de espera
             </button>
           </div>
         </div>

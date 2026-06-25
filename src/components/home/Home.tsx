@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import LogoutConfirmModal from '../common/LogoutConfirmModal';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [isEasyMode, setIsEasyMode] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -81,7 +83,7 @@ const Home: React.FC = () => {
 
       {/* 5. Botón de Cierre de Sesión */}
       <button
-        onClick={handleLogout}
+        onClick={() => setShowLogoutModal(true)}
         className="flex items-center justify-center text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-semibold transition-colors duration-200 mt-12 py-2 text-[15px]"
       >
         <svg
@@ -101,6 +103,11 @@ const Home: React.FC = () => {
         Cerrar Sesión
       </button>
 
+      <LogoutConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 };

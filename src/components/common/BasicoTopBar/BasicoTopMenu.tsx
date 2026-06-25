@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { speakText } from '../../../utils/speak';
 import { useNavigate } from 'react-router-dom';
+import LogoutConfirmModal from '../LogoutConfirmModal';
 
 
 
@@ -28,6 +29,7 @@ export const BasicoTopMenu: React.FC<BasicoTopMenuProps> = ({
   logoutSpeakText = 'Botón cerrar sesión',
 }) => {
   const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   return (
     <header className="basico-header">
       <button
@@ -58,7 +60,7 @@ export const BasicoTopMenu: React.FC<BasicoTopMenuProps> = ({
 
       <button
         className="btn-header-large btn-header-logout"
-        onClick={onLogoutClick}
+        onClick={() => setShowLogoutModal(true)}
         onFocus={() => speakText(logoutSpeakText)}
         title="Cerrar Sesión"
       >
@@ -69,6 +71,13 @@ export const BasicoTopMenu: React.FC<BasicoTopMenuProps> = ({
         </svg>
         <span>Salir</span>
       </button>
+
+      <LogoutConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={onLogoutClick}
+        isBasicMode={true}
+      />
     </header>
   );
 };

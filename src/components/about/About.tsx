@@ -21,7 +21,7 @@ const About: React.FC = () => {
           Aplicativo desarrollado por JSBC
         </span>
         <a href="/" className="btn-primary" style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '10px' }}>
-          Regresar
+          Volver
         </a>
       </div>
     </div>

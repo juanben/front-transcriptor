@@ -1657,3 +1657,65 @@
     color: #38bdf8;
   }
 }
+
+/* Botón de Lista de Espera Gigante (Basico) */
+.btn-waitlist-giant {
+  padding: 1.8rem 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  background-color: #5d5cde;
+  border: none;
+  border-radius: 16px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1 1 0%;
+  min-width: 0;
+  width: 100%;
+  max-width: 280px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.btn-waitlist-giant:hover,
+.btn-waitlist-giant:focus {
+  outline: 3px solid #6366f1;
+  background-color: #4a49c6;
+  color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn-waitlist-giant {
+    background-color: #5d5cde;
+    color: #ffffff;
+  }
+
+  .btn-waitlist-giant:hover,
+  .btn-waitlist-giant:focus {
+    background-color: #4a49c6;
+    outline: 3px solid #818cf8;
+    color: #ffffff;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-waitlist-giant {
+    padding: 1.5rem 2rem;
+    font-size: 1.15rem;
+    border-radius: 14px;
+    flex: 1 1 0%;
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-waitlist-giant {
+    padding: 1.2rem 0.8rem;
+    font-size: 0.95rem;
+    border-radius: 12px;
+    flex: 1 1 0%;
+    min-width: 0;
+    width: 100%;
+  }
+}
