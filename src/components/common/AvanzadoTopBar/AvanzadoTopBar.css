@@ -1,0 +1,51 @@
+.avanzado-header-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.avanzado-title-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.avanzado-title-text {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #374151;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+}
+
+.avanzado-subtitle-text {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.avanzado-right-menu {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avanzado-title-text {
+    color: #d1d5db;
+  }
+
+  .avanzado-subtitle-text {
+    color: #9ca3af;
+  }
+}

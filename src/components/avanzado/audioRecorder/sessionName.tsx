@@ -8,7 +8,7 @@ const NuevaSesion: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as { isEdit?: boolean; sessionName?: string; sessionId?: string; roomCode?: string } | null;
-    const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const [sessionName, setSessionName] = useState(state?.isEdit ? state?.sessionName || '' : '');
   const [roomCode, setRoomCode] = useState(state?.roomCode || '');
 
@@ -36,7 +36,7 @@ const NuevaSesion: React.FC = () => {
     fetchRoomCode();
   }, [id, navigate, roomCode]);
 
-  const title = state?.isEdit ? 'Editar Sesión' : 'Nueva Sesión';
+  const title = state?.isEdit ? 'Editar Grabación' : 'Nueva Grabación';
 
   return (
     <div className="new-session-screen">
@@ -44,19 +44,19 @@ const NuevaSesion: React.FC = () => {
 
       <div className="new-session-form">
         <div className="input-group">
-          <label htmlFor="materia">Nombre sesión</label>
-          <input 
-            type="text" 
-            id="materia" 
-            placeholder="Grabación" 
+          <label htmlFor="materia">Nombre Grabación</label>
+          <input
+            type="text"
+            id="materia"
+            placeholder="Grabación"
             value={sessionName}
             onChange={(e) => setSessionName(e.target.value)}
           />
         </div>
 
         <div className="form-actions">
-          <button 
-            className="btn-guardar" 
+          <button
+            className="btn-guardar"
             onClick={() => {
               const code = roomCode || id || '';
               navigate(`/sala/${id}/sesion/${code}/audio`, { state: { sessionName } });
@@ -65,8 +65,8 @@ const NuevaSesion: React.FC = () => {
           >
             Guardar
           </button>
-          <button 
-            className="btn-cancelar" 
+          <button
+            className="btn-cancelar"
             onClick={() => navigate(`/sala/${id}`)}
           >
             Cancelar

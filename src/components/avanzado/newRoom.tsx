@@ -32,11 +32,11 @@ const NuevaSesion: React.FC = () => {
     fetchUser();
   }, [navigate]);
 
-  const title = state?.isEdit ? 'Editar Sala' : 'Nueva Sala';
+  const title = state?.isEdit ? 'Editar Colección' : 'Nueva Colección';
 
   const handleGuardar = async () => {
     if (!sessionName.trim()) {
-      setErrorMessage('Por favor, ingresa el nombre de la sala.');
+      setErrorMessage('Por favor, ingresa el nombre de la colección.');
       return;
     }
 
@@ -51,7 +51,7 @@ const NuevaSesion: React.FC = () => {
         });
         navigate('/avanzado');
       } else {
-        // Crear nueva sala
+        // Crear nueva colección
         await roomService.createRoom({
           name: sessionName.trim(),
           owner_email: ownerEmail,
@@ -73,11 +73,11 @@ const NuevaSesion: React.FC = () => {
 
       <div className="new-session-form">
         <div className="input-group">
-          <label htmlFor="materia">Nombre Sala</label>
-          <input 
-            type="text" 
-            id="materia" 
-            placeholder="Ej. Sala de Matemáticas" 
+          <label htmlFor="materia">Nombre Colección</label>
+          <input
+            type="text"
+            id="materia"
+            placeholder="Ej. Colección de Matemáticas"
             value={sessionName}
             onChange={(e) => setSessionName(e.target.value)}
           />
@@ -90,15 +90,15 @@ const NuevaSesion: React.FC = () => {
         )}
 
         <div className="form-actions">
-          <button 
-            className="btn-guardar" 
+          <button
+            className="btn-guardar"
             onClick={handleGuardar}
             disabled={isLoading || !ownerEmail}
           >
             {isLoading ? 'Guardando...' : 'Guardar'}
           </button>
-          <button 
-            className="btn-cancelar" 
+          <button
+            className="btn-cancelar"
             onClick={() => navigate('/avanzado')}
             disabled={isLoading}
           >

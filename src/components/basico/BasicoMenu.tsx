@@ -174,58 +174,32 @@ const BasicoMenu: React.FC = () => {
               </div>
               <span className="btn-giant-text">Mis Grabaciones</span>
             </button>
-          </div>
-        )}
 
-        {/* SUB-VISTA: SELECCIONAR SALA */}
-        {viewState === 'select-room' && (
-          <div className="accessible-subview">
-            <div className="subview-header">
-              <button
-                className="btn-back-giant"
-                onClick={() => {
-                  speakText('Volviendo al menú principal');
-                  setViewState('menu');
-                }}
-                onFocus={() => speakText('Botón volver atrás')}
-              >
-                ← Volver al Menú
-              </button>
-              <h3 className="subview-title">¿En qué sala quieres grabar?</h3>
-            </div>
-
-            {isLoading ? (
-              <div className="subview-message">Cargando salas...</div>
-            ) : errorMsg ? (
-              <div className="subview-message error">{errorMsg}</div>
-            ) : rooms.length > 0 ? (
-              <div className="accessible-list-grid">
-                {rooms.map(room => (
-                  <button
-                    key={room.id}
-                    className="btn-item-giant"
-                    onClick={() => selectRoomForRecording(room)}
-                    onFocus={() => speakText(`Sala ${room.name}`)}
-                  >
-                    <span className="room-name">{room.name}</span>
-                    <span className="room-code">Código: {room.code}</span>
-                  </button>
-                ))}
+            <button
+              className="btn-giant btn-history"
+              onClick={() => {
+                speakText('Cambiando a modo avanzado.');
+                navigate('/avanzado');
+              }}
+              onFocus={() => speakText('Cambiando a modo avanzado.')}
+            >
+              <div className="btn-giant-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="4" y1="21" x2="4" y2="14" />
+                  <line x1="4" y1="10" x2="4" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12" y2="3" />
+                  <line x1="20" y1="21" x2="20" y2="16" />
+                  <line x1="20" y1="12" x2="20" y2="3" />
+                  <line x1="1" y1="14" x2="7" y2="14" />
+                  <line x1="9" y1="8" x2="15" y2="8" />
+                  <line x1="17" y1="16" x2="23" y2="16" />
+                </svg>
               </div>
-            ) : (
-              <div className="subview-message">
-                <p>No estás unido a ninguna sala activa.</p>
-                <button
-                  className="btn-item-giant join-first"
-                  onClick={() => navigate('/basico/salas')}
-                  onFocus={() => speakText('Unirse a una sala ahora')}
-                  style={{ marginTop: '2rem' }}
-                >
-                  Unirse a una sala ahora
-                </button>
-              </div>
-            )}
+              <span className="btn-giant-text">Modo Avanzado</span>
+            </button>
           </div>
+
         )}
 
 

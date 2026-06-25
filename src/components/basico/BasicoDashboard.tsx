@@ -187,7 +187,7 @@ const BasicoDashboard: React.FC = () => {
                 ))
               ) : (
                 <div className="subview-message">
-                  No haz agregado níngua colección activa.
+                  No haz agregado nínguna colección.
                 </div>
               )}
             </div>

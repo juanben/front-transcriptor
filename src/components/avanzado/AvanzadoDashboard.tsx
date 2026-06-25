@@ -71,7 +71,7 @@ const AvanzadoDashboard: React.FC = () => {
         setJoinedSessions(mappedJoinedSessions);
       } catch (error) {
         if (error instanceof Error) {
-          setErrorMsg(error.message || 'Error al cargar las salas.');
+          setErrorMsg(error.message || 'Error al cargar las colecciones.');
         }
       } finally {
         setIsLoading(false);
@@ -193,20 +193,23 @@ const AvanzadoDashboard: React.FC = () => {
             className={`tab-btn ${activeTab === 'my-rooms' ? 'active' : ''}`}
             onClick={() => setActiveTab('my-rooms')}
           >
-            Mis Biblioteca
+            Mi biblioteca
           </button>
           <button
             className={`tab-btn ${activeTab === 'joined-rooms' ? 'active' : ''}`}
             onClick={() => setActiveTab('joined-rooms')}
           >
-            Salas Unidas
+            Compartidas conmigo
           </button>
         </div>
 
         <div className="section-header">
           {!isSearching ? (
             <>
-              <h2>{activeTab === 'my-rooms' ? 'Mis Salas' : 'Salas Unidas'}</h2>
+              {/* <h2>{activeTab === 'my-rooms' ? 'Mis Colecciones' : 'Colecciones de amigos'}</h2> */}
+              <span className="avanzado-subtitle-text">
+                {activeTab === 'my-rooms' ? 'Mi biblioteca' : 'Compartidas'}
+              </span>
               <button className="btn-search" onClick={() => setIsSearching(true)}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"></circle>
