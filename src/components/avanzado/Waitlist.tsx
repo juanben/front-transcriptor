@@ -38,26 +38,26 @@ const Waitlist: React.FC = () => {
 
         const user = await userService.getUserMe(token);
         setOwnerEmail(user.email);
-        
+
         const data = await roomService.getWaitlist(roomId, user.email) as any;
-        
+
         // Mapear los datos de respuesta a la estructura de WaitingUser
         // Asumimos que data puede ser un arreglo de strings (emails) o de objetos
         const waitlistData = data.waitlist || data; // Handle both cases just in case
-        const mappedUsers: WaitingUser[] = Array.isArray(waitlistData) 
+        const mappedUsers: WaitingUser[] = Array.isArray(waitlistData)
           ? waitlistData.map((item: unknown, index: number) => {
-              if (typeof item === 'string') {
-                return { id: String(index), name: item.split('@')[0], email: item };
-              }
-              const obj = item as Record<string, unknown>;
-              return { 
-                id: (obj.id as string) || (obj._id as string) || String(index), 
-                name: (obj.name as string) || (obj.email as string)?.split('@')[0] || 'Usuario', 
-                email: (obj.email as string) || '' 
-              };
-            }).filter(u => u.email)
+            if (typeof item === 'string') {
+              return { id: String(index), name: item.split('@')[0], email: item };
+            }
+            const obj = item as Record<string, unknown>;
+            return {
+              id: (obj.id as string) || (obj._id as string) || String(index),
+              name: (obj.name as string) || (obj.email as string)?.split('@')[0] || 'Usuario',
+              email: (obj.email as string) || ''
+            };
+          }).filter(u => u.email)
           : [];
-          
+
         setWaitingUsers(mappedUsers);
         setError(null);
       } catch (err) {
@@ -106,9 +106,9 @@ const Waitlist: React.FC = () => {
     <div className="dashboard-screen waitlist-screen">
       <header className="room-sessions-header">
         <div className="header-top-row">
-          <button 
-            className="btn-back-text" 
-            onClick={() => navigate(-1)} 
+          <button
+            className="btn-back-text"
+            onClick={() => navigate(-1)}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -118,13 +118,13 @@ const Waitlist: React.FC = () => {
           </button>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <UserMenu />
-            <button 
-              className="btn-home-icon" 
-              onClick={() => navigate('/home')} 
+            <button
+              className="btn-home-icon"
+              onClick={() => navigate('/avanzado')}
               title="Ir a Home"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
               </svg>
             </button>
           </div>
@@ -143,7 +143,7 @@ const Waitlist: React.FC = () => {
       <main className="dashboard-content waitlist-content">
         {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
         {isLoading && <p style={{ textAlign: 'center' }}>Cargando lista de espera...</p>}
-        
+
         {!isLoading && !error && (
           <div className="waitlist-container">
             {waitingUsers.length > 0 ? (

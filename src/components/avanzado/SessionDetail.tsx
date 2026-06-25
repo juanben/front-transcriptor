@@ -10,7 +10,7 @@ const SessionDetail: React.FC = () => {
   const location = useLocation();
   const { id, sessionId } = useParams<{ id: string; sessionId: string }>();
   const [activeTab, setActiveTab] = useState<'Resumen' | 'Transcripcion'>('Resumen');
-  
+
   const isEspectador = location.state?.isEspectador || false;
 
   const [session, setSession] = useState<Session | null>(null);
@@ -112,10 +112,10 @@ const SessionDetail: React.FC = () => {
 
   const handleSubmitResources = async () => {
     if (!id || !sessionId) return;
-    
+
     setIsSubmitting(true);
     setErrorMsg(null);
-    
+
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -125,10 +125,10 @@ const SessionDetail: React.FC = () => {
 
       const user = await userService.getUserMe(token);
       await sessionService.addComplementaryResources(id, sessionId, user.email, resourcesText);
-      
+
       alert('Recursos complementarios guardados con éxito.');
       handleCloseModal();
-      
+
       if (session) {
         setSession({ ...session, complementaryResourses: resourcesText, complementaryResources: resourcesText });
       }
@@ -152,9 +152,9 @@ const SessionDetail: React.FC = () => {
     <div className="dashboard-screen session-detail-screen">
       <header className="room-sessions-header">
         <div className="header-top-row">
-          <button 
-            className="btn-back-text" 
-            onClick={() => navigate(-1)} 
+          <button
+            className="btn-back-text"
+            onClick={() => navigate(-1)}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -164,13 +164,13 @@ const SessionDetail: React.FC = () => {
           </button>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <UserMenu />
-            <button 
-              className="btn-home-icon" 
-              onClick={() => navigate(`/home`)} 
+            <button
+              className="btn-home-icon"
+              onClick={() => navigate(`/avanzado`)}
               title="Ir a Home"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
               </svg>
             </button>
           </div>
@@ -185,7 +185,7 @@ const SessionDetail: React.FC = () => {
       <main className="dashboard-content session-detail-main">
         {fetchError && <p style={{ color: 'red', textAlign: 'center' }}>{fetchError}</p>}
         {isLoading && <p style={{ textAlign: 'center' }}>Cargando datos de la sesión...</p>}
-        
+
         {!isLoading && !fetchError && session && (
           <>
             <div className="audio-player-container">
@@ -196,7 +196,7 @@ const SessionDetail: React.FC = () => {
                 onLoadedMetadata={handleLoadedMetadata}
                 onEnded={handleAudioEnded}
               />
-              
+
               {audioUrl ? (
                 <>
                   <button
@@ -246,11 +246,11 @@ const SessionDetail: React.FC = () => {
             <div className="divider-dashed"></div>
 
             <div className="tabs-container">
-              <button 
+              <button
                 className={`tab-btn ${activeTab === 'Resumen' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Resumen')}
               >Resumen</button>
-              <button 
+              <button
                 className={`tab-btn ${activeTab === 'Transcripcion' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Transcripcion')}
               >Transcripcion</button>
@@ -279,20 +279,20 @@ const SessionDetail: React.FC = () => {
                   Recursos complementarios
                 </button>
               )}
-              
+
               <button className="btn-secondary-large" onClick={() => {
-                  const resourceLink = session?.complementaryResourses || session?.complementaryResources;
-                  if (resourceLink) {
-                    const link = Array.isArray(resourceLink) ? resourceLink[0] : resourceLink;
-                    if (link.startsWith('http')) {
-                      window.open(link, '_blank');
-                    } else {
-                      alert('El recurso complementario no es un enlace válido:\n\n' + link);
-                    }
+                const resourceLink = session?.complementaryResourses || session?.complementaryResources;
+                if (resourceLink) {
+                  const link = Array.isArray(resourceLink) ? resourceLink[0] : resourceLink;
+                  if (link.startsWith('http')) {
+                    window.open(link, '_blank');
                   } else {
-                    alert('No hay recursos complementarios para compartir.');
+                    alert('El recurso complementario no es un enlace válido:\n\n' + link);
                   }
-                }}>
+                } else {
+                  alert('No hay recursos complementarios para compartir.');
+                }
+              }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="18" cy="5" r="3"></circle>
                   <circle cx="6" cy="12" r="3"></circle>
@@ -312,16 +312,16 @@ const SessionDetail: React.FC = () => {
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <h3 className="modal-title">Añadir recursos complementarios</h3>
             <p className="modal-text">Ingresa los recursos complementarios para esta sesión (por ejemplo, enlaces o notas extra).</p>
-            
-            <textarea 
+
+            <textarea
               value={resourcesText}
               onChange={(e) => setResourcesText(e.target.value)}
               placeholder="Escribe los recursos aquí..."
               style={{ width: '100%', minHeight: '100px', marginTop: '1rem', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }}
             />
-            
+
             {errorMsg && <p style={{ color: '#ef4444', marginTop: '0.5rem', fontSize: '0.875rem' }}>{errorMsg}</p>}
-            
+
             <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
               <button className="btn-modal-cancel" onClick={handleCloseModal} disabled={isSubmitting}>Cancelar</button>
               <button className="btn-modal-submit" onClick={handleSubmitResources} disabled={isSubmitting}>

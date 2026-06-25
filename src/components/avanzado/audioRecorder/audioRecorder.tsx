@@ -1,8 +1,16 @@
 import { useState, useRef } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import QRCode from 'react-qr-code'
+import * as QRCodeModule from 'react-qr-code'
 import UserMenu from '../../common/UserMenu'
 import './audioRecorder.css'
+
+// Resolves ESM/CJS interop issues where Vite loads the package as a module object
+const QRCode =
+  (QRCodeModule as any).default?.default ||
+  (QRCodeModule as any).default?.QRCode ||
+  (QRCodeModule as any).default ||
+  (QRCodeModule as any).QRCode ||
+  QRCodeModule;
 
 const AudioRecorder: React.FC = () => {
   const navigate = useNavigate()
@@ -100,9 +108,9 @@ const AudioRecorder: React.FC = () => {
     <div className="dashboard-screen">
       <header className="room-sessions-header">
         <div className="header-top-row">
-          <button 
-            className="btn-back-text" 
-            onClick={() => navigate(-1)} 
+          <button
+            className="btn-back-text"
+            onClick={() => navigate(-1)}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -112,13 +120,13 @@ const AudioRecorder: React.FC = () => {
           </button>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <UserMenu />
-            <button 
-              className="btn-home-icon" 
-              onClick={() => navigate('/home')} 
+            <button
+              className="btn-home-icon"
+              onClick={() => navigate('/avanzado')}
               title="Ir a Home"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
               </svg>
             </button>
           </div>
@@ -176,8 +184,8 @@ const AudioRecorder: React.FC = () => {
 
         <div className="button-group">
           {!isRecording ? (
-            <button 
-              className="btn-record-start" 
+            <button
+              className="btn-record-start"
               onClick={startRecording}
               disabled={isRecording}
             >
@@ -189,7 +197,7 @@ const AudioRecorder: React.FC = () => {
               Iniciar Grabación
             </button>
           ) : (
-            <button 
+            <button
               className="btn-record-stop"
               onClick={stopRecording}
             >
@@ -204,9 +212,9 @@ const AudioRecorder: React.FC = () => {
         {audioURL && (
           <div className="playback-container">
             <h3 className="playback-title">Grabación Guardada</h3>
-            <audio 
-              src={audioURL} 
-              controls 
+            <audio
+              src={audioURL}
+              controls
               className="audio-player"
             />
             <div className="playback-actions">
