@@ -162,5 +162,44 @@ export const sessionService = {
       }
       throw error;
     }
+  },
+
+  /**
+   * Actualiza el nombre de una sesión
+   * Ruta: PUT /sessions/{room_id}/{session_id}/name
+   */
+  async updateSessionName(roomId: string, sessionId: string, ownerEmail: string, name: string): Promise<unknown> {
+    try {
+      const response = await apiClient.put(`/sessions/${encodeURIComponent(roomId)}/${encodeURIComponent(sessionId)}/name`, {
+        owner_email: ownerEmail,
+        name: name
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al actualizar el nombre de la sesión');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Elimina una sesión
+   * Ruta: DELETE /sessions/{room_id}/{session_id}
+   */
+  async deleteSession(roomId: string, sessionId: string, ownerEmail: string): Promise<unknown> {
+    try {
+      const response = await apiClient.delete(`/sessions/${encodeURIComponent(roomId)}/${encodeURIComponent(sessionId)}`, {
+        data: {
+          owner_email: ownerEmail
+        }
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Error al eliminar la sesión');
+      }
+      throw error;
+    }
   }
 };

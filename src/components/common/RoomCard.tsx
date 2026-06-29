@@ -56,7 +56,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
         </p>
         {session.room_code && (
           <p className="session-code-text" style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#6b7280', fontWeight: '500' }}>
-            Código: <span style={{ fontFamily: 'monospace', background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', letterSpacing: '1px' }}>{session.room_code}</span>
+            Código: <span style={{ fontFamily: 'monospace', background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', letterSpacing: '1px', color: '#4f46e5', fontWeight: 'bold' }}>{session.room_code}</span>
           </p>
         )}
       </div>

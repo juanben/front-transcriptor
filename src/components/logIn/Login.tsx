@@ -14,7 +14,7 @@ const Login: React.FC = () => {
 
   const handleEnter = () => {
     if (isEasyMode) {
-      console.log('Redirigiendo a modo básico');
+      console.log('Redirigiendo a modo fácil');
       navigate('/basico');
     } else {
       console.log('Redirigiendo a modo avanzado');

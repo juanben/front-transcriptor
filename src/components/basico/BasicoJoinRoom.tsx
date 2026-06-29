@@ -33,7 +33,7 @@ const BasicoJoinRoom: React.FC = () => {
         const user = await userService.getUserMe(token);
         setUserEmail(user.email);
         setUserName(user.name || user.email);
-        speakText('Pantalla para unirse a una nueva sala. Di entrar seguido de tu código de cinco letras, o ingrésalo manualmente.');
+        speakText('Pantalla para unirse a una nueva colección. Di entrar seguido de tu código de cinco letras, o ingrésalo manualmente.');
       } catch (error) {
         console.error('Error fetching user:', error);
         navigate('/login');
@@ -187,7 +187,7 @@ const BasicoJoinRoom: React.FC = () => {
   return (
     <div className="basico-menu-screen">
       <BasicoTopMenu
-        title="Unirse a Sala"
+        title="Unirese a colección"
         subtitle={`Bienvenido: ${userName}`}
         onBackClick={() => {
           speakText('Volviendo a salas');
@@ -203,7 +203,7 @@ const BasicoJoinRoom: React.FC = () => {
         <div className="accessible-subview" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
 
           <div className="subview-header" style={{ alignItems: 'center', textAlign: 'center', width: '100%', marginBottom: '0.5rem' }}>
-            <h3 className="subview-title" style={{ width: '100%', textAlign: 'center' }}>Unirse a una nueva sala</h3>
+            <h3 className="subview-title" style={{ width: '100%', textAlign: 'center' }}>Unirse a una nueva colección</h3>
           </div>
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', justifyContent: 'center', minHeight: 0 }}>

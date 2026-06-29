@@ -193,7 +193,7 @@ const BasicoDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Botones inferiores: Volver y Unirse a Sala */}
+          {/* Botones inferiores: Volver y Unirese a colección */}
           <div className="subview-footer">
             <button
               className="btn-back-giant"

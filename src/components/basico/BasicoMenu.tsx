@@ -22,6 +22,7 @@ const BasicoMenu: React.FC = () => {
   const [rooms] = useState<RoomItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showAdvancedConfirm, setShowAdvancedConfirm] = useState(false);
 
   // Cargar información del usuario
   useEffect(() => {
@@ -104,7 +105,7 @@ const BasicoMenu: React.FC = () => {
   return (
     <div className="basico-menu-screen">
       <BasicoTopMenu
-        title="Modo Básico"
+        title="Modo Fácil"
         subtitle={`Bienvenido: ${userName}`}
         onBackClick={goHome}
         backText="Inicio"
@@ -178,8 +179,8 @@ const BasicoMenu: React.FC = () => {
             <button
               className="btn-giant btn-history"
               onClick={() => {
-                speakText('Cambiando a modo avanzado.');
-                navigate('/avanzado');
+                setShowAdvancedConfirm(true);
+                speakText('¿Está seguro de que quiere cambiar al modo Avanzado? Tenga en cuenta que la interfaz será más compleja, pero tendrá acceso completo a la creación de salas y edición de grabaciones.');
               }}
               onFocus={() => speakText('Cambiando a modo avanzado.')}
             >
@@ -204,6 +205,57 @@ const BasicoMenu: React.FC = () => {
 
 
       </main>
+
+      {showAdvancedConfirm && (
+        <div className="basico-modal-overlay" onClick={() => setShowAdvancedConfirm(false)}>
+          <div className="basico-modal-box" onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>¿Cambiar al modo Avanzado?</h3>
+            <p style={{ fontSize: '1.3rem', marginBottom: '2.5rem', lineHeight: '1.5' }}>
+              ¿Está seguro de que quiere cambiar al modo Avanzado? Tenga en cuenta que la interfaz será más compleja, pero tendrá acceso completo a la creación de salas y edición de grabaciones.
+            </p>
+            <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center' }}>
+              <button
+                onClick={() => {
+                  setShowAdvancedConfirm(false);
+                  speakText('Cambiando a modo avanzado.');
+                  navigate('/avanzado');
+                }}
+                onFocus={() => speakText("Sí, cambiar")}
+                style={{
+                  padding: '1.5rem 2rem',
+                  fontSize: '1.3rem',
+                  fontWeight: 'bold',
+                  backgroundColor: '#4f46e5',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '16px',
+                  cursor: 'pointer',
+                  flex: 1
+                }}
+              >
+                Sí, cambiar
+              </button>
+              <button
+                onClick={() => setShowAdvancedConfirm(false)}
+                onFocus={() => speakText("No, cancelar")}
+                style={{
+                  padding: '1.5rem 2rem',
+                  fontSize: '1.3rem',
+                  fontWeight: 'bold',
+                  backgroundColor: '#6b7280',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '16px',
+                  cursor: 'pointer',
+                  flex: 1
+                }}
+              >
+                No, cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -192,6 +192,23 @@ const RoomSessions: React.FC = () => {
     }
   };
 
+  const handleEditName = async (sessionId: string, newName: string) => {
+    if (!roomId || !ownerEmail) {
+      const message = 'No se pudo identificar la sala o el usuario.';
+      alert(message);
+      throw new Error(message);
+    }
+
+    try {
+      await sessionService.updateSessionName(roomId, sessionId, ownerEmail, newName);
+      setSessions(prev => prev.map(s => s.session_id === sessionId ? { ...s, name: newName } : s));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al actualizar el nombre de la grabación.';
+      alert(message);
+      throw err;
+    }
+  };
+
   const confirmDelete = () => {
     if (showDeleteModal) {
       // TODO: Add API call to delete session
@@ -418,6 +435,7 @@ const RoomSessions: React.FC = () => {
                     onToggleVisibility={handleToggleVisibility}
                     onToggleShare={handleToggleShare}
                     onDelete={(sessionId) => setShowDeleteModal(sessionId)}
+                    onEditName={handleEditName}
                   />
                 ))
               ) : (

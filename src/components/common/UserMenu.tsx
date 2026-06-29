@@ -8,6 +8,7 @@ const UserMenu: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showBasicConfirm, setShowBasicConfirm] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,7 +63,7 @@ const UserMenu: React.FC = () => {
           <button 
             onClick={() => {
               setIsOpen(false);
-              navigate('/basico');
+              setShowBasicConfirm(true);
             }}
             className="flex items-center gap-2 w-full px-4 py-3 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 text-indigo-600 dark:text-indigo-400 border-none cursor-pointer text-left text-sm font-medium transition-colors"
           >
@@ -99,6 +100,46 @@ const UserMenu: React.FC = () => {
         onClose={() => setShowLogoutModal(false)} 
         onConfirm={handleLogout} 
       />
+
+      {showBasicConfirm && (
+        <div className="logout-modal-overlay" onClick={() => setShowBasicConfirm(false)} role="dialog" aria-modal="true">
+          <div className="logout-modal-box" onClick={e => e.stopPropagation()}>
+            <div className="logout-modal-header">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '0.5rem' }}>
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+              <h3 className="logout-modal-title">Cambiar a Modo Fácil</h3>
+            </div>
+            
+            <p className="logout-modal-text" style={{ fontSize: '1rem', color: '#64748b', marginTop: '0.5rem' }}>
+              ¿Está seguro de que quiere cambiar al modo Básico? Este modo está optimizado para un uso más simple y asistido. Tenga en cuenta que solo podrá interactuar con las funciones esenciales.
+            </p>
+            
+            <div className="logout-modal-actions">
+              <button 
+                type="button"
+                className="btn-logout-modal-cancel" 
+                onClick={() => setShowBasicConfirm(false)}
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button"
+                className="btn-logout-modal-confirm" 
+                onClick={() => {
+                  setShowBasicConfirm(false);
+                  navigate('/basico');
+                }}
+                style={{ backgroundColor: '#4f46e5' }}
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

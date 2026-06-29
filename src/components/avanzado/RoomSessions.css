@@ -71,7 +71,7 @@
   text-align: center;
   font-size: 1.25rem;
   font-weight: 800;
-  color: #111827;
+  color: #5d5cde;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
@@ -90,7 +90,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background-color: #374151;
+  background-color: #f93648;
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -106,7 +106,7 @@
 
 .btn-new-recording:hover {
   transform: translateY(-2px);
-  background-color: #1f2937;
+  background-color: #f31f33;
 }
 
 .divider-dashed {
@@ -158,25 +158,57 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .btn-back-text { color: #d1d5db; }
-  .btn-back-text:hover { color: #f9fafb; }
-  .room-title-text, .room-code-display { color: #f9fafb; }
-  .btn-new-recording { background-color: #4b5563; }
-  .btn-new-recording:hover { background-color: #6b7280; }
-  .divider-dashed { border-color: #4b5563; }
-  
-  .tab-btn { color: #9ca3af; }
-  .tab-btn:hover { color: #d1d5db; }
-  .tab-btn.active { color: #ffffff; border-bottom-color: #ffffff; }
-  
-  .empty-state-text { color: #9ca3af; }
+  .btn-back-text {
+    color: #d1d5db;
+  }
+
+  .btn-back-text:hover {
+    color: #f9fafb;
+  }
+
+  .room-title-text {
+    color: #f9fafb;
+  }
+
+  .room-code-display {
+    color: #34d399;
+  }
+
+  .btn-new-recording {
+    background-color: #f93648;
+  }
+
+  .btn-new-recording:hover {
+    background-color: #f31f33;
+  }
+
+  .divider-dashed {
+    border-color: #4b5563;
+  }
+
+  .tab-btn {
+    color: #9ca3af;
+  }
+
+  .tab-btn:hover {
+    color: #d1d5db;
+  }
+
+  .tab-btn.active {
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+  }
+
+  .empty-state-text {
+    color: #9ca3af;
+  }
 }
 
 @media (max-width: 600px) {
   .tabs-container {
     gap: 0.25rem;
   }
-  
+
   .tab-btn {
     font-size: 0.85rem;
     padding: 0.5rem 0.25rem;

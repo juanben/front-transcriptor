@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import './SessionCard.css';
 
 export interface RecordingSession {
@@ -19,6 +20,7 @@ interface SessionCardProps {
   onToggleVisibility?: (id: string, newVisibility: boolean) => void | Promise<void>;
   onToggleShare?: (id: string, newShareable: boolean) => void | Promise<void>;
   onDelete?: (id: string) => void;
+  onEditName?: (id: string, newName: string) => void | Promise<void>;
   isEspectador?: boolean;
 }
 
@@ -37,12 +39,32 @@ const SessionCard: React.FC<SessionCardProps> = ({
   onToggleVisibility,
   onToggleShare,
   onDelete,
+  onEditName,
   isEspectador = false
 }) => {
   const [isVisible, setIsVisible] = useState(session.isVisible);
   const [isSharable, setIsSharable] = useState(session.isSharable ?? false);
   const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false);
   const [isUpdatingShare, setIsUpdatingShare] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [newName, setNewName] = useState(session.title);
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isUpdatingName || !newName.trim()) return;
+    try {
+      setIsUpdatingName(true);
+      if (onEditName) {
+        await onEditName(session.id, newName.trim());
+      }
+      setIsEditModalOpen(false);
+    } catch {
+      // Parent handles error reporting
+    } finally {
+      setIsUpdatingName(false);
+    }
+  };
 
   const handleToggleVisibility = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -135,6 +157,25 @@ const SessionCard: React.FC<SessionCardProps> = ({
         <div className="action-buttons-row" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end', width: '100%' }}>
           {!isEspectador && (
             <>
+              {onEditName && (
+                <button
+                  className="btn-visibility hidden"
+                  style={{ color: '#4f46e5' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setNewName(session.title);
+                    setIsEditModalOpen(true);
+                  }}
+                  title="Editar nombre"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  <span>Editar</span>
+                </button>
+              )}
+
               <button
                 className={`btn-visibility ${isSharable ? 'visible' : 'hidden'}`}
                 onClick={handleToggleShare}
@@ -209,6 +250,46 @@ const SessionCard: React.FC<SessionCardProps> = ({
           )}
         </div>
       </div>
+
+      {isEditModalOpen && createPortal(
+        <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">Editar nombre de la grabación</h3>
+            <p className="modal-text">Ingresa el nuevo nombre para esta grabación.</p>
+
+            <form onSubmit={handleEditSubmit}>
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Nombre de la grabación..."
+                required
+                style={{ width: '100%', marginTop: '1rem', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '2px solid #111827', fontSize: '1rem', boxSizing: 'border-box' }}
+                disabled={isUpdatingName}
+              />
+
+              <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
+                <button
+                  type="button"
+                  className="btn-modal-cancel"
+                  onClick={() => setIsEditModalOpen(false)}
+                  disabled={isUpdatingName}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn-modal-submit"
+                  disabled={isUpdatingName || !newName.trim()}
+                >
+                  {isUpdatingName ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

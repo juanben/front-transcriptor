@@ -165,7 +165,7 @@ const BasicoSessionDetail: React.FC = () => {
   return (
     <div className="basico-menu-screen session-detail-container">
       <BasicoTopMenu
-        title="Detalle de Sesión"
+        title="Detalle Grabación"
         subtitle={session?.name || 'Cargando...'}
         onBackClick={() => {
           speakText('Volviendo a la pantalla anterior');

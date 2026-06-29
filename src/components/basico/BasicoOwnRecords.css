@@ -31,3 +31,118 @@
   max-height: 100%;
   flex: 1;
 }
+
+.recording-item-row {
+  display: flex;
+  width: 100%;
+  gap: 1.2rem;
+  align-items: stretch;
+}
+
+.recording-item-row .btn-item-giant.recording-item {
+  width: 0;
+  flex: 1 1 0%;
+  margin: 0;
+}
+
+.btn-delete-giant {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.8rem;
+  border-radius: 20px;
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  background-color: #fef2f2;
+  color: #ef4444;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 80px;
+  box-sizing: border-box;
+}
+
+.btn-delete-giant:hover,
+.btn-delete-giant:focus {
+  outline: 4px solid #ef4444;
+  border-color: #ef4444;
+  background-color: #fee2e2;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.2), 0 4px 6px -2px rgba(239, 68, 68, 0.1);
+}
+
+.btn-delete-giant svg {
+  stroke: currentColor;
+  transition: transform 0.2s ease;
+}
+
+.btn-delete-giant:hover svg,
+.btn-delete-giant:focus svg {
+  transform: scale(1.1);
+}
+
+/* Modo oscuro para botón de borrar */
+@media (prefers-color-scheme: dark) {
+  .btn-delete-giant {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+  }
+
+  .btn-delete-giant:hover,
+  .btn-delete-giant:focus {
+    background-color: rgba(239, 68, 68, 0.2);
+    border-color: #f87171;
+    outline: 4px solid #f87171;
+  }
+}
+
+/* Colores de estado (Completado: Verde, Procesando: Amarillo, Error: Rojo) */
+.recording-action-icon.status-completed {
+  color: #10b981 !important; /* Emerald green */
+}
+.recording-action-icon.status-completed .recording-status {
+  color: #10b981 !important;
+  font-weight: 700;
+}
+
+.recording-action-icon.status-processing {
+  color: #d97706 !important; /* Amber yellow */
+}
+.recording-action-icon.status-processing .recording-status {
+  color: #d97706 !important;
+  font-weight: 700;
+}
+
+.recording-action-icon.status-failed {
+  color: #ef4444 !important; /* Crimson red */
+}
+.recording-action-icon.status-failed .recording-status {
+  color: #ef4444 !important;
+  font-weight: 700;
+}
+
+/* Modo oscuro para colores de estado */
+@media (prefers-color-scheme: dark) {
+  .recording-action-icon.status-completed {
+    color: #34d399 !important; /* Dark mode light green */
+  }
+  .recording-action-icon.status-completed .recording-status {
+    color: #34d399 !important;
+  }
+
+  .recording-action-icon.status-processing {
+    color: #fbbf24 !important; /* Dark mode light yellow */
+  }
+  .recording-action-icon.status-processing .recording-status {
+    color: #fbbf24 !important;
+  }
+
+  .recording-action-icon.status-failed {
+    color: #f87171 !important; /* Dark mode light red */
+  }
+  .recording-action-icon.status-failed .recording-status {
+    color: #f87171 !important;
+  }
+}
+
+

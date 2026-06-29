@@ -18,6 +18,8 @@ const SessionDetail: React.FC = () => {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const [isResourcesModalOpen, setIsResourcesModalOpen] = useState(false);
+  const [isFullTextModalOpen, setIsFullTextModalOpen] = useState(false);
+  const [isNoResourcesModalOpen, setIsNoResourcesModalOpen] = useState(false);
   const [resourcesText, setResourcesText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -200,7 +202,7 @@ const SessionDetail: React.FC = () => {
               {audioUrl ? (
                 <>
                   <button
-                    className="btn-play-audio"
+                    className={`btn-play-audio ${isPlaying ? 'playing' : ''}`}
                     onClick={handlePlayPause}
                     aria-label={isPlaying ? 'Pausar audio' : 'Reproducir audio'}
                   >
@@ -257,15 +259,26 @@ const SessionDetail: React.FC = () => {
             </div>
 
             <div className="text-content-box">
-              {activeTab === 'Resumen' ? (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                  {session.summary ? session.summary : 'No hay resumen disponible.'}
-                </div>
-              ) : (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                  {session.transcription ? session.transcription : 'No hay transcripción disponible.'}
-                </div>
-              )}
+              <button
+                className="btn-fullscreen-mini"
+                onClick={() => setIsFullTextModalOpen(true)}
+                title="Ver a pantalla completa"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+              </button>
+              <div className="text-scroll-area">
+                {activeTab === 'Resumen' ? (
+                  <div style={{ whiteSpace: 'pre-wrap' }}>
+                    {session.summary ? session.summary : 'No hay resumen disponible.'}
+                  </div>
+                ) : (
+                  <div style={{ whiteSpace: 'pre-wrap' }}>
+                    {session.transcription ? session.transcription : 'No hay transcripción disponible.'}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="session-action-buttons">
@@ -290,7 +303,7 @@ const SessionDetail: React.FC = () => {
                     alert('El recurso complementario no es un enlace válido:\n\n' + link);
                   }
                 } else {
-                  alert('No hay recursos complementarios para compartir.');
+                  setIsNoResourcesModalOpen(true);
                 }
               }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -326,6 +339,59 @@ const SessionDetail: React.FC = () => {
               <button className="btn-modal-cancel" onClick={handleCloseModal} disabled={isSubmitting}>Cancelar</button>
               <button className="btn-modal-submit" onClick={handleSubmitResources} disabled={isSubmitting}>
                 {isSubmitting ? 'Guardando...' : 'Guardar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isFullTextModalOpen && session && (
+        <div className="full-screen-modal-overlay" onClick={() => setIsFullTextModalOpen(false)}>
+          <div className="full-screen-modal-box" onClick={e => e.stopPropagation()}>
+            <div className="full-screen-modal-header">
+              <h3>{activeTab === 'Resumen' ? 'Resumen Completo' : 'Transcripción Completa'}</h3>
+              <button
+                className="btn-close-modal-x"
+                onClick={() => setIsFullTextModalOpen(false)}
+                aria-label="Cerrar modal"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="full-screen-modal-body">
+              <div className="full-screen-text-content">
+                {activeTab === 'Resumen'
+                  ? (session.summary ? session.summary : 'No hay resumen disponible.')
+                  : (session.transcription ? session.transcription : 'No hay transcripción disponible.')
+                }
+              </div>
+            </div>
+            <div className="full-screen-modal-footer">
+              <button
+                className="btn-modal-back"
+                onClick={() => setIsFullTextModalOpen(false)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Regresar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isNoResourcesModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsNoResourcesModalOpen(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">Recursos complementarios</h3>
+            <p className="modal-text" style={{ margin: '1rem 0 1.5rem 0' }}>
+              No se han añadido recursos complementarios.
+            </p>
+            <div className="modal-actions" style={{ justifyContent: 'flex-end' }}>
+              <button className="btn-modal-submit" onClick={() => setIsNoResourcesModalOpen(false)}>
+                Aceptar
               </button>
             </div>
           </div>
