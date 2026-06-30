@@ -26,6 +26,8 @@ const AudioRecorder: React.FC = () => {
   const [showQR, setShowQR] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [showClearModal, setShowClearModal] = useState(false)
+  const [showExitModal, setShowExitModal] = useState(false)
+  const [pendingNavigationPath, setPendingNavigationPath] = useState<string | number | null>(null)
   const accessCode = code || id || ''
 
   const startRecording = async () => {
@@ -98,6 +100,21 @@ const AudioRecorder: React.FC = () => {
     setShowClearModal(false)
   }
 
+  const confirmExit = () => {
+    if (isRecording) {
+      stopRecording()
+    }
+    if (audioURL) {
+      URL.revokeObjectURL(audioURL)
+    }
+    setShowExitModal(false)
+    if (pendingNavigationPath === -1) {
+      navigate(-1)
+    } else if (typeof pendingNavigationPath === 'string') {
+      navigate(pendingNavigationPath)
+    }
+  }
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -110,7 +127,14 @@ const AudioRecorder: React.FC = () => {
         <div className="header-top-row">
           <button
             className="btn-back-text"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (isRecording || audioURL) {
+                setPendingNavigationPath(-1)
+                setShowExitModal(true)
+              } else {
+                navigate(-1)
+              }
+            }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -122,7 +146,14 @@ const AudioRecorder: React.FC = () => {
             <UserMenu />
             <button
               className="btn-home-icon"
-              onClick={() => navigate('/avanzado')}
+              onClick={() => {
+                if (isRecording || audioURL) {
+                  setPendingNavigationPath('/avanzado')
+                  setShowExitModal(true)
+                } else {
+                  navigate('/avanzado')
+                }
+              }}
               title="Ir a Home"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -133,7 +164,7 @@ const AudioRecorder: React.FC = () => {
         </div>
 
         <div className="room-title-row" style={{ marginTop: '1rem' }}>
-          <h2 className="room-title-text">Nueva Grabación</h2>
+          <h2 className="room-title-text">Grabando</h2>
         </div>
       </header>
 
@@ -265,6 +296,19 @@ const AudioRecorder: React.FC = () => {
             <div className="modal-actions">
               <button className="btn-modal-cancel" onClick={() => setShowClearModal(false)}>Cancelar</button>
               <button className="btn-modal-submit" style={{ background: '#ef4444', boxShadow: 'none' }} onClick={confirmClearRecording}>Descartar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExitModal && (
+        <div className="modal-overlay" onClick={() => setShowExitModal(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">¿Está seguro de que desea salir?</h3>
+            <p className="modal-text">Si sale ahora, perderá la grabación actual.</p>
+            <div className="modal-actions">
+              <button className="btn-modal-cancel" onClick={() => setShowExitModal(false)}>Cancelar</button>
+              <button className="btn-modal-submit" style={{ background: '#ef4444', boxShadow: 'none' }} onClick={confirmExit}>Salir</button>
             </div>
           </div>
         </div>

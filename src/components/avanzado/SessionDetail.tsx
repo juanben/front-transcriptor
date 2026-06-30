@@ -342,7 +342,7 @@ const SessionDetail: React.FC = () => {
               value={resourcesText}
               onChange={(e) => setResourcesText(e.target.value)}
               placeholder="Escribe los recursos aquí..."
-              style={{ width: '100%', minHeight: '100px', marginTop: '1rem', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }}
+              className="modal-textarea"
             />
 
             {errorMsg && <p style={{ color: '#ef4444', marginTop: '0.5rem', fontSize: '0.875rem' }}>{errorMsg}</p>}
