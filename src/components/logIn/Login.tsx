@@ -139,7 +139,7 @@ const Login: React.FC = () => {
           {isEasyMode ? 'Modo Fácil Activo' : 'Modo Avanzado Activo'}
         </span>
       </div>
-      <p><a href="about">Acerca de ScribeLab</a></p>
+      <p><a href="about">Acerca de EscribIA</a></p>
       {errorMessage && (
         <div className="modal-overlay" onClick={() => setErrorMessage(null)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>

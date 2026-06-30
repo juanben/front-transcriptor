@@ -24,7 +24,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-between items-center px-6 py-10 bg-white dark:bg-[#16171d] text-center max-w-md mx-auto select-none transition-colors duration-300">
-      
+
       {/* 1. Avatar/Logo Central */}
       <div className="flex-1 flex flex-col items-center justify-center gap-8 w-full mt-4">
         <div className="w-36 h-36 rounded-full flex items-center justify-center bg-gradient-to-b from-[#6b7be8] to-[#8d4da8] shadow-lg border-[6px] border-slate-100/70 dark:border-slate-800/70">
@@ -36,11 +36,11 @@ const Home: React.FC = () => {
         {/* 2. Bloque de Texto Informativo (Centrado) */}
         <div className="space-y-4 w-full px-2">
           <h2 className="!text-[#1e293b] dark:!text-[#f3f4f6] text-2xl font-bold tracking-tight">
-            ¡Bienvenido a ScribeLab!
+            ¡Bienvenido a EscribIA!
           </h2>
           <p className="!text-[#475569] dark:!text-[#9ca3af] text-[15px] leading-relaxed font-normal">
-            Democratizamos la transcripción de audio y la creación de resúmenes automáticos. 
-            Inicia sesión para explorar la plataforma. Comenzarás directamente en el 
+            Democratizamos la transcripción de audio y la creación de resúmenes automáticos.
+            Inicia sesión para explorar la plataforma. Comenzarás directamente en el
             Modo Fácil, ideal para una experiencia rápida, limpia y sin complicaciones.
           </p>
           <p className="!text-[#64748b] dark:!text-[#9ca3af]/60 text-[12px] italic leading-snug">
@@ -65,14 +65,12 @@ const Home: React.FC = () => {
             role="switch"
             aria-checked={isEasyMode}
             onClick={() => setIsEasyMode(!isEasyMode)}
-            className={`relative inline-flex h-[26px] w-[50px] items-center rounded-full transition-colors duration-300 focus:outline-none ${
-              isEasyMode ? 'bg-[#5d5fef]' : 'bg-[#cbd5e1] dark:bg-slate-700'
-            }`}
+            className={`relative inline-flex h-[26px] w-[50px] items-center rounded-full transition-colors duration-300 focus:outline-none ${isEasyMode ? 'bg-[#5d5fef]' : 'bg-[#cbd5e1] dark:bg-slate-700'
+              }`}
           >
             <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-300 shadow-sm ${
-                isEasyMode ? 'translate-x-[26px]' : 'translate-x-[4px]'
-              }`}
+              className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-300 shadow-sm ${isEasyMode ? 'translate-x-[26px]' : 'translate-x-[4px]'
+                }`}
             />
           </button>
           <span className="!text-slate-800 dark:!text-slate-200 font-medium italic text-sm">
