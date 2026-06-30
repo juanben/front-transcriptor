@@ -26,11 +26,14 @@ const BasicoAudioRecorder: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const hasAutoStartedRef = useRef(false);
+  const isStartingRef = useRef(false);
 
   // Obtener información del usuario actual
   useEffect(() => {
@@ -80,10 +83,17 @@ const BasicoAudioRecorder: React.FC = () => {
   };
 
   const startRecording = async () => {
+    if (isRecording || isStartingRef.current) return;
+    isStartingRef.current = true;
     setErrorMsg(null);
     setAudioURL('');
     setAudioBlob(null);
     setRecordingTime(0);
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -121,6 +131,8 @@ const BasicoAudioRecorder: React.FC = () => {
       console.error('Error de micrófono:', err);
       setErrorMsg('No se pudo acceder al micrófono. Por favor, concede los permisos en tu navegador.');
       speakText('Error. No se pudo acceder al micrófono.');
+    } finally {
+      isStartingRef.current = false;
     }
   };
 
@@ -131,6 +143,7 @@ const BasicoAudioRecorder: React.FC = () => {
       speakText('Grabación detenida');
       if (timerRef.current) {
         clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     }
   };
@@ -164,15 +177,12 @@ const BasicoAudioRecorder: React.FC = () => {
       });
 
       speakText('Grabación guardada con éxito.');
-      alert('Grabación guardada correctamente.');
+      setShowSuccessModal(true);
 
       // Limpiar URL
       if (audioURL) {
         URL.revokeObjectURL(audioURL);
       }
-
-      // Volver a la pantalla de la sala
-      navigate(`/basico`);
     } catch (error) {
       console.error('Error al guardar sesión:', error);
       setErrorMsg('No se pudo guardar la grabación en el servidor.');
@@ -210,11 +220,29 @@ const BasicoAudioRecorder: React.FC = () => {
   };
 
   const handleCancelBack = () => {
+    if (isRecording || audioURL) {
+      speakText('¿Está seguro de que quiere cancelar? Perderá la grabación actual y no se podrá recuperar.');
+      setShowCancelModal(true);
+    } else {
+      navigate(`/basico`);
+    }
+  };
+
+  const confirmCancelBack = () => {
     if (isRecording) {
       stopRecording();
     }
-    speakText('Cancelando grabación. Volviendo al menú.');
+    if (audioURL) {
+      URL.revokeObjectURL(audioURL);
+    }
+    setShowCancelModal(false);
+    speakText('Grabación cancelada. Volviendo.');
     navigate(`/basico`);
+  };
+
+  const cancelCancelBack = () => {
+    speakText('Volviendo a la grabación.');
+    setShowCancelModal(false);
   };
 
   return (
@@ -354,6 +382,70 @@ const BasicoAudioRecorder: React.FC = () => {
                 onFocus={() => speakText('No borrar, volver')}
               >
                 Volver
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCancelModal && (
+        <div className="discard-modal-overlay">
+          <div className="discard-modal-box">
+            <h3>¿Está seguro de que quiere cancelar?</h3>
+            <p>Perderá la grabación actual y no se podrá recuperar.</p>
+            <div className="modal-actions-row">
+              <button
+                className="btn-modal-action confirm-discard-btn"
+                onClick={confirmCancelBack}
+                onFocus={() => speakText('Sí, cancelar')}
+              >
+                Sí, cancelar
+              </button>
+              <button
+                className="btn-modal-action cancel-discard-btn"
+                onClick={cancelCancelBack}
+                onFocus={() => speakText('No cancelar, volver')}
+              >
+                Volver
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSuccessModal && (
+        <div className="discard-modal-overlay">
+          <div className="discard-modal-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem', animation: 'pulse 2s infinite' }}>
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h3>Grabación guardada exitosamente</h3>
+            <p>¿Qué desea hacer a continuación?</p>
+            <div className="modal-actions-row" style={{ flexDirection: 'column', gap: '1rem' }}>
+              <button
+                className="btn-modal-action confirm-discard-btn"
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  speakText('Volviendo al menú principal');
+                  navigate('/basico');
+                }}
+                onFocus={() => speakText('Botón Volver al inicio')}
+                style={{ backgroundColor: '#4f46e5', width: '100%' }}
+              >
+                Inicio
+              </button>
+              <button
+                className="btn-modal-action cancel-discard-btn"
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  speakText('Abriendo biblioteca');
+                  navigate('/basico/salas');
+                }}
+                onFocus={() => speakText('Botón Ver en biblioteca')}
+                style={{ width: '100%' }}
+              >
+                Ver en biblioteca
               </button>
             </div>
           </div>

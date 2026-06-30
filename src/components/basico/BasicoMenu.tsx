@@ -137,24 +137,6 @@ const BasicoMenu: React.FC = () => {
               <span className="btn-giant-text">Iniciar Grabación</span>
             </button>
 
-            {/* BOTÓN 2: VER SALAS */}
-            <button
-              className="btn-giant btn-rooms"
-              onClick={() => {
-                speakText('Abriendo biblioteca');
-                navigate('/basico/salas');
-              }}
-              onFocus={() => speakText('Mi Biblioteca')}
-            >
-              <div className="btn-giant-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-              </div>
-              <span className="btn-giant-text">Mi Biblioteca</span>
-            </button>
-
             {/* BOTÓN 3: MIS GRABACIONES */}
             <button
               className="btn-giant btn-history"
@@ -166,15 +148,45 @@ const BasicoMenu: React.FC = () => {
             >
               <div className="btn-giant-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                  <polyline points="14 2 14 8 20 8" />
-                  <circle cx="10" cy="13" r="2" />
-                  <path d="M12 13v5" />
-                  <path d="M10 18h4" />
+                  {/* Estante inferior */}
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  {/* Líneas que simulan lomos de libros en un estante */}
+                  <line x1="9" y1="6" x2="9" y2="13" />
+                  <line x1="13" y1="6" x2="13" y2="13" />
+                  <line x1="17" y1="6" x2="17" y2="13" />
                 </svg>
               </div>
               <span className="btn-giant-text">Mis Grabaciones</span>
             </button>
+
+            {/* BOTÓN 2: VER SALAS */}
+            <button
+              className="btn-giant btn-rooms"
+              onClick={() => {
+                speakText('Abriendo biblioteca');
+                navigate('/basico/salas');
+              }}
+              onFocus={() => speakText('Mi Biblioteca')}
+            >
+              <div className="btn-giant-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {/* Punto/Círculo central sólido */}
+                  <circle cx="12" cy="12" r="2" fill="currentColor" />
+
+                  {/* Primer par de ondas (Internas) */}
+                  <path d="M16.24 7.76a6 6 0 0 1 0 8.49" />
+                  <path d="M7.76 16.24a6 6 0 0 1 0-8.49" />
+
+                  {/* Segundo par de ondas (Externas) */}
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                  <path d="M4.93 19.07a10 10 0 0 1 0-14.14" />
+                </svg>
+
+              </div>
+              <span className="btn-giant-text">Mi Biblioteca</span>
+            </button>
+
 
             <button
               className="btn-giant btn-history"

@@ -608,3 +608,8 @@
   background-color: #0b82a4;
   color: #ffffff;
 }
+
+.basico-recorder-screen .subview-footer {
+  margin-bottom: 2.5rem;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

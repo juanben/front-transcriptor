@@ -20,6 +20,7 @@ const BasicoOwnRecords: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string>('');
   const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
+  const [defaultRoomCode, setDefaultRoomCode] = useState<string>('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,12 +50,14 @@ const BasicoOwnRecords: React.FC = () => {
         }
 
         const roomId = defaultRoomData?.room?._id || defaultRoomData?._id;
+        const code = defaultRoomData?.room?.room_code || defaultRoomData?.room_code || '';
         if (!roomId) {
           setMyRecordings([]);
           speakText('No se encontró una sala por defecto.');
           return;
         }
         setDefaultRoomId(roomId);
+        setDefaultRoomCode(code);
 
         // 3. Traer sesiones de la sala por defecto
         const res = await sessionService.getSessionsByRoomId(roomId, user.email);
@@ -119,8 +122,13 @@ const BasicoOwnRecords: React.FC = () => {
 
       <main className="basico-menu-content" style={{ overflow: 'hidden', width: '100%', height: '100%' }}>
         <div className="accessible-subview basico-own-records-container" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
-          <div className="subview-header basico-own-records-header" style={{ alignItems: 'center', textAlign: 'center', width: '100%', marginBottom: '1rem' }}>
-            <h3 className="subview-title basico-own-records-title" style={{ width: '100%', textAlign: 'center' }}>Mis Grabaciones Guardadas</h3>
+          <div className="subview-header basico-own-records-header" style={{ alignItems: 'center', textAlign: 'center', width: '100%', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <h3 className="subview-title basico-own-records-title" style={{ width: '100%', textAlign: 'center', margin: 0 }}>Mis Grabaciones Guardadas</h3>
+            {defaultRoomCode && (
+              <span className="room-code-badge" style={{ display: 'inline-block', fontSize: '1.2rem', fontWeight: 'bold', color: '#4f46e5', background: '#f3f4f6', padding: '0.4rem 1rem', borderRadius: '12px', letterSpacing: '1px' }}>
+                Código Sala: {defaultRoomCode}
+              </span>
+            )}
           </div>
 
           <div className="basico-own-records-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', justifyContent: 'center', minHeight: 0 }}>
