@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './AvanzadoDashboard.css';
 import RoomCard, { type Session } from '../common/RoomCard';
 import AvanzadoTopBar from '../common/AvanzadoTopBar/AvanzadoTopBar';
+import MessageModal from '../common/MessageModal';
 import { userService } from '../../services/user/userService';
 import { roomService } from '../../services/room/roomService';
 import type { Room } from '../../types/rooms';
@@ -22,6 +23,17 @@ const mapJoinedRoomToSession = (room: Room): Session => {
 
 const AvanzadoDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (msg: string, title?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setModalTitle(title || '');
+    setModalMessage(msg);
+    setModalType(type);
+    setModalOpen(true);
+  };
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -136,11 +148,11 @@ const AvanzadoDashboard: React.FC = () => {
     const code = joinCode.trim();
     if (code) {
       if (joinedSessions.some(session => session.room_code === code)) {
-        alert('Ya te has unido o estás en lista de espera para esta sala.');
+        showModal('Ya te has unido o estás en lista de espera para esta sala.', 'Información', 'info');
         return;
       }
       if (sessions.some(session => session.room_code === code)) {
-        alert('No puedes unirte a tu propia sala.');
+        showModal('No puedes unirte a tu propia sala.', 'Advertencia', 'warning');
         return;
       }
 
@@ -152,7 +164,7 @@ const AvanzadoDashboard: React.FC = () => {
         setJoinCode('');
         setActiveTab('joined-rooms');
       } catch (error) {
-        alert(error instanceof Error ? error.message : 'Error al unirse a la sala');
+        showModal(error instanceof Error ? error.message : 'Error al unirse a la sala', 'Error', 'error');
       }
     }
   };
@@ -362,6 +374,15 @@ const AvanzadoDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        isBasicMode={false}
+      />
     </div>
   );
 };

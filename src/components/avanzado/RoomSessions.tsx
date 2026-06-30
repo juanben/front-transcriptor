@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SessionCard, { type RecordingSession } from '../common/SessionCard';
 import UserMenu from '../common/UserMenu';
+import MessageModal from '../common/MessageModal';
 import './AvanzadoDashboard.css';
 import './RoomSessions.css';
 import { sessionService, type Session } from '../../services/session/sessionService';
@@ -57,6 +58,18 @@ const RoomSessions: React.FC = () => {
   const navigate = useNavigate();
   const { id: roomIdFromParams } = useParams<{ id: string }>();
   const roomId = roomIdFromParams?.trim();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (msg: string, title?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setModalTitle(title || '');
+    setModalMessage(msg);
+    setModalType(type);
+    setModalOpen(true);
+  };
+
   const [sessions, setSessions] = useState<Session[]>([]);
   const [roomName, setRoomName] = useState('');
   const [roomCode, setRoomCode] = useState('');
@@ -161,7 +174,7 @@ const RoomSessions: React.FC = () => {
   const handleToggleVisibility = async (sessionId: string, newVisibility: boolean) => {
     if (!roomId || !ownerEmail) {
       const message = 'No se pudo identificar la sala o el usuario.';
-      alert(message);
+      showModal(message, 'Error', 'error');
       throw new Error(message);
     }
 
@@ -170,7 +183,7 @@ const RoomSessions: React.FC = () => {
       setSessions(prev => prev.map(s => s.session_id === sessionId ? { ...s, visible: newVisibility } : s));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al actualizar la visibilidad.';
-      alert(message);
+      showModal(message, 'Error', 'error');
       throw err;
     }
   };
@@ -178,7 +191,7 @@ const RoomSessions: React.FC = () => {
   const handleToggleShare = async (sessionId: string, newSharable: boolean) => {
     if (!roomId || !ownerEmail) {
       const message = 'No se pudo identificar la sala o el usuario.';
-      alert(message);
+      showModal(message, 'Error', 'error');
       throw new Error(message);
     }
 
@@ -187,7 +200,7 @@ const RoomSessions: React.FC = () => {
       setSessions(prev => prev.map(s => s.session_id === sessionId ? { ...s, allow_download: newSharable } : s));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al actualizar los permisos de descarga.';
-      alert(message);
+      showModal(message, 'Error', 'error');
       throw err;
     }
   };
@@ -195,7 +208,7 @@ const RoomSessions: React.FC = () => {
   const handleEditName = async (sessionId: string, newName: string) => {
     if (!roomId || !ownerEmail) {
       const message = 'No se pudo identificar la sala o el usuario.';
-      alert(message);
+      showModal(message, 'Error', 'error');
       throw new Error(message);
     }
 
@@ -204,7 +217,7 @@ const RoomSessions: React.FC = () => {
       setSessions(prev => prev.map(s => s.session_id === sessionId ? { ...s, name: newName } : s));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al actualizar el nombre de la grabación.';
-      alert(message);
+      showModal(message, 'Error', 'error');
       throw err;
     }
   };
@@ -243,12 +256,12 @@ const RoomSessions: React.FC = () => {
       ));
 
       setShowResourceModal(null);
-      alert('Recurso complementario guardado con éxito.');
+      showModal('Recurso complementario guardado con éxito.', 'Éxito', 'success');
     } catch (err) {
       if (err instanceof Error) {
-        alert(err.message || 'Error al guardar el recurso complementario.');
+        showModal(err.message || 'Error al guardar el recurso complementario.', 'Error', 'error');
       } else {
-        alert('Error al guardar el recurso complementario.');
+        showModal('Error al guardar el recurso complementario.', 'Error', 'error');
       }
     }
   };
@@ -483,6 +496,15 @@ const RoomSessions: React.FC = () => {
           </div>
         </div>
       )}
+
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        isBasicMode={false}
+      />
     </div>
   );
 };

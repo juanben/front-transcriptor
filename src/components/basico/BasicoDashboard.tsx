@@ -6,6 +6,7 @@ import { roomService } from '../../services/room/roomService';
 import { speakText } from '../../utils/speak';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
+import MessageModal from '../common/MessageModal';
 
 interface SessionItem {
   id: string;
@@ -18,6 +19,17 @@ interface SessionItem {
 
 const BasicoDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (msg: string, title?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setModalTitle(title || '');
+    setModalMessage(msg);
+    setModalType(type);
+    setModalOpen(true);
+  };
   const handleLogout = useBasicoLogout();
   const [userName, setUserName] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
@@ -157,7 +169,7 @@ const BasicoDashboard: React.FC = () => {
                     onClick={() => {
                       if (session.status === 'En lista de espera') {
                         speakText('Coleccion en lista de espera. El moderador debe aceptarte.');
-                        alert('Esta coleccion está en lista de espera. El moderador de la coleccion debe aceptarte.');
+                        showModal('Esta coleccion está en lista de espera. El moderador de la coleccion debe aceptarte.', 'Lista de espera', 'info');
                       } else {
                         speakText(`Abriendo coleccion ${session.title}`);
                         navigate('/basico/sala/' + session.id);
@@ -219,6 +231,15 @@ const BasicoDashboard: React.FC = () => {
           </div>
         </div>
       </main>
+
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        isBasicMode={true}
+      />
     </div>
   );
 };

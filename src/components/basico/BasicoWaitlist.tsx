@@ -5,6 +5,7 @@ import { userService } from '../../services/user/userService';
 import { speakText } from '../../utils/speak';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
+import MessageModal from '../common/MessageModal';
 import './BasicoMenu.css';
 import './BasicoOwnRecords.css';
 
@@ -23,6 +24,17 @@ const BasicoWaitlist: React.FC = () => {
   const stateRoomId = (location.state as any)?.roomId;
 
   const [roomId, setRoomId] = useState<string>(stateRoomId || '');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (msg: string, title?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setModalTitle(title || '');
+    setModalMessage(msg);
+    setModalType(type);
+    setModalOpen(true);
+  };
   const [waitingUsers, setWaitingUsers] = useState<WaitingUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -105,11 +117,11 @@ const BasicoWaitlist: React.FC = () => {
       await roomService.acceptAllWaitlist(roomId, ownerEmail);
       setWaitingUsers([]);
       speakText('Todos los usuarios han sido admitidos.');
-      alert('Todos los usuarios han sido admitidos.');
+      showModal('Todos los usuarios han sido admitidos.', 'Éxito', 'success');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error al admitir a todos';
       speakText(`Error. ${msg}`);
-      alert(msg);
+      showModal(msg, 'Error', 'error');
     }
   };
 
@@ -123,7 +135,7 @@ const BasicoWaitlist: React.FC = () => {
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error al admitir al usuario';
       speakText(`Error. ${msg}`);
-      alert(msg);
+      showModal(msg, 'Error', 'error');
     }
   };
 
@@ -212,6 +224,15 @@ const BasicoWaitlist: React.FC = () => {
           </div>
         </div>
       </main>
+
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        isBasicMode={true}
+      />
     </div>
   );
 };

@@ -1,0 +1,152 @@
+.message-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: messageFadeIn 0.2s ease-out;
+}
+
+.message-modal-box {
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 2rem;
+  width: 90%;
+  max-width: 440px;
+  animation: messageSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Basic mode specific layout */
+.message-modal-box.basic-layout {
+  border: 2px solid #4f46e5;
+  max-width: 500px;
+  padding: 2.5rem;
+  border-radius: 28px;
+}
+
+.message-modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.message-modal-icon {
+  animation: messagePulse 2.5s infinite;
+}
+
+.message-modal-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.message-modal-box.basic-layout .message-modal-title {
+  font-size: 1.8rem;
+}
+
+.message-modal-body {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.message-modal-text {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.message-modal-box.basic-layout .message-modal-text {
+  font-size: 1.3rem;
+  color: #334155;
+  margin-bottom: 0.75rem;
+}
+
+.message-modal-actions {
+  display: flex;
+  width: 100%;
+}
+
+.btn-message-modal-close {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background-color: #4f46e5;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  outline: none;
+}
+
+.btn-message-modal-close:hover,
+.btn-message-modal-close:focus-visible {
+  background-color: #4338ca;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+.message-modal-box.basic-layout .btn-message-modal-close {
+  width: 100%;
+  padding: 1.25rem;
+  font-size: 1.25rem;
+  border-radius: 16px;
+}
+
+/* Dark Mode support */
+@media (prefers-color-scheme: dark) {
+  .message-modal-box {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  .message-modal-title {
+    color: #f8fafc;
+  }
+  .message-modal-text {
+    color: #94a3b8;
+  }
+  .message-modal-box.basic-layout .message-modal-text {
+    color: #cbd5e1;
+  }
+}
+
+@keyframes messageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes messageSlideUp {
+  from {
+    transform: translateY(20px) scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes messagePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}

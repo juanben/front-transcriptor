@@ -4,6 +4,7 @@ import UserMenu from '../common/UserMenu';
 import './AvanzadoDashboard.css';
 import './RoomSessions.css';
 import './Waitlist.css';
+import MessageModal from '../common/MessageModal';
 import { roomService } from '../../services/room/roomService';
 import { userService } from '../../services/user/userService';
 
@@ -16,6 +17,18 @@ interface WaitingUser {
 const Waitlist: React.FC = () => {
   const navigate = useNavigate();
   const { id: roomId } = useParams<{ id: string }>();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (msg: string, title?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setModalTitle(title || '');
+    setModalMessage(msg);
+    setModalType(type);
+    setModalOpen(true);
+  };
+
   const [waitingUsers, setWaitingUsers] = useState<WaitingUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,12 +91,12 @@ const Waitlist: React.FC = () => {
     try {
       await roomService.acceptAllWaitlist(roomId, ownerEmail);
       setWaitingUsers([]);
-      alert('Todos los usuarios han sido admitidos.');
+      showModal('Todos los usuarios han sido admitidos.', 'Éxito', 'success');
     } catch (err) {
       if (err instanceof Error) {
-        alert(err.message || 'Error al admitir a todos los usuarios.');
+        showModal(err.message || 'Error al admitir a todos los usuarios.', 'Error', 'error');
       } else {
-        alert('Error al admitir a todos los usuarios.');
+        showModal('Error al admitir a todos los usuarios.', 'Error', 'error');
       }
     }
   };
@@ -95,9 +108,9 @@ const Waitlist: React.FC = () => {
       setWaitingUsers(prev => prev.filter(user => user.id !== userId));
     } catch (err) {
       if (err instanceof Error) {
-        alert(err.message || 'Error al admitir al usuario.');
+        showModal(err.message || 'Error al admitir al usuario.', 'Error', 'error');
       } else {
-        alert('Error al admitir al usuario.');
+        showModal('Error al admitir al usuario.', 'Error', 'error');
       }
     }
   };
@@ -175,6 +188,15 @@ const Waitlist: React.FC = () => {
           </div>
         )}
       </main>
+
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        isBasicMode={false}
+      />
     </div>
   );
 };

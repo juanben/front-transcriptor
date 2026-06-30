@@ -6,6 +6,7 @@ import { roomService } from '../../services/room/roomService';
 import { speakText } from '../../utils/speak';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
+import MessageModal from '../common/MessageModal';
 
 const BasicoJoinRoom: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +16,17 @@ const BasicoJoinRoom: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (msg: string, title?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setModalTitle(title || '');
+    setModalMessage(msg);
+    setModalType(type);
+    setModalOpen(true);
+  };
 
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   const recognitionRef = useRef<any>(null);
@@ -171,8 +183,7 @@ const BasicoJoinRoom: React.FC = () => {
     try {
       await roomService.joinWaitlist(code, userEmail);
       speakText('Te has unido a la lista de espera con éxito.');
-      alert('Solicitud enviada. Deberás esperar a que el moderador acepte tu ingreso.');
-      navigate('/basico/salas');
+      showModal('Solicitud enviada. Deberás esperar a que el moderador acepte tu ingreso.', 'Solicitud Enviada', 'success');
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Error al unirse a la sala';
       setErrorMsg(msg);
@@ -280,6 +291,20 @@ const BasicoJoinRoom: React.FC = () => {
           </div>
         </div>
       </main>
+
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          if (modalType === 'success') {
+            navigate('/basico/salas');
+          }
+        }}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        isBasicMode={true}
+      />
     </div>
   );
 };

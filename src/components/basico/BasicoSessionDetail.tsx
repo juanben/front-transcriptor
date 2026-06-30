@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
-import './BasicoMenu.css';
-import './BasicoSessionDetail.css';
+import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
+import MessageModal from '../common/MessageModal';
 import { speakText } from '../../utils/speak';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
-import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
+import './BasicoMenu.css';
+import './BasicoSessionDetail.css';
 
 const BasicoSessionDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +19,17 @@ const BasicoSessionDetail: React.FC = () => {
   const isEspectador = location.state?.isEspectador || false;
 
   const [session, setSession] = useState<Session | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (msg: string, title?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setModalTitle(title || '');
+    setModalMessage(msg);
+    setModalType(type);
+    setModalOpen(true);
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -92,7 +104,7 @@ const BasicoSessionDetail: React.FC = () => {
       const user = await userService.getUserMe(token);
       await sessionService.addComplementaryResources(id, sessionId, user.email, resourcesText);
 
-      alert('Recursos complementarios guardados con éxito.');
+      showModal('Recursos complementarios guardados con éxito.', 'Éxito', 'success');
       handleCloseModal();
 
       if (session) {
@@ -311,10 +323,10 @@ const BasicoSessionDetail: React.FC = () => {
                         if (link.startsWith('http')) {
                           window.open(link, '_blank');
                         } else {
-                          alert('El recurso complementario no es un enlace válido:\n\n' + link);
+                          showModal('El recurso complementario no es un enlace válido:\n\n' + link, 'Enlace no válido', 'warning');
                         }
                       } else {
-                        alert('No hay recursos complementarios para compartir.');
+                        showModal('No hay recursos complementarios para compartir.', 'Sin recursos', 'info');
                       }
                     }}
                     onFocus={() => speakText('Botón abrir recursos complementarios')}
@@ -461,6 +473,15 @@ const BasicoSessionDetail: React.FC = () => {
           </div>
         </div>
       )}
+
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        isBasicMode={true}
+      />
     </div>
   );
 };

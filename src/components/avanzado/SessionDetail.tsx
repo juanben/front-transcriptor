@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import UserMenu from '../common/UserMenu';
+import MessageModal from '../common/MessageModal';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
 import './SessionDetail.css';
@@ -16,6 +17,17 @@ const SessionDetail: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (msg: string, title?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setModalTitle(title || '');
+    setModalMessage(msg);
+    setModalType(type);
+    setModalOpen(true);
+  };
 
   const [isResourcesModalOpen, setIsResourcesModalOpen] = useState(false);
   const [isFullTextModalOpen, setIsFullTextModalOpen] = useState(false);
@@ -128,7 +140,7 @@ const SessionDetail: React.FC = () => {
       const user = await userService.getUserMe(token);
       await sessionService.addComplementaryResources(id, sessionId, user.email, resourcesText);
 
-      alert('Recursos complementarios guardados con éxito.');
+      showModal('Recursos complementarios guardados con éxito.', 'Éxito', 'success');
       handleCloseModal();
 
       if (session) {
@@ -300,7 +312,7 @@ const SessionDetail: React.FC = () => {
                   if (link.startsWith('http')) {
                     window.open(link, '_blank');
                   } else {
-                    alert('El recurso complementario no es un enlace válido:\n\n' + link);
+                    showModal('El recurso complementario no es un enlace válido:\n\n' + link, 'Enlace no válido', 'warning');
                   }
                 } else {
                   setIsNoResourcesModalOpen(true);
@@ -397,6 +409,15 @@ const SessionDetail: React.FC = () => {
           </div>
         </div>
       )}
+
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        isBasicMode={false}
+      />
     </div>
   );
 };
