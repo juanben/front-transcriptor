@@ -4,6 +4,7 @@ import UserMenu from '../common/UserMenu';
 import MessageModal from '../common/MessageModal';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
+import { API_URL } from '../../services/config';
 import './SessionDetail.css';
 
 const SessionDetail: React.FC = () => {
@@ -157,7 +158,7 @@ const SessionDetail: React.FC = () => {
     }
   };
 
-  const audioUrl = session?.record_path ? `http://localhost:8000/${session.record_path.replace(/^\/+/, '')}` : null;
+  const audioUrl = session?.record_path ? `${API_URL}/${session.record_path.replace(/^\/+/, '')}` : null;
   console.log('Audio URL:', audioUrl);
   console.log('Session Data:', session);
   const formattedDate = session?.created_at ? new Date(session.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '';

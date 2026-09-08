@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
+import { API_URL } from '../../services/config';
 import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
 import MessageModal from '../common/MessageModal';
 import { speakText } from '../../utils/speak';
@@ -170,7 +171,7 @@ const BasicoSessionDetail: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const audioUrl = session?.record_path ? `http://localhost:8000/${session.record_path.replace(/^\/+/, '')}` : null;
+  const audioUrl = session?.record_path ? `${API_URL}/${session.record_path.replace(/^\/+/, '')}` : null;
   console.log('Audio URL:', audioUrl);
   console.log('Session Data:', session);
 
