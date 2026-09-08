@@ -24,18 +24,34 @@ export const loginService = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-      if (error.response) {
-        // El backend respondió con un estado fuera del rango de 2xx
-        throw new Error(error.response.data.detail || error.response.data.message || "Credenciales inválidas" );
-      } else if (error.request) {
-        // La petición fue hecha pero no se recibió respuesta
-        throw new Error('No se pudo conectar con el servidor. Verifica tu conexión o intenta más tarde.');
-      } else {
-        // Ocurrió un error al configurar la petición
-        throw new Error('Error interno al intentar iniciar sesión.');
+        if (error.response) {
+          throw new Error(error.response.data.detail || error.response.data.message || "Credenciales inválidas" );
+        } else if (error.request) {
+          throw new Error('No se pudo conectar con el servidor. Verifica tu conexión o intenta más tarde.');
+        } else {
+          throw new Error('Error interno al intentar iniciar sesión.');
+        }
       }
+      throw new Error('Error interno al intentar iniciar sesión.');
     }
-        throw new Error('Error interno al intentar iniciar sesión.');
+  },
+
+  /**
+   * Envía el ID Token de Google al servicio de backend (/user/google-auth).
+   */
+  async loginWithGoogle(googleToken: string): Promise<LoginResponse> {
+    try {
+      const response = await apiClient.post<LoginResponse>('/user/google-auth', { token: googleToken });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          throw new Error(error.response.data.detail || error.response.data.message || "Error al autenticar con Google");
+        } else if (error.request) {
+          throw new Error('No se pudo conectar con el servidor. Verifica tu conexión.');
+        }
+      }
+      throw new Error('Error al autenticar con Google');
     }
   }
 };

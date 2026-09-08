@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// La URL base cambiará automáticamente si cambias la variable en tu .env o .env.production
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// La URL base cambiará automáticamente según el entorno (.env.development o .env.production)
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/+$/, '');
 
 export const apiClient = axios.create({
   baseURL: API_URL,

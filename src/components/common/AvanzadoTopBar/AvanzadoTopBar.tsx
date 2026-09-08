@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import UserMenu from '../UserMenu';
 import './AvanzadoTopBar.css';
 
@@ -8,7 +7,7 @@ interface AvanzadoTopBarProps {
 }
 
 const AvanzadoTopBar: React.FC<AvanzadoTopBarProps> = ({ title = 'EscribIA' }) => {
-  const navigate = useNavigate();
+
 
   return (
     <header className="room-sessions-header">

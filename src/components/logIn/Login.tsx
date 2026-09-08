@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import type { CredentialResponse } from '@react-oauth/google';
 import { loginService } from '../../services/login/loginService';
 import { userService } from '../../services/user/userService';
 
@@ -76,6 +78,36 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      setErrorMessage('No se recibió el token de autenticación de Google.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await loginService.loginWithGoogle(credentialResponse.credential);
+      if (response.session_token) {
+        localStorage.setItem('token', response.session_token);
+      }
+      handleEnter();
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message || 'Error al iniciar sesión con Google');
+      } else {
+        setErrorMessage('Error al iniciar sesión con Google');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setErrorMessage('Error al conectar con Google.');
+  };
+
   if (isCheckingSession) {
     return (
       <div className="screen" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -113,9 +145,21 @@ const Login: React.FC = () => {
           {isLoading ? 'Iniciando sesión...' : '→ Iniciar sesión'}
         </button>
       </form>
-      <p>¿No tienes cuenta? Regístrate</p>
-      <form>
+
+      <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+        <p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>O inicia sesión con:</p>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+          text="signin_with"
+          shape="pill"
+        />
+      </div>
+
+      <p style={{ marginTop: '1.5rem' }}>¿No tienes cuenta? Regístrate</p>
+      <form onSubmit={(e) => { e.preventDefault(); navigate('/signup'); }}>
         <button
+          type="button"
           onClick={() => navigate('/signup')}
           className="btn-primary" >Regístrate
         </button>

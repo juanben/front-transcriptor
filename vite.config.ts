@@ -5,6 +5,12 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   server: {
+    host: true, // o '0.0.0.0' para escuchar conexiones externas
+    allowedHosts: [
+      'escribia.epn.edu.ec',
+      'localhost',
+      '127.0.0.1'
+    ],
     hmr: {
       clientPort: 5173,
     }
@@ -13,9 +19,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      strategies: 'injectManifest', // Usaremos tu lógica de sw.js
+      strategies: 'injectManifest', // Usaremos tu lÃ³gica de sw.js
       srcDir: 'src',
-      filename: 'sw.ts', 
+      filename: 'sw.ts',
       registerType: 'autoUpdate',
       injectManifest: {
         swDest: 'dist/sw.js',
@@ -24,7 +30,7 @@ export default defineConfig({
         id: "TrancriptorPWAJSBC",
         name: "Grabador de Voz PWA",
         short_name: "Grabador Voz",
-        description: "Una aplicación Progressive Web App para grabar, reproducir y descargar notas de voz",
+        description: "Una aplicaciÃ³n Progressive Web App para grabar, reproducir y descargar notas de voz",
         theme_color: "#667eea",
         background_color: "#667eea",
         display: "standalone",

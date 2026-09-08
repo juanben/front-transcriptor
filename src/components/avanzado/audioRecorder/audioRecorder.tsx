@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import * as QRCodeModule from 'react-qr-code'
 import UserMenu from '../../common/UserMenu'
@@ -23,6 +23,7 @@ const AudioRecorder: React.FC = () => {
   const [audioURL, setAudioURL] = useState<string>('')
   const [recordingTime, setRecordingTime] = useState(0)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const wakeLockRef = useRef<any>(null)
   const [showQR, setShowQR] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [showClearModal, setShowClearModal] = useState(false)
@@ -30,9 +31,54 @@ const AudioRecorder: React.FC = () => {
   const [pendingNavigationPath, setPendingNavigationPath] = useState<string | number | null>(null)
   const accessCode = code || id || ''
 
+  const requestWakeLock = async () => {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLockRef.current = await (navigator as any).wakeLock.request('screen')
+        console.log('Screen Wake Lock adquirido en grabador avanzado')
+      } catch (err) {
+        console.error('Error al solicitar Screen Wake Lock:', err)
+      }
+    }
+  }
+
+  const releaseWakeLock = async () => {
+    if (wakeLockRef.current) {
+      try {
+        await wakeLockRef.current.release()
+        wakeLockRef.current = null;
+        console.log('Screen Wake Lock liberado en grabador avanzado')
+      } catch (err) {
+        console.error('Error al liberar Screen Wake Lock:', err)
+      }
+    }
+  }
+
+  // Manejo de la visibilidad de página para re-adquirir Wake Lock
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && isRecording) {
+        await requestWakeLock()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().then(() => {
+          wakeLockRef.current = null
+        }).catch((err: any) => console.error('Error al liberar Wake Lock al desmontar:', err))
+      }
+    }
+  }, [isRecording])
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      
+      await requestWakeLock()
+      
       audioContextRef.current = new window.AudioContext()
       const mediaRecorder = new MediaRecorder(stream)
       mediaRecorderRef.current = mediaRecorder
@@ -73,6 +119,7 @@ const AudioRecorder: React.FC = () => {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
       if (timerRef.current) clearInterval(timerRef.current)
+      releaseWakeLock()
     }
   }
 

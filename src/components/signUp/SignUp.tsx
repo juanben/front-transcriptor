@@ -10,6 +10,7 @@ const SignUp: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,10 +28,10 @@ const SignUp: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      await userService.signUp({ name, email, password });
-
-      // Si el registro fue correcto, redirigimos a login para que inicie sesión
-      navigate('/login');
+      const response = await userService.signUp({ name, email, password });
+      const registeredName = response.name || name;
+      
+      setSuccessMessage(`Estimado ${registeredName} revisar tu correo electrónico para activar tu cuenta`);
     } catch (error) {
       if (error instanceof Error) {
         setErrorMessage(error.message || 'Error al registrar usuario');
@@ -40,6 +41,11 @@ const SignUp: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setSuccessMessage(null);
+    navigate('/login');
   };
 
   return (
@@ -91,6 +97,7 @@ const SignUp: React.FC = () => {
         </button>
 
         <button
+          type="button"
           onClick={() => navigate('/login')}
           className="btn-primary" >Volver
         </button>
@@ -108,6 +115,24 @@ const SignUp: React.FC = () => {
                 className="btn-modal-submit"
                 style={{ background: '#ef4444', boxShadow: 'none' }}
                 onClick={() => setErrorMessage(null)}
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="modal-overlay" onClick={handleCloseSuccessModal}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title" style={{ color: '#10b981' }}>Registro Exitoso</h3>
+            <p className="modal-text">{successMessage}</p>
+            <div className="modal-actions" style={{ justifyContent: 'center' }}>
+              <button
+                className="btn-modal-submit"
+                style={{ background: '#10b981', boxShadow: 'none' }}
+                onClick={handleCloseSuccessModal}
               >
                 Entendido
               </button>

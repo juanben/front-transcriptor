@@ -183,13 +183,15 @@ const BasicoDashboard: React.FC = () => {
                     </div>
                     <div className="room-icon-container">
                       {session.isOwn ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="room-type-icon own-room" title="Colección propia">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="room-type-icon own-room">
+                          <title>Colección propia</title>
                           <circle cx="7.5" cy="15.5" r="5.5" />
                           <path d="m21 2-9.6 9.6" />
                           <path d="m15.5 7.5 3 3L22 7l-3-3" />
                         </svg>
                       ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="room-type-icon joined-room" title="Colección compartida">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="room-type-icon joined-room">
+                          <title>Colección compartida</title>
                           <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                           <circle cx="12" cy="7" r="4" />
                         </svg>

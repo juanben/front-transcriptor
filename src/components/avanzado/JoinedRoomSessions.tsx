@@ -141,7 +141,7 @@ const JoinedRoomSessions: React.FC = () => {
       id: session.session_id,
       title: session.name,
       date: session.created_at.split('T')[0],
-      duration: 'N/A',
+      duration: 0,
       isVisible: session.visible,
       isProcessing: ['processing', 'pending', 'transcribing'].includes(session.status),
       isSharable: session.allow_download,

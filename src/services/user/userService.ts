@@ -8,6 +8,11 @@ export interface SignUpData {
 }
 
 export interface SignUpResponse {
+  user_id?: string;
+  name?: string;
+  email?: string;
+  confirm_code?: string;
+  confirm_url?: string;
   message?: string;
   user?: unknown;
 }

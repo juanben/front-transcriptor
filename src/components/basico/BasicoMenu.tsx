@@ -6,22 +6,13 @@ import './BasicoMenu.css';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
 
-interface RoomItem {
-  id: string;
-  name: string;
-  code: string;
-}
-
 const BasicoMenu: React.FC = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string>('');
 
   // Estados para vistas secundarias
-  const [viewState, setViewState] = useState<'menu' | 'select-room'>('menu');
-  const [rooms] = useState<RoomItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [viewState] = useState<'menu' | 'select-room'>('menu');
   const [showAdvancedConfirm, setShowAdvancedConfirm] = useState(false);
 
   // Cargar información del usuario
@@ -65,8 +56,6 @@ const BasicoMenu: React.FC = () => {
   // Crear o recuperar la sala por defecto y navegar al grabador
   const handleStartRecordingClick = async () => {
     speakText('Iniciando grabación en sala por defecto.');
-    setIsLoading(true);
-    setErrorMsg(null);
 
     try {
       let roomData;
@@ -90,15 +79,10 @@ const BasicoMenu: React.FC = () => {
       navigate(`/basico/grabar/${defaultRoomId}`, { state: { roomName: defaultRoomName, roomCode: defaultRoomCode, autoStart: true } });
     } catch (error) {
       console.error('Error al iniciar grabación en sala por defecto:', error);
-      setErrorMsg('Error al preparar la sala de grabación.');
-      setIsLoading(false);
     }
   };
 
-  const selectRoomForRecording = (room: RoomItem) => {
-    speakText(`Sala seleccionada: ${room.name}. Abriendo grabador.`);
-    navigate(`/basico/grabar/${room.id}`, { state: { roomName: room.name, roomCode: room.code, autoStart: true } });
-  };
+
 
 
 
