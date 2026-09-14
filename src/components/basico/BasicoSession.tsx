@@ -133,6 +133,21 @@ const BasicoSession: React.FC = () => {
                         <span className="recording-date">
                           Fecha: {session.created_at ? (session.created_at.includes('T') ? session.created_at.split('T')[0] : session.created_at.split(' ')[0]) : 'Fecha no disponible'}
                         </span>
+                        <span className={`recording-status-badge ${
+                          (session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
+                            ? 'status-completed'
+                            : (session.status?.toLowerCase() === 'failed' || session.status?.toLowerCase() === 'error' || session.status?.toLowerCase() === 'fallado')
+                            ? 'status-failed'
+                            : 'status-processing'
+                        }`}>
+                          Estado: {
+                            (session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
+                              ? 'Completado'
+                              : (session.status?.toLowerCase() === 'failed' || session.status?.toLowerCase() === 'error' || session.status?.toLowerCase() === 'fallado')
+                              ? 'Error'
+                              : 'Procesando'
+                          }
+                        </span>
                       </div>
                       <div className={`recording-action-icon ${
                         (session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
@@ -156,15 +171,6 @@ const BasicoSession: React.FC = () => {
                             <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
                           </svg>
                         )}
-                        <span className="recording-status">
-                          Estado: {
-                            (session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
-                              ? 'Completado'
-                              : (session.status?.toLowerCase() === 'failed' || session.status?.toLowerCase() === 'error' || session.status?.toLowerCase() === 'fallado')
-                              ? 'Error'
-                              : 'Procesando'
-                          }
-                        </span>
                       </div>
                     </button>
 

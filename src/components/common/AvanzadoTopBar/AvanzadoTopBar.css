@@ -40,6 +40,15 @@
   margin-left: auto;
 }
 
+@media (max-width: 640px) {
+  .avanzado-title-text {
+    font-size: 1.6rem;
+  }
+  .avanzado-subtitle-text {
+    font-size: 0.75rem;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .avanzado-title-text {
     color: #d1d5db;

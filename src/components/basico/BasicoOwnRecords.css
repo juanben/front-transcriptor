@@ -100,25 +100,44 @@
 .recording-action-icon.status-completed {
   color: #10b981 !important; /* Emerald green */
 }
-.recording-action-icon.status-completed .recording-status {
-  color: #10b981 !important;
+
+.recording-status-badge {
+  font-size: 0.9rem;
   font-weight: 700;
+  margin-top: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.recording-status-badge.status-completed {
+  color: #059669 !important;
+  background-color: #ecfdf5;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .recording-action-icon.status-processing {
   color: #d97706 !important; /* Amber yellow */
 }
-.recording-action-icon.status-processing .recording-status {
+
+.recording-status-badge.status-processing {
   color: #d97706 !important;
-  font-weight: 700;
+  background-color: #fffbeb;
+  border: 1px solid rgba(217, 119, 6, 0.25);
 }
 
 .recording-action-icon.status-failed {
   color: #ef4444 !important; /* Crimson red */
 }
-.recording-action-icon.status-failed .recording-status {
-  color: #ef4444 !important;
-  font-weight: 700;
+
+.recording-status-badge.status-failed {
+  color: #dc2626 !important;
+  background-color: #fef2f2;
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 /* Modo oscuro para colores de estado */
@@ -126,22 +145,62 @@
   .recording-action-icon.status-completed {
     color: #34d399 !important; /* Dark mode light green */
   }
-  .recording-action-icon.status-completed .recording-status {
+
+  .recording-status-badge.status-completed {
     color: #34d399 !important;
+    background-color: rgba(16, 185, 129, 0.15);
+    border-color: rgba(52, 211, 153, 0.3);
   }
 
   .recording-action-icon.status-processing {
     color: #fbbf24 !important; /* Dark mode light yellow */
   }
-  .recording-action-icon.status-processing .recording-status {
+
+  .recording-status-badge.status-processing {
     color: #fbbf24 !important;
+    background-color: rgba(217, 119, 6, 0.15);
+    border-color: rgba(251, 191, 36, 0.3);
   }
 
   .recording-action-icon.status-failed {
     color: #f87171 !important; /* Dark mode light red */
   }
-  .recording-action-icon.status-failed .recording-status {
+
+  .recording-status-badge.status-failed {
     color: #f87171 !important;
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: rgba(248, 113, 113, 0.3);
+  }
+}
+
+/* Ajustes móviles para tarjetas */
+@media (max-width: 480px) {
+  .recording-item-row {
+    gap: 0.6rem;
+  }
+
+  .btn-item-giant.recording-item {
+    padding: 1.2rem 1rem;
+  }
+
+  .btn-delete-giant {
+    padding: 1.2rem 1rem;
+    min-width: 60px;
+    border-radius: 16px;
+  }
+
+  .btn-delete-giant svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .recording-name {
+    font-size: 1.15rem;
+  }
+
+  .recording-date,
+  .recording-status-badge {
+    font-size: 0.88rem;
   }
 }
 

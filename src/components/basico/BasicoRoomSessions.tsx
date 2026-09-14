@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { sessionService, type Session } from '../../services/session/sessionService';
 import { userService } from '../../services/user/userService';
 import './BasicoMenu.css';
+import './BasicoOwnRecords.css';
 import { speakText } from '../../utils/speak';
 import { useBasicoLogout } from '../../hooks/useBasicoLogout';
 import BasicoTopMenu from '../common/BasicoTopBar/BasicoTopMenu';
@@ -103,7 +104,9 @@ const EspectadorRoomSessions: React.FC = () => {
                     <div className="recording-details">
                       <span className="recording-name">{session.name}</span>
                       <span className="recording-date">Fecha: {session.created_at.split('T')[0]}</span>
-                      <span className="recording-status">Estado: {session.status === 'completed' ? 'Completado' : 'Procesando'}</span>
+                      <span className={`recording-status-badge ${session.status === 'completed' || session.status === 'completado' ? 'status-completed' : session.status === 'failed' || session.status === 'error' ? 'status-failed' : 'status-processing'}`}>
+                        Estado: {session.status === 'completed' || session.status === 'completado' ? 'Completado' : session.status === 'failed' || session.status === 'error' ? 'Error' : 'Procesando'}
+                      </span>
                     </div>
                     <div className="recording-action-icon">
                       {session.status === 'processing' || session.status === 'procesando' ? (

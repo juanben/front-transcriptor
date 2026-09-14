@@ -46,21 +46,21 @@ const UserMenu: React.FC = () => {
 
   return (
     <div className="user-menu-container relative inline-block" ref={menuRef}>
-      <button 
-        className="btn-user-profile flex items-center gap-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 px-4 py-2 rounded-full cursor-pointer font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none"
+      <button
+        className="btn-user-profile flex items-center gap-2 bg-gray-100 dark:bg-gray-800 border border-gray-400 dark:border-gray-700 px-1.5 py-1.5 sm:px-4 sm:py-2 rounded-full cursor-pointer font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
-        title="Perfil de usuario"
+        title={userName}
       >
-        <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+        <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm flex-shrink-0">
           {userName.charAt(0).toUpperCase()}
         </div>
-        <span>{userName}</span>
+
       </button>
 
       {isOpen && (
         <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 min-w-[170px] overflow-hidden">
           {/* Cambiar a Modo Básico */}
-          <button 
+          <button
             onClick={() => {
               setIsOpen(false);
               setShowBasicConfirm(true);
@@ -79,7 +79,7 @@ const UserMenu: React.FC = () => {
           <div className="border-t border-gray-100 dark:border-gray-700" />
 
           {/* Cerrar Sesión */}
-          <button 
+          <button
             onClick={() => {
               setIsOpen(false);
               setShowLogoutModal(true);
@@ -95,10 +95,10 @@ const UserMenu: React.FC = () => {
           </button>
         </div>
       )}
-      <LogoutConfirmModal 
-        isOpen={showLogoutModal} 
-        onClose={() => setShowLogoutModal(false)} 
-        onConfirm={handleLogout} 
+      <LogoutConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
       />
 
       {showBasicConfirm && (
@@ -112,22 +112,22 @@ const UserMenu: React.FC = () => {
               </svg>
               <h3 className="logout-modal-title">Cambiar a Modo Fácil</h3>
             </div>
-            
+
             <p className="logout-modal-text" style={{ fontSize: '1rem', color: '#64748b', marginTop: '0.5rem' }}>
               ¿Está seguro de que quiere cambiar al modo Básico? Este modo está optimizado para un uso más simple y asistido. Tenga en cuenta que solo podrá interactuar con las funciones esenciales.
             </p>
-            
+
             <div className="logout-modal-actions">
-              <button 
+              <button
                 type="button"
-                className="btn-logout-modal-cancel" 
+                className="btn-logout-modal-cancel"
                 onClick={() => setShowBasicConfirm(false)}
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 type="button"
-                className="btn-logout-modal-confirm" 
+                className="btn-logout-modal-confirm"
                 onClick={() => {
                   setShowBasicConfirm(false);
                   navigate('/basico');

@@ -110,7 +110,7 @@ const BasicoOwnRecords: React.FC = () => {
     <div className="basico-menu-screen">
       <BasicoTopMenu
         title="Mis Grabaciones"
-        subtitle={`Usuario: ${userName}`}
+        subtitle={`Grabaciones de ${userName}`}
         onBackClick={() => {
           speakText('Regresando al menú principal');
           navigate('/basico');
@@ -156,14 +156,27 @@ const BasicoOwnRecords: React.FC = () => {
                         <span className="recording-date">
                           Fecha: {session.created_at ? (session.created_at.includes('T') ? session.created_at.split('T')[0] : session.created_at.split(' ')[0]) : 'Fecha no disponible'}
                         </span>
-                      </div>
-                      <div className={`recording-action-icon ${
-                        (session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
+                        <span className={`recording-status-badge ${(session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
                           ? 'status-completed'
                           : (session.status?.toLowerCase() === 'failed' || session.status?.toLowerCase() === 'error' || session.status?.toLowerCase() === 'fallado')
+                            ? 'status-failed'
+                            : 'status-processing'
+                          }`}>
+                          Estado: {
+                            (session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
+                              ? 'Completado'
+                              : (session.status?.toLowerCase() === 'failed' || session.status?.toLowerCase() === 'error' || session.status?.toLowerCase() === 'fallado')
+                                ? 'Error'
+                                : 'Procesando'
+                          }
+                        </span>
+                      </div>
+                      <div className={`recording-action-icon ${(session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
+                        ? 'status-completed'
+                        : (session.status?.toLowerCase() === 'failed' || session.status?.toLowerCase() === 'error' || session.status?.toLowerCase() === 'fallado')
                           ? 'status-failed'
                           : 'status-processing'
-                      }`}>
+                        }`}>
                         {(session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado') ? (
                           <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
@@ -179,15 +192,6 @@ const BasicoOwnRecords: React.FC = () => {
                             <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
                           </svg>
                         )}
-                        <span className="recording-status">
-                          Estado: {
-                            (session.status?.toLowerCase() === 'completed' || session.status?.toLowerCase() === 'completado')
-                              ? 'Completado'
-                              : (session.status?.toLowerCase() === 'failed' || session.status?.toLowerCase() === 'error' || session.status?.toLowerCase() === 'fallado')
-                              ? 'Error'
-                              : 'Procesando'
-                          }
-                        </span>
                       </div>
                     </button>
 

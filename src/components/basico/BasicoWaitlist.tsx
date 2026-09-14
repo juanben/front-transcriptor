@@ -85,15 +85,15 @@ const BasicoWaitlist: React.FC = () => {
         const waitlistData = data.waitlist || data;
         const mappedUsers: WaitingUser[] = Array.isArray(waitlistData)
           ? waitlistData.map((item: any, index: number) => {
-              if (typeof item === 'string') {
-                return { id: String(index), name: item.split('@')[0], email: item };
-              }
-              return {
-                id: item.id || item._id || String(index),
-                name: item.name || item.email?.split('@')[0] || 'Usuario',
-                email: item.email || ''
-              };
-            }).filter(u => u.email)
+            if (typeof item === 'string') {
+              return { id: String(index), name: item.split('@')[0], email: item };
+            }
+            return {
+              id: item.id || item._id || String(index),
+              name: item.name || item.email?.split('@')[0] || 'Usuario',
+              email: item.email || ''
+            };
+          }).filter(u => u.email)
           : [];
 
         setWaitingUsers(mappedUsers);
@@ -143,7 +143,7 @@ const BasicoWaitlist: React.FC = () => {
     <div className="basico-menu-screen">
       <BasicoTopMenu
         title="Lista de Espera"
-        subtitle={`Usuario: ${userName}`}
+        subtitle={`Invitados de ${userName}`}
         onBackClick={() => {
           speakText('Regresando a mis grabaciones');
           navigate('/basico/ownRecords');
@@ -160,9 +160,9 @@ const BasicoWaitlist: React.FC = () => {
           <div className="subview-header basico-own-records-header" style={{ alignItems: 'center', textAlign: 'center', width: '100%', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <h3 className="subview-title basico-own-records-title" style={{ width: '100%', textAlign: 'center' }}>Personas Esperando Ingresar</h3>
             {waitingUsers.length > 0 && !isLoading && !errorMsg && (
-              <button 
-                className="btn-join-giant" 
-                style={{ padding: '1rem 1.5rem', fontSize: '1.1rem', maxWidth: '280px', marginTop: '0.5rem' }} 
+              <button
+                className="btn-join-giant"
+                style={{ padding: '1rem 1.5rem', fontSize: '1.1rem', maxWidth: '280px', marginTop: '0.5rem' }}
                 onClick={handleAdmitAll}
                 onFocus={() => speakText('Botón admitir a todos')}
               >
