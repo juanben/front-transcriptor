@@ -19,12 +19,16 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      strategies: 'injectManifest', // Usaremos tu lÃ³gica de sw.js
+      strategies: 'injectManifest', // Usaremos tu lógica de sw.js
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
       injectManifest: {
         swDest: 'dist/sw.js',
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
       },
       manifest: {
         id: "TrancriptorPWAJSBC",

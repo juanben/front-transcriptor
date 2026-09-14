@@ -486,7 +486,7 @@ const BasicoAudioRecorder: React.FC = () => {
                 onClick={() => {
                   setShowSuccessModal(false);
                   speakText('Abriendo biblioteca');
-                  navigate('/basico/salas');
+                  navigate('/basico/ownRecords');
                 }}
                 onFocus={() => speakText('Botón Ver en biblioteca')}
                 style={{ width: '100%' }}

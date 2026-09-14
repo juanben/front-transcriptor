@@ -216,44 +216,54 @@
 /* Login styles */
 .screen {
   width: 100vw;
-  height: 100vh;
-  padding: 2rem 2.25rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100%;
+  padding-top: max(2.5rem, calc(1.5rem + env(safe-area-inset-top, 0px)));
+  padding-bottom: max(2rem, calc(1.5rem + env(safe-area-inset-bottom, 0px)));
+  padding-left: 2rem;
+  padding-right: 2rem;
   margin: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   z-index: 50;
   color: #1f2937;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .screen .logo {
-  width: 8rem;
-  height: 8rem;
-  line-height: 4rem;
+  width: 7rem;
+  height: 7rem;
+  line-height: 3.5rem;
   border-radius: 20%;
   text-align: center;
   font-weight: 900;
   font-size: 1.5rem;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto 1.25rem;
   color: #ffffff;
   background: linear-gradient(135deg, #667eea, #764ba2);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .screen h1 {
-  margin: 0 0 2rem;
+  margin: 0 0 1.5rem;
   text-align: center;
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
   color: #111827;
+  flex-shrink: 0;
 }
 
 .screen form {
@@ -336,11 +346,21 @@
 
 @media (max-width: 550px) {
   .screen {
-    padding: 2rem 1.5rem;
+    padding-top: max(2rem, calc(1.25rem + env(safe-area-inset-top, 0px)));
+    padding-bottom: max(1.5rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .screen .logo {
+    width: 5.5rem;
+    height: 5.5rem;
+    margin-bottom: 1rem;
   }
 
   .screen h1 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
   }
 }
 
